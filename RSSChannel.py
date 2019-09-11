@@ -9,19 +9,39 @@ class RSSChannel:
     #Content
     items = []
 
-    #Optional
     language = "en-us"
-    copyright = None
-    managingEditor = None
-    webMaster = None
-    pubDate = datetime.datetime.now()
-    lastBuildDate = datetime.datetime.now()
-    category = None
-    generator = None
+    pubDate = None
+    lastBuildDate = None
+    generator = "https://github.com/k-barber/RSS-Manager"
     docs = "https://validator.w3.org/feed/docs/rss2.html"
-    cloud = None
-    ttl = None
+    ttl = 60
     image = None
-    textInput = None
-    skipHours = None
-    skipDates = None
+
+    def __str__(self):
+        output = "<channel>\n"
+        if (self.title is not None):
+            output += "<title>" + self.title + "</title>\n"
+        if (self.link is not None):
+            output += "<link>" + self.link + "</link>\n"
+        if (self.description is not None):
+            output += "<description>" + self.description + "</description>\n"
+        if (self.language is not None):
+            output += "<language>" + self.language + "</language>\n"
+        if (self.ttl is not None):
+            output += "<ttl>" + self.ttl + "</ttl>\n"
+        output +="</channel>"
+        return output
+
+
+    def __init__(self, data):
+        for line in data:
+            if line.startswith('title:'):
+                self.title = line[6:].strip()
+            if line.startswith('link:'):
+                self.link = line[5:].strip()
+            if line.startswith('description:'):
+                self.description = line[12:].strip()
+            if line.startswith('language:'):
+                self.language = line[9:].strip()
+            if line.startswith('ttl:'):
+                self.ttl = line[4:].strip()
