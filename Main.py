@@ -9,16 +9,60 @@ Debug = True
 
 channels = []
 
+top = '''
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/Pages/styles.css">
+    <title>RSS-Manager: Feeds</title>
+</head>
+
+<body>
+    <a href="/"><img src="/Bocchi.png" id="bocchi"/></a>
+    <div id="container">
+        <div>
+            <a href="https://validator.w3.org/feed/docs/rss2.html" target="_blank"><img id="icon" src="/RSS.png"></a>
+            <p><a href="/">Home</a> &gt; Feeds</p>
+            <h1>K-Barber's RSS-Manager: Feeds</h1>
+            <p>A list of your feeds:</p>
+            <ul>
+'''
+
+bottom = '''
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+'''
+
+def save_feeds():
+    f = open("Pages/Feeds.html", "wb")
+    output = top
+    for channel in channels:
+        title = channel.title.replace(":", "~").replace(" ", "_")
+        output += '''                <li>
+                    <a href="/Feeds/''' + title + '.xml">' + title + '''.xml</a>
+                </li>
+'''
+    output += bottom
+    f.write(str.encode(output))
+    f.close()
+
+
 with  open('Feed_Definitions.txt') as fp:
     for key,group in it.groupby(fp,lambda line: line.startswith('~-~-~-~-')):
         if not key:
             group = list(group)
             channels.append(RSSChannel(group))
 
-while True:
-    for channel in channels:
-        print(channel)
-        channel.generate_items()
-        channel.save_feed()
-    print("Waiting 5 Minutes")
-    time.sleep(300)
+#while True:
+for channel in channels:
+    print(channel)
+    channel.generate_items()
+    channel.save_feed()
+save_feeds()
+    #print("Waiting 5 Minutes")
+    #time.sleep(300)
