@@ -183,7 +183,7 @@ class RSSChannel:
 
         output += "</rss>"
 
-        f = open("Feeds/" + self.title.replace(":", "~") + ".xml", "wb")
+        f = open("Feeds/" + self.title.replace(":", "~").replace(" ", "_") + ".xml", "wb")
         f.write(str.encode(output))
         f.close()
 
