@@ -37,7 +37,7 @@ class RSSItem:
         if (self.title is not None):
             output += "<title>" + self.title + "</title>\n"
         if (self.link is not None):
-            output += "<link>" + self.link + "</link>\n"
+            output += "<link>" + self.link.replace("&", "&amp;") + "</link>\n"
         if (self.description is not None):
             output += "<description>" + self.description + "</description>\n"
         if (self.guid is not None):

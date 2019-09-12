@@ -2,7 +2,7 @@ import datetime
 import requests
 from RSSItem import RSSItem
 
-Debug = True
+Debug = False
 
 class RSSChannel:
     #Required
@@ -35,7 +35,7 @@ class RSSChannel:
         if (self.title is not None):
             output += "<title>" + self.title + "</title>\n"
         if (self.link is not None):
-            output += "<link>" + self.link + "</link>\n"
+            output += "<link>" + self.link.replace("&", "&amp;") + "</link>\n"
         if (self.description is not None):
             output += "<description>" + self.description + "</description>\n"
         if (self.language is not None):
@@ -192,10 +192,12 @@ class RSSChannel:
             return
         if (self.link == "https://www.w3.org/about"):
             return
+        if (len(self.items) > 0):
+            self.items = []
         start_pattern = self.item_pattern[:self.item_pattern.find("{")]
         stop_pattern = self.item_pattern[self.item_pattern.rfind("}")+1:]
-        print(start_pattern)
-        print(stop_pattern)
+        if(Debug): print(start_pattern)
+        if(Debug): print(stop_pattern)
 
         response = requests.get(self.link)
         text = response.text
