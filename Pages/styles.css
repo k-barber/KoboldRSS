@@ -68,3 +68,10 @@ h1 {
     transform: rotate(30deg);
     left: 600px;
 }
+
+#bocchi{
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    width: 200px;
+}
