@@ -8,6 +8,7 @@ PORT_NUMBER = 8000
 urls ={
     "/":["Pages/Main.html", "text/html"],
     "/Bocchi.png":["Bocchi.png", "image/png"],
+    "/res/preview.xsl":["Pages/preview.xsl", "text/html"],
     "/RSS.png":["RSS.png", "image/png"],
     "/Feeds/" :["Pages/Feeds.html", "text/html"],
     "/favicon.ico": ["favicon.ico", "image/x-icon"],
