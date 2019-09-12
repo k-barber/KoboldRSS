@@ -58,3 +58,13 @@ h1 {
     margin-top: 0px;
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
+
+#callout {
+    position: absolute;
+    -ms-transform: rotate(30deg);
+    /* IE 9 */
+    -webkit-transform: rotate(30deg);
+    /* Safari prior 9.0 */
+    transform: rotate(30deg);
+    left: 600px;
+}
