@@ -2,7 +2,7 @@ import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 
-HOST_NAME = '0.0.0.0' # !!!REMEMBER TO CHANGE THIS!!!
+HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
 PORT_NUMBER = 8000
 
 urls ={
