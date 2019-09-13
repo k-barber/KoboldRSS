@@ -28,14 +28,12 @@
                 <table>
                     <tr>
                     <th>Title</th>
-                    <th>GUID</th>
                     <th>Link</th>
                     <th>Description</th>
                     </tr>
                     <xsl:for-each select="item">
                         <tr>
                             <td><p><xsl:value-of select="title"/></p></td>
-                            <td><xsl:value-of select="guid"/></td>
                             <xsl:variable name="hyperlink"><xsl:value-of select="link" /></xsl:variable>
                             <td><a href="{$hyperlink}"><xsl:value-of select="link"/></a></td>
                             <td><p class="description"><xsl:value-of select="description"/></p></td>
