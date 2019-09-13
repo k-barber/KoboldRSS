@@ -10,63 +10,137 @@ class RSSChannel:
     link = "https://www.w3.org/about"
     description = "Default Description"
     
+    #Optional
+    category = None
+    copyright = None
+    docs = "http://www.rssboard.org/rss-draft-1"
+    domain = None
+    generator = "https://github.com/k-barber/RSS-Manager"
+    image_link = None
+    image_title = None
+    image_url = None
+    language = "en-us"
+    lastBuildDate = datetime.datetime.now()
+    managingEditor = None
+    pubDate = datetime.datetime.now()
+    ttl = 60
+    webMaster = None
+
     #Content
     items = []
 
-    #Optional
-    language = "en-us"
-    pubDate = datetime.datetime.now()
-    lastBuildDate = datetime.datetime.now()
-    generator = "https://github.com/k-barber/RSS-Manager"
-    docs = "https://validator.w3.org/feed/docs/rss2.html"
-    ttl = 60
-    image = None
-    domain = None
-
-    #Item Definition
+    #Item Definition - Required
     item_pattern = None
     item_title = None
     item_link = None
     item_description = None
+
+    #Item Definition - Optional
+    item_author = None
+    item_category = None
+    item_comments = None
+    item_enclosure = None
     item_guid = None
+    item_pubDate = None
+    item_source = None
 
     def __str__(self):
-        output = "<channel>\n"
+        output = "    <channel>\n"
+
+        # Required 
         if (self.title is not None):
-            output += "<title>" + self.title + "</title>\n"
+            output += "        <title>" + self.title + "</title>\n"
         if (self.link is not None):
-            output += "<link>" + self.link.replace("&", "&amp;") + "</link>\n"
+            output += "        <link>" + self.link.replace("&", "&amp;") + "</link>\n"
         if (self.description is not None):
-            output += "<description>" + self.description + "</description>\n"
+            output += "        <description>" + self.description + "</description>\n"
+
+        # Optional
+        if (self.category is not None):
+            output += "        <category>" + self.category + "</category>\n"
+        if (self.copyright is not None):
+            output += "        <copyright>" + self.copyright + "</copyright>\n"
+        if (self.docs is not None):
+            output += "        <docs>" + self.docs + "</docs>\n"
+        if (self.generator is not None):
+            output += "        <generator>" + self.generator + "</generator>\n"
+        if (self.image_link is not None and self.image_title is not None and self.image_url is not None):
+            output += "        <image>\n"
+            output += "            <link>" + self.image_link + "</link>\n"
+            output += "            <title>" + self.image_title + "</title>\n"
+            output += "            <url>" + self.image_url + "</url>\n"
+            output += "        </image>\n"
         if (self.language is not None):
-            output += "<language>" + self.language + "</language>\n"
+            output += "        <language>" + self.language + "</language>\n"
+        if (self.lastBuildDate is not None):
+            output += "        <lastBuildDate>" + str(self.lastBuildDate) + "</lastBuildDate>\n"
+        if (self.managingEditor is not None):
+            output += "        <managingEditor>" + self.managingEditor + "</managingEditor>\n"
+        if (self.pubDate is not None):
+            output += "        <pubDate>" + str(self.pubDate) + "</pubDate>\n"
         if (self.ttl is not None):
-            output += "<ttl>" + self.ttl + "</ttl>\n"
+            output += "        <ttl>" + str(self.ttl) + "</ttl>\n"
+        if (self.webMaster is not None):
+            output += "        <webMaster>" + self.webMaster + "</webMaster>\n"
+        
         if (len(self.items) != 0):
             for item in self.items:
                 output += str(item)
-        output +="</channel>"
+        output +="    </channel>\n"
         return output
 
     def print(self):
-        print("Title: " + self.title)
-        print("Link: " + self.link)
-        print("Description: " + self.description)
-        print("Language: " + self.language)
-        print("PubDate: " + str(self.pubDate))
-        print("BildDate: " + str(self.lastBuildDate))
-        print("Generator: " + self.generator)
-        print("Doc: " + self.docs)
-        print("Ttl: " + str(self.ttl))
-        print("Image: " + str(self.image))
-        print("Item Pattern: " + str(self.item_pattern) + "\n")
-        print("item_title: " + str(self.item_title) + "\n")
-        print("item_link: " + str(self.item_link) + "\n")
-        print("item_description: " + str(self.item_description) + "\n")
-        print("item_guid: " + str(self.item_guid) + "\n")
+        #Required
+        print("Title: " + str(self.title))
+        print("Link: " + str(self.link))
+        print("Description: " + str(self.description))
+
+        # Optional
+        print("Category: " + str(self.category))
+        print("Copyright: " + str(self.copyright))
+        print("Docs: " + str(self.docs))
+        print("Domain: " + str(self.domain))
+        print("Generator: " + str(self.generator))
+        print("Image Link: " + str(self.image_link))
+        print("Image Title: " + str(self.image_title))
+        print("Image URL: " + str(self.image_url))
+        print("Language: " + str(self.language))
+        print("Last Build Date: " + str(self.lastBuildDate))
+        print("Managing Editor: " + str(self.managingEditor))
+        print("Pub Date: " + str(self.pubDate))
+        print("TTL: " + str(self.ttl))
+        print("Web Master: " + str(self.webMaster))
+
+        #Item Definition - Required
+        print("Item_pattern: " + str(self.item_pattern))
+        print("Item_title: " + str(self.item_title))
+        print("Item_link: " + str(self.item_link))
+        print("Item_description: " + str(self.item_description))
+
+        #Item Definition - Optional
+        print("Item_author: " + str(self.item_author))
+        print("Item_category: " + str(self.item_category))
+        print("Item_comments: " + str(self.item_comments))
+        print("Item_enclosure: " + str(self.item_enclosure))
+        print("item_guid: " + str(self.item_guid))
+        print("Item_pubDate: " + str(self.item_pubDate))
+        print("Item_source: " + str(self.item_source))
 
     def create_item(self, data):
-        return RSSItem(self.item_title, self.item_link, self.item_description, self.item_guid, self.domain, data)
+        return RSSItem(
+            data,
+            self.item_title,
+            self.item_link,
+            self.item_description,
+            domain=self.domain,
+            author=self.item_author,
+            category=self.item_category,
+            comments=self.item_comments,
+            enclosure=self.item_enclosure,
+            guid=self.item_guid,
+            pubDate=self.item_pubDate,
+            source=self.item_source
+        )
 
     def clean_input(self, text):
         text = text.strip()
@@ -84,30 +158,73 @@ class RSSChannel:
         return text
 
     def __init__(self, data):
+        self.items = []
+
         for line in data:
-            if line.startswith('title:'):
-                self.title = self.clean_input(line[6:])
-            if line.startswith('link:'):
-                self.link = self.clean_input(line[5:])
-            if line.startswith('description:'):
-                self.description = self.clean_input(line[12:])
-            if line.startswith('language:'):
-                self.language = self.clean_input(line[9:])
-            if line.startswith('ttl:'):
-                self.ttl = self.clean_input(line[4:])
-            if line.startswith('item_pattern:'):
-                self.item_pattern = self.clean_input(line[13:])
-            if line.startswith('item_title:'):
-                self.item_title = self.clean_input(line[11:])
-            if line.startswith('item_link:'):
-                self.item_link = self.clean_input(line[10:])
-            if line.startswith('item_description:'):
-                self.item_description = self.clean_input(line[17:])
-            if line.startswith('item_guid:'):
-                self.item_guid = self.clean_input(line[10:])
-            if line.startswith('domain:'):
-                self.domain = self.clean_input(line[7:])
-            self.items = []
+
+            semi = line.find(":")
+            prefix = line[:semi]
+
+            semi += 1
+            
+            # Unfortunately, Python does not include Switch
+
+            # Required
+            if (prefix == 'title'):
+                self.title = self.clean_input(line[semi:])
+            elif (prefix =='link'):
+                self.link = self.clean_input(line[semi:])
+            elif (prefix =='description'):
+                self.description = self.clean_input(line[semi:])
+            
+            # Optional
+            elif (prefix =='category'):
+                self.category = self.clean_input(line[semi:])
+            elif (prefix =='copyright'):
+                self.category = self.clean_input(line[semi:])
+            elif (prefix =='domain'):
+                self.domain = self.clean_input(line[semi:])
+            elif (prefix =='image_link'):
+                self.image_link = self.clean_input(line[semi:])
+            elif (prefix =='image_title'):
+                self.image_title = self.clean_input(line[semi:])
+            elif (prefix =='image_url'):
+                self.image_url = self.clean_input(line[semi:])
+            elif (prefix =='language'):
+                self.language = self.clean_input(line[semi:])
+            elif (prefix =='managingEditor'):
+                self.managingEditor = self.clean_input(line[semi:])
+            elif (prefix =='ttl'):
+                self.ttl = self.clean_input(line[semi:])
+            elif (prefix =='webMaster'):
+                self.webMaster = self.clean_input(line[semi:])
+            
+            # Item Definition - Required
+            elif (prefix =='item_pattern'):
+                self.item_pattern = self.clean_input(line[semi:])
+            elif (prefix =='item_title'):
+                self.item_title = self.clean_input(line[semi:])
+            elif (prefix =='item_link'):
+                self.item_link = self.clean_input(line[semi:])
+            elif (prefix =='item_description'):
+                self.item_description = self.clean_input(line[semi:])
+
+            # Item Definition - Optional
+            elif (prefix =='item_author'):
+                self.item_author = self.clean_input(line[semi:])
+            elif (prefix =='item_category'):
+                self.item_category = self.clean_input(line[semi:])
+            elif (prefix =='item_comments'):
+                self.item_comments = self.clean_input(line[semi:])
+            elif (prefix =='item_enclosure'):
+                self.item_enclosure = self.clean_input(line[semi:])
+            elif (prefix =='item_guid'):
+                self.item_guid = self.clean_input(line[semi:])
+            elif (prefix =='item_pubDate'):
+                self.item_pubDate = self.clean_input(line[semi:])
+            elif (prefix =='item_source'):
+                self.item_source = self.clean_input(line[semi:])
+            
         if (Debug): self.print()
 
     def get_item_text(self, text, start_pattern, stop_pattern):
