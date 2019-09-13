@@ -19,17 +19,26 @@
                 <hr/>
                 <h3>Feed Name: <xsl:value-of select="title"/></h3>
                 <xsl:variable name="feedlink"><xsl:value-of select="link" /></xsl:variable>
+                <xsl:variable name="doclink"><xsl:value-of select="docs" /></xsl:variable>
+                <xsl:variable name="generatorlink"><xsl:value-of select="generator" /></xsl:variable>
                 <h3>Feed Link: <a href="{$feedlink}"><xsl:value-of select="link"/></a></h3>
                 <h3>Feed Description: <xsl:value-of select="description"/></h3>
+                <h3>Feed Category: <xsl:value-of select="category"/></h3>
+                <h3>Feed Copyright: <xsl:value-of select="copyright"/></h3>
+                <h3>Feed Docs: <a href="{$doclink}"><xsl:value-of select="docs"/></a></h3>
+                <h3>Feed Generator: <a href="{$generatorlink}"><xsl:value-of select="generator"/></a></h3>
                 <h3>Feed Language: <xsl:value-of select="language"/></h3>
+                <h3>Feed Last Build Date: <xsl:value-of select="lastBuildDate"/></h3>
+                <h3>Feed Managing Editor: <xsl:value-of select="managingEditor"/></h3>
                 <h3>Feed TTL: <xsl:value-of select="ttl"/></h3>
+                <h3>Feed Web Master: <xsl:value-of select="webMaster"/></h3>
                 <h3>Feed Content: </h3>
                 <br/>
                 <table>
                     <tr>
-                    <th>Title</th>
+                    <th id="title-header">Title</th>
                     <th>Link</th>
-                    <th>Description</th>
+                    <th id="description-header">Description</th>
                     </tr>
                     <xsl:for-each select="item">
                         <tr>
