@@ -68,8 +68,8 @@ class RSSItem:
         self.pubDate = pubDate
         self.source = source
         
-        if (self.pubDate == None):
-            self.pubDate = datetime.datetime.now()
+        #if (self.pubDate == None):
+        #    self.pubDate = datetime.datetime.now()
 
         self.replace()
     
