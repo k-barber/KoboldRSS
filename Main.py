@@ -1,7 +1,8 @@
 import requests
 import itertools as it
 from RSSChannel import RSSChannel
-import datetime
+from datetime import datetime
+from datetime import timedelta
 import time
 import sys
 
@@ -60,13 +61,22 @@ with  open('Feed_Definitions.txt') as fp:
 
 try:
     while True:
+        now = datetime.now()
+        print(time.asctime(), "- Updating Channels")
         for channel in channels:
-            print(channel)
-            channel.generate_items()
-            channel.save_feed()
+            if (channel.lastBuildDate is not None):
+                if (now >= channel.lastBuildDate + timedelta(minutes=int(channel.ttl))):
+                    print("Updating " + channel.title)
+                    channel.print()
+                    channel.generate_items()
+                    channel.save_feed()
+            else:
+                channel.print()
+                channel.generate_items()
+                channel.save_feed()
         save_feeds()
-        print("Updating in 5 Minutes. Press 'Ctrl + C' to abort")
+        print(time.asctime(), "- Updating in 5 Minutes. Press 'Ctrl + C' to abort")
         time.sleep(300)
 except KeyboardInterrupt:
     pass
-print(time.asctime(), " - Stopping")
+print(time.asctime(), "- Stopping")

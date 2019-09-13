@@ -20,9 +20,9 @@ class RSSChannel:
     image_title = None
     image_url = None
     language = "en-us"
-    lastBuildDate = datetime.datetime.now()
+    lastBuildDate = None
     managingEditor = None
-    pubDate = datetime.datetime.now()
+    pubDate = None
     ttl = 60
     webMaster = None
 
@@ -322,3 +322,5 @@ class RSSChannel:
         item_info = self.parse_items(data)
         for item in item_info:
             self.items.append(self.create_item(item))
+        self.lastBuildDate = datetime.datetime.now()
+        self.pubDate = datetime.datetime.now()

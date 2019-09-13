@@ -2,7 +2,7 @@ title:GelBooru - Fire Emblem Three Heroes
 link:https://gelbooru.com/index.php?page=post&s=list&tags=fire_emblem%3a_three_houses
 description:A Feed of updates from Gelbooru of the Fire Emblem Three Houses tag
 language:en-us
-ttl:30
+ttl:10
 domain:https://gelbooru.com
 item_pattern:<div class="thumbnail-preview"><span id="s{%}" class="thumb"><a id="{*}" href="//gelbooru.com{%}" ><img src="{%}" alt="{*}" title="{%} score:{%} rating:{%}" class="preview "/></a></span>
 item_title:{%1}
@@ -14,7 +14,7 @@ title:GelBooru - Shield Hero
 link:https://gelbooru.com/index.php?page=post&s=list&tags=tate_no_yuusha_no_nariagari
 description:A Feed of updates from Gelbooru of the Shield Hero tag
 language:en-us
-ttl:30
+ttl:5
 domain:https://gelbooru.com
 item_pattern:<div class="thumbnail-preview"><span id="s{%}" class="thumb"><a id="{*}" href="//gelbooru.com{%}" ><img src="{%}" alt="{*}" title="{%} score:{%} rating:{%}" class="preview "/></a></span>
 item_title:{%1}
