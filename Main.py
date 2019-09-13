@@ -58,11 +58,15 @@ with  open('Feed_Definitions.txt') as fp:
             group = list(group)
             channels.append(RSSChannel(group))
 
-#while True:
-for channel in channels:
-    print(channel)
-    channel.generate_items()
-    channel.save_feed()
-save_feeds()
-    #print("Waiting 5 Minutes")
-    #time.sleep(300)
+try:
+    while True:
+        for channel in channels:
+            print(channel)
+            channel.generate_items()
+            channel.save_feed()
+        save_feeds()
+        print("Updating in 5 Minutes. Press 'Ctrl + C' to abort")
+        time.sleep(300)
+except KeyboardInterrupt:
+    pass
+print(time.asctime(), " - Stopping")
