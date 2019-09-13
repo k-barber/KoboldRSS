@@ -1,9 +1,46 @@
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import socket
 
 
 HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
 PORT_NUMBER = 8000
+
+def get_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(('10.255.255.255', 1))
+        IP = s.getsockname()[0]
+    except:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
+
+def validate_input(num):
+    try:
+        port = int(num)
+        if 1 <= port <= 65535:
+            return True
+        else:
+            return False
+    except ValueError:
+        return False
+
+IP = get_ip()
+if (IP is not None):
+    print("Detected IP address as: " + IP + "\n")
+    #HOST_NAME = IP
+ans = ""
+while ((ans != "y") and (ans != "n")):
+    ans = input("Default port number is 8000. Use 8000? (y/n)")
+if (ans == "n"):
+    port = 0
+    while (not validate_input(port)):
+        print("Ports can be between 1 and 65535 inclusive.")
+        port = input("Enter a new port number:")
+    PORT_NUMBER = int(port)
+print("Server will accessible as localhost:" + str(PORT_NUMBER) + " on this machine or " + IP + ":" + str(PORT_NUMBER) + " for machines on this network")
 
 urls ={
     "/":["Pages/Main.html", "text/html"],
@@ -17,9 +54,7 @@ urls ={
 
 class MyHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        print("You accessed path: %s" % self.path)
         self.protocol_version = "HTTP/1.1"
-
         path = self.path
         if (path in urls.keys()):
             self.send_response(200)
@@ -45,7 +80,6 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", len(st))
             self.wfile.write(bytes(st, "utf-8"))
         else:
-            print("404")
             self.send_response(404)
             self.send_header("Content-type", "text/html")
             self.end_headers()
