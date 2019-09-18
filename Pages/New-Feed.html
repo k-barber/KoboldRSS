@@ -4,69 +4,71 @@
 <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="/Pages/styles.css">
-    <title>RSS-Manager: New Feed</title>
+    <title>RSS-Generator: New Feed</title>
 </head>
 
 <body>
-    <a href="/"><img src="/Bocchi.png" id="bocchi" /></a>
+    <a href="/"><img src="/Img/Bocchi.png" id="bocchi" /></a>
     <div id="container">
         <div>
-            <a href="https://validator.w3.org/feed/docs/rss2.html" target="_blank"><img id="icon" src="RSS.png"></a>
+            <a href="https://validator.w3.org/feed/docs/rss2.html" target="_blank"><img id="icon" src="/Img/RSS.png"></a>
             <p><a href="/">Home</a> > New Feed</p>
-            <h1>K-Barber's RSS-Manager: Add a Feed</h1>
-            <p>Creating a new feed is easy, just follow the instructions below.</p>
-            <p>We'll start by defining some features of the RSS feed. Fields marked with a <span class="required">*</span> are mandatory.</p>
+            <h1>K-Barber's RSS-Generator: Add a Feed</h1>
+            <p>Creating a new RSS feed is easy. The Generator just follow the instructions and fill in the form below.</p>
+            <p>If you are unsure about what the field is asking for, mouse over it or check out the <a href="">Read Me Documentation</a></p>
             </br>
             <hr>
             </br>
-            <h2>Defining the Feed</h2>
-            <form novalidate id="Feed_Data">
-                <p><span class="required">*</span> First, select a URL to be monitored for updates: </p>
+            <h2>Defining the Channel</h2>
+            <p>We'll start by defining some features of the RSS channel. Fields marked with a <span class="required">*</span> are mandatory.</p>
+            <form novalidate id="Channel_Data" action="javascript:void(0);">
+                <p class="Field tooltip"><span class="required">*</span> Channel Link:<span class="tooltiptext">The URL to the HTML website corresponding to the channel. Where the feed will get its content from.</span></p>
                 <div class="padding">
-                    <input id="Feed_Link" name="Feed_Link" class="input_box" type="url" required>
+                    <input id="Channel_Link" name="Channel_Link" class="input_box" type="url" required>
                 </div>
-                <p><span class="required">*</span> Give the feed a name: </p>
+                <p class="Field tooltip"><span class="required">*</span> Channel Title:<span class="tooltiptext">The name of the channel. It's how people refer to your feed.</span></p>
                 <div class="padding">
-                    <input id="Feed_Title" name="Feed_Title" class="input_box" type="text" required>
+                    <input id="Channel_Title" name="Channel_Title" class="input_box" type="text" required>
                 </div>
-                <p><span class="required">*</span> Give the feed a description: </p>
+                <p class="Field tooltip"><span class="required">*</span> Channel Description:<span class="tooltiptext">Phrase or sentence describing the channel.</span></p>
                 <div class="padding">
-                    <textarea id="Feed_Description" name="Feed_Description" class="input_box" rows="10" cols="100" required></textarea>
+                    <textarea id="Channel_Description" name="Channel_Description" class="input_box" rows="10" cols="100" required></textarea>
                 </div>
-                <p>How often should the feed check for updates? (In minutes, rounding to the nearest 5)</p>
+                <p class="Field tooltip">Channel TTL:<span class="tooltiptext">How often the feed updates. Measured in minutes, rounding to the nearest 5.</span></p>
                 <div class="padding">
-                    <div id="left_button" onclick="down5()">-</div><input id="Feed_TTL" name="Feed_TTL" class="input_box" type="number" min="5" value="5" step="5" /><div id="right_button" onclick="up5()">+</div>
+                    <div id="left_button" onclick="down5()">-</div><input id="Channel_TTL" name="Channel_TTL" class="input_box" type="number" min="5" value="5" step="5" /><div id="right_button" onclick="up5()">+</div>
                 </div>
-                <p>What category/categories does the feed fall under? Separate values with a space. </p>
+                <p class="Field tooltip">Channel Categories:<span class="tooltiptext">What categories does the feed fall under? Separate values with a space. Ex: aerospace engineering rockets NASA</span></p>
                 <div class="padding">
-                    <input id="Feed_Categories" name="Feed_Categories" class="input_box" type="text">
+                    <input id="Channel_Categories" name="Channel_Categories" class="input_box" type="text">
                 </div>
-                <p>Does the feed have any applicable copyright info?</p>
+                <p class="Field tooltip">Channel Copyright:<span class="tooltiptext">If the feed has copyright information, add it here.</span></p>
                 <div class="padding">
-                    <input id="Feed_Copyright" name="Feed_Copyright" class="input_box" type="text">
+                    <input id="Channel_Copyright" name="Channel_Copyright" class="input_box" type="text">
                 </div>
-                <p>Use a custom image?</p>
+                <p class="Field tooltip">Use a custom image?<span class="tooltiptext">An image to represent the feed & link back to the page the feed came from. Can be a .gif .jpg or .png</span></p>
                 <div class="padding">
-                    <input type="radio" name="Feed_Image" value="False" onclick="hide()" checked><span>No</span></input>
-                    <input type="radio" name="Feed_Image" value="True" onclick="show()"><span>Yes</span></input>
+                    <input type="radio" name="Channel_Image" value="False" onclick="hide()" checked><span>No</span></input>
+                    <input type="radio" name="Channel_Image" value="True" onclick="show()"><span>Yes</span></input>
                 </div>
                 <div id="custom_image" class="padding" style="display: none;">
-                    <p><span class="required">*</span> Where does the Image link to? (Normally the same as the feed url)</p>
+                    <p class="Field tooltip"><span class="required">*</span> Image Link:<span class="tooltiptext">Where the Image links to when clicked.</span></p>
                     <div class="padding">
                         <input id="Image_Link" name="Image_Link" class="input_box" type="url">
                     </div>
-                    <p><span class="required">*</span> Image Title:</p>
+                    <p class="Field tooltip"><span class="required">*</span> Image Title:<span class="tooltiptext">Appears as Alt-text when the feed is rendered in HTML</span></p>
                     <div class="padding">
                         <input id="Image_Title" name="Image_Title" class="input_box" type="text">
                     </div>
-                    <p><span class="required">*</span> Image URL: (Needs to point directly to image)</p>
+                    <p class="Field tooltip"><span class="required">*</span> Image URL:<span class="tooltiptext">Direct URL pointing to the image file</span></p>
+                    <p>You can host an Image file on this server by adding it to the "Img" folder.</p>
                     <div class="padding">
                         <input id="Image_URL" name="Image_URL" class="input_box" type="url">
                     </div>
                 </div>
-                <p>What language is the feed in?</p>
+                <p class="Field tooltip">What language is the feed in?<span class="tooltiptext">Test</span></p>
                 <div class="padding">
-                    <select id="Feed_Language" name="Feed_Language" class="input_box">
+                    <select id="Channel_Language" name="Channel_Language" class="input_box">
                         <option value="af">Afrikaans</option>
                         <option value="sq">Albanian</option>
                         <option value="eu">Basque</option>
@@ -125,48 +127,94 @@
                         <option value="uk">Ukranian</option>
                     </select>
                 </div>
-                <p>Does the feed have a managing editor? (The fact that you are using this tool would suggest not)</p>
+                <p class="Field tooltip">Does the feed have a managing editor? (The fact that you are using this tool would suggest not)<span class="tooltiptext">Test</span></p>
                 <div class="padding">
-                    <input id="Feed_Editor" name="Feed_Editor" class="input_box" type="text">
+                    <input id="Channel_Editor" name="Channel_Editor" class="input_box" type="text">
                 </div>
-                <p>Does the feed have a webmaster? (The fact that you are using this tool would suggest not)</p>
+                <p class="Field tooltip">Does the feed have a webmaster? (The fact that you are using this tool would suggest not)<span class="tooltiptext">Test</span></p>
                 <div class="padding">
-                    <input id="Feed_Webmaster" name="Feed_Webmaster" class="input_box" type="text">
+                    <input id="Channel_Webmaster" name="Channel_Webmaster" class="input_box" type="text">
                 </div>
                 </br>
                 <hr>
                 </br>
                 <h2>Creating An Item Pattern</h2>
-                <p>Next up, we'll create an Item Pattern. The program will load the page from the feed link, then scan it for the item pattern, turning anything that matches into an item in the RSS feed.</p>
+                <p>Next up, we'll create an Item Pattern.</p>
+                <p>The program will load the page from the feed link, then scan it for the item pattern, turning anything that matches into an item in the RSS feed.</p>
                 <p>Click the button below to get the data from the feed link.</p>
+                <button onclick="scrape_URL()">Scrape URL</button>
+                <div id="Item_Definition" style="display: none;">
+                    <p class="Field">Scraped page source data: </p>
+                    <div class="padding"><textarea readonly id="Page_Source" rows="10" cols="100" class="input_box"></textarea></div>
+                    <p>This is where things start to get complicated. Look through the data above and find an example of an item you want in the feed.</p>
+                    <p>Copy that item into the box below, and replace any dynamic text with either {*} for data you don't want to keep, or a {%} for data you do want to keep</p>
+                    <p class="Field tooltip">Item Patttern:</p>
+                    <div class="padding"><textarea id="Item_Pattern" rows="10" cols="100" class="input_box"></textarea></div>
+                    <button onclick="test_pattern()">Test Pattern</button>
+                    <div id="Pattern_Results" style="display: none;">
+                        <p class="Field">Items Found: <span id="Item_Total"></span></p>
+                        <div class="padding"><textarea readonly id="Item_List" rows="10" cols="100" class="input_box"></textarea></div>
+                        <p>The above box displays a list of items that matched the Item Pattern.</p>
+                        <p>The dynamic fields that you kept are also listed and numbered, so dynamic field 1 is listed as {%1} and so on.</p>
+                        </br>
+                        <hr>
+                        </br>
+                        <h2>Defining the Items</h2>
+                        <p>This is where you define how the items in the RSS feed will be formatted.</p>
+                        <p>If you type "{%1}" anywhere in the rest of the form it will be replaced by the first dynamic field of that item.</p>
+                        <p>{%2} will be replaced with the second dynamic field and so on.</p>
+                        <p>Anything else you type will be the same for every item in the feed.</p>
+                        <p class="Field tooltip"><span class="required">*</span> Item Title:<span class="tooltiptext">Test</span></p>
+                        <div class="padding">
+                            <input id="Item_Title" name="Item_Title" class="input_box" type="text" required></input>
+                        </div>
+                        <p class="Field tooltip"><span class="required">*</span> Item Link:<span class="tooltiptext">Test</span></p>
+                        <div class="padding">
+                            <input id="Item_Link" name="Item_Link" class="input_box" type="text" required></input>
+                        </div>
+                        <p class="Field tooltip"><span class="required">*</span> Item Description: <span class="tooltiptext">Test</span></p>
+                        <div class="padding">
+                            <textarea id="Item_Description" name="Item_Description" class="input_box" rows="10" cols="100" required></textarea>
+                        </div>
+                        <p class="Field tooltip">Item Author:</p>
+                        <div class="padding">
+                            <input id="Item_Author" name="Item_Author" class="input_box" type="text"></input>
+                        </div>
+                        <p class="Field tooltip">Item Categories: (Separate with a space)<span class="tooltiptext">Test</span></p>
+                        <div class="padding">
+                            <input id="Item_Categories" name="Item_Categories" class="input_box" type="text"></input>
+                        </div>
+                        <p class="Field tooltip">Item Comments: (Link to comment page)<span class="tooltiptext">Test</span></p>
+                        <div class="padding">
+                            <input id="Item_Comments" name="Item_Comments" class="input_box" type="text"></input>
+                        </div>
+                        <p class="Field tooltip">Item contains media object? (audio/video, not image)<span class="tooltiptext">Test</span></p>
+                        <div class="padding">
+                            <input type="radio" name="Item_Media" value="False" onclick="hide_enclosure()" checked><span>No</span></input>
+                            <input type="radio" name="Item_Media" value="True" onclick="show_enclosure()"><span>Yes</span></input>
+                        </div>
+                        <div id="Item_Enclosure" class="padding" style="display: none;">
+                            <p class="Field tooltip"><span class="required">*</span> URL to the media file:<span class="tooltiptext">Test</span></p>
+                            <div class="padding">
+                                <input id="Enclosure_URL" name="Enclosure_URL" class="input_box" type="text">
+                            </div>
+                            <p class="Field tooltip"><span class="required">*</span> Media size: (in bytes)<span class="tooltiptext">Test</span></p>
+                            <div class="padding">
+                                <input id="Enclosure_Length" name="Enclosure_Length" class="input_box" type="text">
+                            </div>
+                            <p class="Field tooltip"><span class="required">*</span> Media Type: (MIME format such as "audio/mpeg")<span class="tooltiptext">Test</span></p>
+                            <div class="padding">
+                                <input id="Enclosure_Type" name="Enclosure_Type" class="input_box" type="text">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </form>
-            <button onclick="scrape_URL()">Scrape URL</button>
-            <div id="Item_Definition" style="display: none;">
-                <p>Scraped page source data: </p>
-                <textarea readonly id="Page_Source" rows="10" cols="100" class="input_box"></textarea>
-                <p>This is where things start to get complicated. Look through the data above and find an example of an item you want in the feed.</p>
-                <p>Copy that item into the box below, and replace any <span class="required">dynamic</span> text with either {*} for data you don't want to keep, or a {%} for data you do want to keep</p>
-                <p>Item Patttern:</p>
-                <textarea id="Item_Pattern" rows="10" cols="100" class="input_box"></textarea>
-                </br>
-                <button onclick="test_pattern()">Test Pattern</button>
-                <div id="Pattern_Results" style="display: none;">
-                    <p>Items Found: <span id="Item_Total"></span></p>
-                    <textarea readonly id="Item_List" rows="10" cols="100" class="input_box"></textarea>
-                    <p>The above box displays a list of items that matched the Item Pattern. The dynamic fields that you kept are also listed and numbered, so dynamic field 1 is listed as {%1} and so on.</p>
-                    </br>
-                    <hr/>
-                    </br>
-                    <h2>Defining the Items</h2>
-                    <p>This is where you define how the items in the RSS feed will be formatted. If you type "{%1}" anywhere in the rest of the form it will be replaced by the first dynamic field of that item. {%2} will be replaced with the second dynamic field and so on.</p>
-                    <p>Anything else you type will be the same for every item in the feed.</p>
-                </div >
-            </div>
         </div>
     </div>
     <script>
         function validateForm() {
-            var radios = document.getElementsByName('Feed_Image');
+            var radios = document.getElementsByName('Channel_Image');
             var use_image;
             for (var i = 0, length = radios.length; i < length; i++) {
                 if (radios[i].checked) {
@@ -174,38 +222,38 @@
                     break;
                 }
             }
-            var e = document.getElementById("Feed_Language");
+            var e = document.getElementById("Channel_Language");
             var lang = e.options[e.selectedIndex].value;
-            console.log("Feed Title: " + document.getElementById("Feed_Title").value);
-            console.log("Feed Link: " + document.getElementById("Feed_Link").value);
-            console.log("Feed Description: " + document.getElementById("Feed_Description").value);
-            console.log("Feed TTL: " + document.getElementById("Feed_TTL").value);
-            console.log("Feed Categories: " + document.getElementById("Feed_Categories").value);
-            console.log("Feed Copyright: " + document.getElementById("Feed_Copyright").value);
-            console.log("Feed Image: " + use_image);
+            console.log("Channel Title: " + document.getElementById("Channel_Title").value);
+            console.log("Channel Link: " + document.getElementById("Channel_Link").value);
+            console.log("Channel Description: " + document.getElementById("Channel_Description").value);
+            console.log("Channel TTL: " + document.getElementById("Channel_TTL").value);
+            console.log("Channel Categories: " + document.getElementById("Channel_Categories").value);
+            console.log("Channel Copyright: " + document.getElementById("Channel_Copyright").value);
+            console.log("Channel Image: " + use_image);
             console.log("Image Link: " + document.getElementById("Image_Link").value);
             console.log("Image Title: " + document.getElementById("Image_Title").value);
             console.log("Image URL: " + document.getElementById("Image_URL").value);
-            console.log("Feed Language: " + lang);
-            console.log("Feed Editor: " + document.getElementById("Feed_Editor").value);
-            console.log("Feed Webmaster: " + document.getElementById("Feed_Webmaster").value);
-            console.log("Valid: " + document.getElementById("Feed_Data").reportValidity());
-            return document.getElementById("Feed_Data").reportValidity();
+            console.log("Channel Language: " + lang);
+            console.log("Channel Editor: " + document.getElementById("Channel_Editor").value);
+            console.log("Channel Webmaster: " + document.getElementById("Channel_Webmaster").value);
+            console.log("Valid: " + document.getElementById("Channel_Data").reportValidity());
+            return document.getElementById("Channel_Data").reportValidity();
         }
 
         function submit_form() {
-            if (validateForm()){
+            if (validateForm()) {
                 post_data()
                 document.getElementById("Item_Definition").style.display = "block";
             }
         }
 
-        function scrape_URL(){
-            var link = document.getElementById("Feed_Link");
+        function scrape_URL() {
+            var link = document.getElementById("Channel_Link");
             var url = link.value;
-            if((url != null) & (link.checkValidity())){
+            if ((url != null) & (link.checkValidity())) {
                 var xhr = new XMLHttpRequest();
-                xhr.onload = function() {
+                xhr.onload = function () {
                     console.log(xhr.response);
                     document.getElementById("Page_Source").value = xhr.response;
                     document.getElementById("Item_Definition").style.display = "block";
@@ -215,21 +263,21 @@
             }
         }
 
-        function test_pattern(){
+        function test_pattern() {
             var body = document.getElementById("Item_Pattern").value
-            if((body != null) & (document.getElementById("Item_Pattern").checkValidity())){
+            if ((body != null) & (document.getElementById("Item_Pattern").checkValidity())) {
                 var xhr = new XMLHttpRequest();
-                xhr.onload = function() {
+                xhr.onload = function () {
                     var array = JSON.parse(xhr.response);
                     console.log(array);
                     document.getElementById("Pattern_Results").style.display = "block";
                     var output = "";
                     var i = 1;
-                    array.forEach(function(item){
+                    array.forEach(function (item) {
                         output += "-----------------\n";
                         output += "Item: " + String(i) + "\n";
                         f = 1;
-                        item.forEach(function(field){
+                        item.forEach(function (field) {
                             output += "{%" + String(f) + "}: " + field + "\n";
                             f += 1;
                         });
@@ -241,20 +289,20 @@
                 xhr.open('POST', '/Test_Pattern');
                 xhr.send(body);
             }
-            
+
         }
 
-        function post_data(){
+        function post_data() {
             var xhr = new XMLHttpRequest();
-                xhr.onload = function() {
-                    console.log(xhr.response);
-                };
-                xhr.open('POST', "/");
-                xhr.send(new FormData(document.getElementById("Feed_Data")));
+            xhr.onload = function () {
+                console.log(xhr.response);
+            };
+            xhr.open('POST', "/");
+            xhr.send(new FormData(document.getElementById("Channel_Data")));
         }
 
         function up5() {
-            var box = document.getElementById("Feed_TTL");
+            var box = document.getElementById("Channel_TTL");
             if (box.value >= 5) {
                 var temp = parseInt(box.value) + 5;
                 box.value = Math.ceil(temp / 5) * 5;
@@ -264,7 +312,7 @@
         }
 
         function down5() {
-            var box = document.getElementById("Feed_TTL");
+            var box = document.getElementById("Channel_TTL");
             if (box.value >= 10) {
                 var temp = parseInt(box.value) - 5;
                 box.value = Math.floor(temp / 5) * 5;
@@ -291,6 +339,26 @@
             document.getElementById("Image_Link").formnovalidate = false;
             document.getElementById("Image_Title").formnovalidate = false;
             document.getElementById("Image_URL").formnovalidate = false;
+        }
+
+        function hide_enclosure() {
+            document.getElementById("Item_Enclosure").style.display = "none";
+            document.getElementById("Enclosure_URL").required = false;
+            document.getElementById("Enclosure_Length").required = false;
+            document.getElementById("Enclosure_Type").required = false;
+            document.getElementById("Enclosure_URL").formnovalidate = true;
+            document.getElementById("Enclosure_Length").formnovalidate = true;
+            document.getElementById("Enclosure_Type").formnovalidate = true;
+        }
+
+        function show_enclosure() {
+            document.getElementById("Item_Enclosure").style.display = "block";
+            document.getElementById("Enclosure_URL").required = true;
+            document.getElementById("Enclosure_Type").required = true;
+            document.getElementById("Enclosure_Length").required = true;
+            document.getElementById("Enclosure_URL").formnovalidate = false;
+            document.getElementById("Enclosure_Type").formnovalidate = false;
+            document.getElementById("Enclosure_Length").formnovalidate = false;
         }
     </script>
 </body>

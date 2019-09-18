@@ -14,7 +14,7 @@ class RSSChannel:
     category = None
     copyright = None
     docs = "http://www.rssboard.org/rss-draft-1"
-    generator = "https://github.com/k-barber/RSS-Manager"
+    generator = "https://github.com/k-barber/RSS-Generator"
     image_link = None
     image_title = None
     image_url = None
@@ -290,7 +290,7 @@ class RSSChannel:
             output.append(self.parse_item_text(text))
         return output
 
-    def save_feed(self):
+    def save_channel(self):
 
         output = '''<?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="/res/preview.xsl"?>
