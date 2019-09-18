@@ -34,7 +34,7 @@ class RSSItem:
             if (self.pubDate is not None and isinstance(self.pubDate, str)): self.pubDate = self.pubDate.replace("{%" + str(index + 1) + "}", value)
             if (self.source is not None): self.source = self.source.replace("{%" + str(index + 1) + "}", value)
 
-    def __init__(self, data, title, link, description, author=None, category=None, comments=None, enclosure=None, guid=None, pubDate=None, source=None):
+    def __init__(self, data, title=None, link=None, description=None, author=None, category=None, comments=None, enclosure=None, guid=None, pubDate=None, source=None):
         # Required
         self.title = title
         self.link = link

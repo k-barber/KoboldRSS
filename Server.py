@@ -114,31 +114,35 @@ class MyHandler(BaseHTTPRequestHandler):
         return
 
     def do_POST(self):
-        self.protocol_version = "HTTP/1.1"
-        self.send_response(200)
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        if(self.path == "/Get_Source"):
-            url = str(post_data, encoding="utf-8")
-            print(url)
-            response = requests.get(url)
-            text = response.text
-            new_channel.link = url
-            self.send_header("Content-type", "text/html")
-            self.send_header("Content-Length", len(text))
-            self.end_headers()
-            self.wfile.write(bytes(text, "utf-8"))
-        if(self.path == "/Test_Pattern"):
-            pattern = str(post_data, encoding="utf-8")
-            text = requests.get(new_channel.link).text
-            data = new_channel.test_pattern(pattern, text)
-            print(data)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            response = json.dumps(data)
-            print(response)
-            self.wfile.write(bytes(response, "utf-8"))
-        return
+        try:
+            self.protocol_version = "HTTP/1.1"
+            self.send_response(200)
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            if(self.path == "/Get_Source"):
+                url = str(post_data, encoding="utf-8")
+                print(url)
+                response = requests.get(url)
+                text = response.text
+                new_channel.link = url
+                self.send_header("Content-type", "text/html")
+                self.send_header("Content-Length", len(text))
+                self.end_headers()
+                self.wfile.write(bytes(text, "utf-8"))
+            if(self.path == "/Test_Pattern"):
+                pattern = str(post_data, encoding="utf-8")
+                text = requests.get(new_channel.link).text
+                data = new_channel.test_pattern(pattern, text)
+                print(data)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+                response = json.dumps(data)
+                print(response)
+                self.wfile.write(bytes(response, "utf-8"))
+            return
+        except:
+            self.send_response(500)
+            return
 
 
 if __name__ == '__main__':
