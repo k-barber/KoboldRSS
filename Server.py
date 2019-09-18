@@ -1,6 +1,7 @@
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import socket
+import requests
 
 
 HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
@@ -27,6 +28,14 @@ def validate_input(num):
     except ValueError:
         return False
 
+def return_source():
+    print("Test")
+    '''
+    response = requests.get(url)
+    text = response.text
+    return text
+    '''
+
 IP = get_ip()
 if (IP is not None):
     print("Detected IP address as: " + IP + "\n")
@@ -49,7 +58,8 @@ urls ={
     "/RSS.png":["Img/RSS.png", "image/png"],
     "/Feeds/" :["Pages/Feeds.html", "text/html"],
     "/favicon.ico": ["Img/favicon.ico", "image/x-icon"],
-    "/Pages/styles.css": ["Pages/styles.css", "text/css"]
+    "/Pages/styles.css": ["Pages/styles.css", "text/css"],
+    "/New-Feed": ["Pages/New-Feed.html", "text/html"],
 }
 
 class MyHandler(BaseHTTPRequestHandler):
@@ -58,17 +68,19 @@ class MyHandler(BaseHTTPRequestHandler):
         path = self.path
         if (path in urls.keys()):
             self.send_response(200)
-            self.send_header("Content-type", urls[path][1])
-            self.end_headers()
             if (urls[path][1].startswith("text")):
                 ind = open(urls[path][0], "r", encoding="utf-8")
                 st = ind.read()
                 self.send_header("Content-Length", len(st))
+                self.send_header("Content-type", urls[path][1])
+                self.end_headers()
                 self.wfile.write(bytes(st, "utf-8"))
             elif(urls[path][1].startswith("image")):
                 f = open(urls[self.path][0], "rb")
                 st = f.read()
                 self.send_header("Content-Length", len(st))
+                self.send_header("Content-type", urls[path][1])
+                self.end_headers()
                 self.wfile.write(bytes(st))
         elif(path.startswith("/Feeds/")):
             self.send_response(200)
@@ -88,6 +100,24 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", len(st))
             self.wfile.write(bytes(st, "utf-8"))
         return
+
+    def do_POST(self):
+        self.protocol_version = "HTTP/1.1"
+        self.send_response(200)
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        if(self.path == "/Get_Source"):
+            url = str(post_data, encoding="utf-8")
+            print(url)
+            response = requests.get(url)
+            text = response.text
+            self.send_header("Content-type", "text/html")
+            self.send_header("Content-Length", len(text))
+            self.end_headers()
+            print(text)
+            self.wfile.write(bytes(text, "utf-8"))
+        return
+
 
 if __name__ == '__main__':
     server_class = HTTPServer
