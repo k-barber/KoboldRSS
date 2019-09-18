@@ -21,3 +21,13 @@ item_title:{%1}
 item_link:{%domain}{%2}
 item_description:<![CDATA[<a href="{%domain}{%2}" style="text-decoration: none;"><h2 style="color: black;">{%1}</h1></a><p style="color: black; font-size: 10pt !important; font-weight: normal;">Rating: {%6}</p><p style="color: black; font-size: 10pt !important; font-weight: normal;">Points: {%5}</p><p style="color: black; font-size: 10pt !important; font-weight: normal;">Tags: {%4}</p></br><a href="{%domain}{%2}"><img src="{%3}" style="border:black solid 1px; display:block; margin:auto; max-width:400px;"></img></a>]]>
 item_guid:{%1}
+~-~-~-~-
+title:Sequential Art
+link:https://www.collectedcurios.com/sequentialart.php
+description:A webcomic about squirrels or some sh*t
+domain:https://www.collectedcurios.com/
+ttl:60
+item_pattern:<img id="strip" src="{%}" width="{*}" height="{*}"/>
+item_title:New Comic!
+item_link:https://www.collectedcurios.com/sequentialart.php
+item_description: <![CDATA[<img src="{%domain}{%1}">]]>
