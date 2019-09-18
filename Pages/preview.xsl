@@ -11,7 +11,7 @@
         <a href="/"><img src="/Img/Bocchi.png" id="bocchi"/></a>
         <div id="container">
             <div>
-                <a href="https://validator.w3.org/feed/docs/rss2.html" target="_blank"><img id="icon" src="/Img/RSS.png"/></a>
+                <a href="http://www.rssboard.org/rss-draft-1" target="_blank"><img id="icon" src="/Img/RSS.png"/></a>
                 <p><a href="/">Home</a> &gt; <a href="/Feeds/">Feeds</a> &gt; <xsl:value-of select="title"/>.xml</p>
                 <h1>K-Barber's RSS-Manager: Feed Details &amp; Preview</h1>
                 <p>Congratulations! If you can see this page, you are ready to add your custom feed to your feed reader!</p>

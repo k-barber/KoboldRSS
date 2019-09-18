@@ -24,7 +24,7 @@ top = '''
     <a href="/"><img src="/Img/Bocchi.png" id="bocchi"/></a>
     <div id="container">
         <div>
-            <a href="https://validator.w3.org/feed/docs/rss2.html" target="_blank"><img id="icon" src="/Img/RSS.png"></a>
+            <a href="http://www.rssboard.org/rss-draft-1" target="_blank"><img id="icon" src="/Img/RSS.png"></a>
             <p><a href="/">Home</a> &gt; Feeds</p>
             <h1>K-Barber's RSS-Generator: Feeds</h1>
             <p>A list of your feeds:</p>
