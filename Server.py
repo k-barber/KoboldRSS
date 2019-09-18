@@ -56,10 +56,9 @@ print("Server will accessible as localhost:" + str(PORT_NUMBER) + " on this mach
 
 urls ={
     "/":["Pages/Main.html", "text/html"],
-    "/Bocchi.png":["Img/Bocchi.png", "image/png"],
     "/res/preview.xsl":["Pages/preview.xsl", "text/html"],
-    "/RSS.png":["Img/RSS.png", "image/png"],
     "/Feeds/" :["Pages/Feeds.html", "text/html"],
+    "/Public/" :["Pages/Public.html", "text/html"],
     "/favicon.ico": ["Img/favicon.ico", "image/x-icon"],
     "/Pages/styles.css": ["Pages/styles.css", "text/css"],
     "/New-Feed": ["Pages/New-Feed.html", "text/html"],
@@ -94,6 +93,16 @@ class MyHandler(BaseHTTPRequestHandler):
             st = ind.read()
             self.send_header("Content-Length", len(st))
             self.wfile.write(bytes(st, "utf-8"))
+        elif(path.startswith("/Img/")):
+            self.send_response(200)
+            filetype = path.split(".")[1]
+            path = path[1:]
+            f = open(path, "rb")
+            st = f.read()
+            self.send_header("Content-Length", len(st))
+            self.send_header("Content-type", "image/" + filetype)
+            self.end_headers()
+            self.wfile.write(bytes(st))
         else:
             self.send_response(404)
             self.send_header("Content-type", "text/html")

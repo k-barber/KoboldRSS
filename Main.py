@@ -17,16 +17,16 @@ top = '''
 <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="/Pages/styles.css">
-    <title>RSS-Manager: Feeds</title>
+    <title>RSS-Generator: Feeds</title>
 </head>
 
 <body>
-    <a href="/"><img src="/Bocchi.png" id="bocchi"/></a>
+    <a href="/"><img src="/Img/Bocchi.png" id="bocchi"/></a>
     <div id="container">
         <div>
-            <a href="https://validator.w3.org/feed/docs/rss2.html" target="_blank"><img id="icon" src="/RSS.png"></a>
+            <a href="https://validator.w3.org/feed/docs/rss2.html" target="_blank"><img id="icon" src="/Img/RSS.png"></a>
             <p><a href="/">Home</a> &gt; Feeds</p>
-            <h1>K-Barber's RSS-Manager: Feeds</h1>
+            <h1>K-Barber's RSS-Generator: Feeds</h1>
             <p>A list of your feeds:</p>
             <ul>
 '''
@@ -39,7 +39,7 @@ bottom = '''
 </html>
 '''
 
-def save_feeds():
+def index_channels():
     f = open("Pages/Feeds.html", "wb")
     output = top
     for channel in channels:
@@ -69,12 +69,12 @@ try:
                     print("Updating " + channel.title)
                     channel.print()
                     channel.generate_items()
-                    channel.save_feed()
+                    channel.save_channel()
             else:
                 channel.print()
                 channel.generate_items()
-                channel.save_feed()
-        save_feeds()
+                channel.save_channel()
+        index_channels()
         print(time.asctime(), "- Updating in 5 Minutes. Press 'Ctrl + C' to abort")
         time.sleep(300)
 except KeyboardInterrupt:
