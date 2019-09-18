@@ -8,7 +8,6 @@ class RSSItem:
 
     # Other
     data = None
-    domain = None
 
     # Optional
     author = None
@@ -20,20 +19,6 @@ class RSSItem:
     source = None
 
     def replace(self):
-        if (self.domain):
-            # Required
-            self.title = self.title.replace("{%domain}", self.domain)
-            self.link = self.link.replace("{%domain}", self.domain)
-            self.description = self.description.replace("{%domain}", self.domain)
-
-            # Optional
-            if (self.author is not None): self.author = self.author.replace("{%domain}", self.domain)
-            if (self.category is not None): self.category = self.category.replace("{%domain}", self.domain)
-            if (self.comments is not None): self.comments = self.comments.replace("{%domain}", self.domain)
-            if (self.enclosure is not None): self.enclosure = self.enclosure.replace("{%domain}", self.domain)
-            if (self.guid is not None): self.guid = self.guid.replace("{%domain}", self.domain)
-            if (self.pubDate is not None and isinstance(self.pubDate, str)) : self.pubDate = self.pubDate.replace("{%domain}", self.domain)
-            if (self.source is not None): self.source = self.source.replace("{%domain}", self.domain)
         for index, value in enumerate(self.data):
             # Required
             self.title = self.title.replace("{%" + str(index + 1) + "}", value)
@@ -49,7 +34,7 @@ class RSSItem:
             if (self.pubDate is not None and isinstance(self.pubDate, str)): self.pubDate = self.pubDate.replace("{%" + str(index + 1) + "}", value)
             if (self.source is not None): self.source = self.source.replace("{%" + str(index + 1) + "}", value)
 
-    def __init__(self, data, title, link, description, domain=None, author=None, category=None, comments=None, enclosure=None, guid=None, pubDate=None, source=None):
+    def __init__(self, data, title, link, description, author=None, category=None, comments=None, enclosure=None, guid=None, pubDate=None, source=None):
         # Required
         self.title = title
         self.link = link
@@ -57,7 +42,6 @@ class RSSItem:
 
         # Other
         self.data = data
-        self.domain = domain
         
         # Optional
         self.author = author
