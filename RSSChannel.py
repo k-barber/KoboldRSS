@@ -14,7 +14,6 @@ class RSSChannel:
     category = None
     copyright = None
     docs = "http://www.rssboard.org/rss-draft-1"
-    domain = None
     generator = "https://github.com/k-barber/RSS-Manager"
     image_link = None
     image_title = None
@@ -99,7 +98,6 @@ class RSSChannel:
         print("Category: " + str(self.category))
         print("Copyright: " + str(self.copyright))
         print("Docs: " + str(self.docs))
-        print("Domain: " + str(self.domain))
         print("Generator: " + str(self.generator))
         print("Image Link: " + str(self.image_link))
         print("Image Title: " + str(self.image_title))
@@ -132,7 +130,6 @@ class RSSChannel:
             self.item_title,
             self.item_link,
             self.item_description,
-            domain=self.domain,
             author=self.item_author,
             category=self.item_category,
             comments=self.item_comments,
@@ -157,8 +154,12 @@ class RSSChannel:
         text = text.replace("&#39", "'")
         return text
 
-    def __init__(self, data):
+    def __init__(self, data=None):
         self.items = []
+
+        if data is None:
+            if (Debug): self.print()
+            return
 
         for line in data:
 
@@ -182,8 +183,6 @@ class RSSChannel:
                 self.category = self.clean_input(line[semi:])
             elif (prefix =='copyright'):
                 self.category = self.clean_input(line[semi:])
-            elif (prefix =='domain'):
-                self.domain = self.clean_input(line[semi:])
             elif (prefix =='image_link'):
                 self.image_link = self.clean_input(line[semi:])
             elif (prefix =='image_title'):
@@ -324,3 +323,11 @@ class RSSChannel:
             self.items.append(self.create_item(item))
         self.lastBuildDate = datetime.datetime.now()
         self.pubDate = datetime.datetime.now()
+
+    def test_pattern(self, pattern, text):
+        self.item_pattern = pattern
+        start_pattern = self.item_pattern[:self.item_pattern.find("{")]
+        stop_pattern = self.item_pattern[self.item_pattern.rfind("}")+1:]
+        data = self.get_item_text(text, start_pattern, stop_pattern)
+        item_info = self.parse_items(data)
+        return item_info

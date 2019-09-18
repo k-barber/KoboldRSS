@@ -136,17 +136,31 @@
                 </br>
                 <hr>
                 </br>
-                <h2>Defining the Items</h2>
-                <p>Next up, we'll define the feed items. Click the button below to begin scraping the Feed URL.</p>
+                <h2>Creating An Item Pattern</h2>
+                <p>Next up, we'll create an Item Pattern. The program will load the page from the feed link, then scan it for the item pattern, turning anything that matches into an item in the RSS feed.</p>
+                <p>Click the button below to get the data from the feed link.</p>
             </form>
             <button onclick="scrape_URL()">Scrape URL</button>
             <div id="Item_Definition" style="display: none;">
                 <p>Scraped page source data: </p>
                 <textarea readonly id="Page_Source" rows="10" cols="100" class="input_box"></textarea>
-                <p>This is where things start to get complicated. Look through the page source data above and find an example of an item you want in the feed.</p>
+                <p>This is where things start to get complicated. Look through the data above and find an example of an item you want in the feed.</p>
                 <p>Copy that item into the box below, and replace any <span class="required">dynamic</span> text with either {*} for data you don't want to keep, or a {%} for data you do want to keep</p>
                 <p>Item Patttern:</p>
                 <textarea id="Item_Pattern" rows="10" cols="100" class="input_box"></textarea>
+                </br>
+                <button onclick="test_pattern()">Test Pattern</button>
+                <div id="Pattern_Results" style="display: none;">
+                    <p>Items Found: <span id="Item_Total"></span></p>
+                    <textarea readonly id="Item_List" rows="10" cols="100" class="input_box"></textarea>
+                    <p>The above box displays a list of items that matched the Item Pattern. The dynamic fields that you kept are also listed and numbered, so dynamic field 1 is listed as {%1} and so on.</p>
+                    </br>
+                    <hr/>
+                    </br>
+                    <h2>Defining the Items</h2>
+                    <p>This is where you define how the items in the RSS feed will be formatted. If you type "{%1}" anywhere in the rest of the form it will be replaced by the first dynamic field of that item. {%2} will be replaced with the second dynamic field and so on.</p>
+                    <p>Anything else you type will be the same for every item in the feed.</p>
+                </div >
             </div>
         </div>
     </div>
@@ -199,6 +213,35 @@
                 xhr.open('POST', '/Get_Source');
                 xhr.send(url);
             }
+        }
+
+        function test_pattern(){
+            var body = document.getElementById("Item_Pattern").value
+            if((body != null) & (document.getElementById("Item_Pattern").checkValidity())){
+                var xhr = new XMLHttpRequest();
+                xhr.onload = function() {
+                    var array = JSON.parse(xhr.response);
+                    console.log(array);
+                    document.getElementById("Pattern_Results").style.display = "block";
+                    var output = "";
+                    var i = 1;
+                    array.forEach(function(item){
+                        output += "-----------------\n";
+                        output += "Item: " + String(i) + "\n";
+                        f = 1;
+                        item.forEach(function(field){
+                            output += "{%" + String(f) + "}: " + field + "\n";
+                            f += 1;
+                        });
+                        i += 1;
+                    });
+                    document.getElementById("Item_List").value = output;
+                    document.getElementById("Item_Total").innerText = String(array.length);
+                };
+                xhr.open('POST', '/Test_Pattern');
+                xhr.send(body);
+            }
+            
         }
 
         function post_data(){

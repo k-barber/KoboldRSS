@@ -2,10 +2,13 @@ import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import socket
 import requests
-
+from RSSChannel import RSSChannel
+import json
 
 HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
 PORT_NUMBER = 8000
+
+new_channel = RSSChannel()
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -111,11 +114,21 @@ class MyHandler(BaseHTTPRequestHandler):
             print(url)
             response = requests.get(url)
             text = response.text
+            new_channel.link = url
             self.send_header("Content-type", "text/html")
             self.send_header("Content-Length", len(text))
             self.end_headers()
-            print(text)
             self.wfile.write(bytes(text, "utf-8"))
+        if(self.path == "/Test_Pattern"):
+            pattern = str(post_data, encoding="utf-8")
+            text = requests.get(new_channel.link).text
+            data = new_channel.test_pattern(pattern, text)
+            print(data)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            response = json.dumps(data)
+            print(response)
+            self.wfile.write(bytes(response, "utf-8"))
         return
 
 
