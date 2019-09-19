@@ -120,10 +120,15 @@ h3 {
     height: 500px;
 }
 
-input:invalid,
-textarea:invalid {
+input:focus:invalid,
+textarea:focus:invalid {
     border-color: red;
     background-color: rgba(250, 150, 150, 0.5);
+    box-shadow: 0px 0px 5px -2px red;
+}
+
+input:invalid,textarea:invalid {
+    box-shadow: none;
 }
 
 .input_box {
