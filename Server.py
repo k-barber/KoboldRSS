@@ -4,6 +4,7 @@ import socket
 import requests
 from RSSChannel import RSSChannel
 import json
+import gc
 
 HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
 PORT_NUMBER = 8000
@@ -30,6 +31,69 @@ def validate_input(num):
             return False
     except ValueError:
         return False
+
+def channel_from_data(data):
+    if(data['category'] != ""):
+        cats = data['category'].strip().split(",")
+        cats = [cat.strip() for cat in cats]
+        new_channel.category = cats
+    if(data['copyright'] != ""):
+        new_channel.copyright = data['copyright']
+    if(data['description'] != ""):
+        new_channel.description = data['description']
+    if(data['use_image'] == "True"):
+        if(data['image_link'] != ""):
+            new_channel.image_link = data['image_link']
+        if(data['image_title'] != ""):
+            new_channel.image_title = data['image_title']
+        if(data['image_url'] != ""):
+            new_channel.image_url = data['image_url']
+    if(data['item_author'] != ""):
+        new_channel.item_author = data['item_author']
+    if(data['item_category'] != ""):
+        new_channel.item_category = data['item_category']
+    if(data['item_comments'] != ""):
+        new_channel.item_comments = data['item_comments']
+    if(data['item_description'] != ""):
+        new_channel.item_description = data['item_description']
+    if(data['item_guid'] != ""):
+        new_channel.item_guid = data['item_guid']
+    if(data['item_link'] != ""):
+        new_channel.item_link = data['item_link']
+    if(data['item_pattern'] != ""):
+        new_channel.item_pattern = data['item_pattern']
+    if(data['item_pubDate'] != ""):
+        new_channel.item_pubDate = data['item_pubDate']
+    if(data['item_source'] != ""):
+        new_channel.item_source = data['item_source']
+    if(data['item_title'] != ""):
+        new_channel.item_title = data['item_title']
+    if(data['language'] != ""):
+        new_channel.language = data['language']
+    if(data['link'] != ""):
+        new_channel.link = data['link']
+    if(data['managingEditor'] != ""):
+        new_channel.managingEditor = data['managingEditor']
+    if(data['ttl'] != ""):
+        new_channel.ttl = data['ttl']
+    if(data['webMaster'] != ""):
+        new_channel.webMaster = data['webMaster']
+    if(data['item_pubDate'] != ""):
+        new_channel.item_pubDate = data['item_pubDate']
+    if(data['use_media'] == "True"):
+        if(data['enclosure_url'] != ""):
+            new_channel.enclosure_url = data['enclosure_url']
+        if(data['enclosure_length'] != ""):
+            new_channel.enclosure_length = data['enclosure_length']
+        if(data['enclosure_type'] != ""):
+            new_channel.enclosure_type = data['enclosure_type']
+
+
+def update_defs():
+    output = new_channel.print_definition()
+    f = open("Feed_Definitions.txt", "a+")
+    f.write("~-~-~-~-\n"+output)
+    f.close()
 
 def return_source():
     print("Test")
@@ -139,6 +203,15 @@ class MyHandler(BaseHTTPRequestHandler):
                 response = json.dumps(data)
                 print(response)
                 self.wfile.write(bytes(response, "utf-8"))
+            if(self.path == "/Feed_Data"):
+                data = json.loads(str(post_data, encoding="utf-8"))
+                print(data)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+                self.wfile.write(bytes("Received", "utf-8"))
+                channel_from_data(data)
+                update_defs()
+                new_channel.clear()
             return
         except:
             self.send_response(500)

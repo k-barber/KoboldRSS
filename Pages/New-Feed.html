@@ -21,7 +21,7 @@
             </br>
             <h2>Defining the Feed</h2>
             <p>We'll start by defining some features of the RSS Feed. Fields marked with a <span class="required">*</span> are mandatory.</p>
-            <form novalidate id="Feed_Data" action="javascript:void(0);">
+            <form id="Feed_Data" action="javascript:void(0);">
                 <p class="Field tooltip"><span class="required">*</span> Feed Link:<span class="tooltiptext">The URL of the web site associated with the Feed. Where the Feed will get its content from.</span></p>
                 <div class="padding">
                     <input id="Feed_Link" name="Feed_Link" class="input_box" type="url" required>
@@ -30,7 +30,7 @@
                 <div class="padding">
                     <input id="Feed_Title" name="Feed_Title" class="input_box" type="text" required>
                 </div>
-                <p class="Field tooltip"><span class="required">*</span> Feed Description:<span class="tooltiptext">Phrase or sentence describing the Feed & summarizing its contents.</span></p>
+                <p class="Field tooltip"><span class="required">*</span> Feed Description:<span class="tooltiptext">A few sentences describing the Feed & summarizing its contents.</span></p>
                 <div class="padding">
                     <textarea id="Feed_Description" name="Feed_Description" class="input_box" rows="10" cols="100" required></textarea>
                 </div>
@@ -150,7 +150,7 @@
                     <p>This is where things start to get complicated. Look through the data above and find an example of an item you want in the feed.</p>
                     <p>Copy that item into the box below, and replace any dynamic text with either {*} for data you don't want to keep, or {%} for data you do want to keep</p>
                     <p class="Field tooltip">Item Patttern:<span class="tooltiptext">The text that the Generator uses to create Feed Items. Dynamic text represented by {%} is saved by the Generator, {*} is discarded.</span></p>
-                    <div class="padding"><textarea id="Item_Pattern" rows="10" cols="100" class="input_box"></textarea></div>
+                    <div class="padding"><textarea id="Item_Pattern" rows="10" cols="100" class="input_box" required></textarea></div>
                     <button onclick="test_pattern()">Test Pattern</button>
                     <div id="Pattern_Results" style="display: none;">
                         <p class="Field">Items Found: <span id="Item_Total"></span></p>
@@ -177,7 +177,7 @@
                         <p>If you want, you can add HTML markup to the Item Description by using <a href="https://www.w3.org/TR/xml/#dt-cdsection">CDATA formatting</a>.</p>
                         <p>Simply add &lt;![CDATA[ at the start of your HTML and ]]&gt; to the end.</p>
                         <div class="padding">
-                            <textarea id="Item_Description" name="Item_Description" class="input_box" rows="10" cols="100">&lt;![CDATA[&#10;&#10;]&gt;</textarea>
+                            <textarea id="Item_Description" name="Item_Description" class="input_box" rows="10" cols="100">&lt;![CDATA[&#10;&#10;]]&gt;</textarea>
                         </div>
                         <p class="Field tooltip">Item Author:<span class="tooltiptext">The e-mail address of the person who wrote the item.</span></p>
                         <div class="padding">
@@ -197,15 +197,15 @@
                             <input type="radio" name="Item_Media" value="True" onclick="show_enclosure()"><span>Yes</span></input>
                         </div>
                         <div id="Item_Enclosure" class="padding" style="display: none;">
-                            <p class="Field tooltip"><span class="required">*</span>Enclosure URL:<span class="tooltiptext">The URL of the file</span></p>
+                            <p class="Field tooltip"><span class="required">*</span> Enclosure URL:<span class="tooltiptext">The URL of the file</span></p>
                             <div class="padding">
                                 <input id="Enclosure_URL" name="Enclosure_URL" class="input_box" type="text">
                             </div>
-                            <p class="Field tooltip"><span class="required">*</span>Enclosure Length:<span class="tooltiptext">The size of the file in bytes.</span></p>
+                            <p class="Field tooltip"><span class="required">*</span> Enclosure Length:<span class="tooltiptext">The size of the file in bytes.</span></p>
                             <div class="padding">
                                 <input id="Enclosure_Length" name="Enclosure_Length" class="input_box" type="text">
                             </div>
-                            <p class="Field tooltip"><span class="required">*</span>Enclosure Type:<span class="tooltiptext">The file's MIME format.</span></p>
+                            <p class="Field tooltip"><span class="required">*</span> Enclosure Type:<span class="tooltiptext">The file's MIME format.</span></p>
                             <div class="padding">
                                 <input id="Enclosure_Type" name="Enclosure_Type" class="input_box" type="text">
                             </div>
@@ -222,6 +222,12 @@
                         <div class="padding">
                             <input id="Item_PubDate" name="Item_PubDate" class="input_box" type="text"></input>
                         </div>
+                        </br>
+                        <hr>
+                        </br>
+                        <h2>Submit New Feed</h2>
+                        <p>When you've filled out the form, press the button below to add the new feed to your Feed_Definitions.txt file.</p>
+                        <button onclick="submit_form()">Submit</button>
                     </div>
                 </div>
             </form>
@@ -229,37 +235,12 @@
     </div>
     <script>
         function validateForm() {
-            var radios = document.getElementsByName('Feed_Image');
-            var use_image;
-            for (var i = 0, length = radios.length; i < length; i++) {
-                if (radios[i].checked) {
-                    use_image = radios[i].value;
-                    break;
-                }
-            }
-            var e = document.getElementById("Feed_Language");
-            var lang = e.options[e.selectedIndex].value;
-            console.log("Feed Title: " + document.getElementById("Feed_Title").value);
-            console.log("Feed Link: " + document.getElementById("Feed_Link").value);
-            console.log("Feed Description: " + document.getElementById("Feed_Description").value);
-            console.log("Feed TTL: " + document.getElementById("Feed_TTL").value);
-            console.log("Feed Categories: " + document.getElementById("Feed_Categories").value);
-            console.log("Feed Copyright: " + document.getElementById("Feed_Copyright").value);
-            console.log("Feed Image: " + use_image);
-            console.log("Image Link: " + document.getElementById("Image_Link").value);
-            console.log("Image Title: " + document.getElementById("Image_Title").value);
-            console.log("Image URL: " + document.getElementById("Image_URL").value);
-            console.log("Feed Language: " + lang);
-            console.log("Feed Editor: " + document.getElementById("Feed_Editor").value);
-            console.log("Feed Webmaster: " + document.getElementById("Feed_Webmaster").value);
-            console.log("Valid: " + document.getElementById("Feed_Data").reportValidity());
             return document.getElementById("Feed_Data").reportValidity();
         }
 
         function submit_form() {
             if (validateForm()) {
                 post_data()
-                document.getElementById("Item_Definition").style.display = "block";
             }
         }
 
@@ -269,12 +250,13 @@
             if ((url != null) & (link.checkValidity())) {
                 var xhr = new XMLHttpRequest();
                 xhr.onload = function () {
-                    console.log(xhr.response);
                     document.getElementById("Page_Source").value = xhr.response;
                     document.getElementById("Item_Definition").style.display = "block";
                 };
                 xhr.open('POST', '/Get_Source');
                 xhr.send(url);
+            }else{
+                console.log("Check failed");
             }
         }
 
@@ -284,7 +266,6 @@
                 var xhr = new XMLHttpRequest();
                 xhr.onload = function () {
                     var array = JSON.parse(xhr.response);
-                    console.log(array);
                     document.getElementById("Pattern_Results").style.display = "block";
                     var output = "";
                     var i = 1;
@@ -312,8 +293,61 @@
             xhr.onload = function () {
                 console.log(xhr.response);
             };
-            xhr.open('POST', "/");
-            xhr.send(new FormData(document.getElementById("Feed_Data")));
+            xhr.open('POST', "/Feed_Data");
+            xhr.send(JSON.stringify(get_form_data()));
+        }
+
+        function get_form_data(){
+            var radios = document.getElementsByName('Feed_Image');
+            var use_image;
+            for (var i = 0, length = radios.length; i < length; i++) {
+                if (radios[i].checked) {
+                    use_image = radios[i].value;
+                    break;
+                }
+            }
+
+            var media = document.getElementsByName('Item_Media');
+            var use_media;
+            for (var i = 0, length = media.length; i < length; i++) {
+                if (media[i].checked) {
+                    use_media = media[i].value;
+                    break;
+                }
+            }
+
+            var e = document.getElementById("Feed_Language");
+            var lang = e.options[e.selectedIndex].value;
+            output = {
+                'title': document.getElementById("Feed_Title").value,
+                'link': document.getElementById("Feed_Link").value,
+                'description': document.getElementById("Feed_Description").value.replace(/(\r\n|\n|\r)/gm,""),
+                'ttl' : document.getElementById("Feed_TTL").value,
+                'category' : document.getElementById("Feed_Categories").value,
+                'copyright' : document.getElementById("Feed_Copyright").value,
+                'image_link': document.getElementById("Image_Link").value,
+                'image_title': document.getElementById("Image_Title").value,
+                'image_url' : document.getElementById("Image_URL").value,
+                'language' : lang,
+                'managingEditor' : document.getElementById("Feed_Editor").value,
+                'webMaster' : document.getElementById("Feed_Webmaster").value,
+                'item_pattern' : document.getElementById("Item_Pattern").value,
+                'item_title' : document.getElementById("Item_Title").value,
+                'item_link' : document.getElementById("Item_Link").value,
+                'item_description' : document.getElementById("Item_Description").value.replace(/(\r\n|\n|\r)/gm,""),
+                'item_author' : document.getElementById("Item_Author").value,
+                'item_category' : document.getElementById("Item_Categories").value,
+                'item_comments' : document.getElementById("Item_Comments").value,
+                'item_guid' : document.getElementById("Item_GUID").value,
+                'use_image' : use_image,
+                'use_media' : use_media,
+                'enclosure_url': document.getElementById("Enclosure_URL").value,
+                'enclosure_length': document.getElementById("Enclosure_Length").value,
+                'enclosure_type' : document.getElementById("Enclosure_Type").value,
+                'item_pubDate' : document.getElementById("Item_PubDate").value,
+                'item_source' : document.getElementById("Item_Source").value,
+            }
+            return output;
         }
 
         function up5() {

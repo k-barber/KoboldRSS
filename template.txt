@@ -6,7 +6,6 @@ description:
 # Optional
 category:
 copyright:
-domain:
 image_link:
 image_title:
 image_url:
@@ -25,10 +24,14 @@ item_description:
 item_author:
 item_category:
 item_comments:
-item_enclosure:
 item_guid:
 item_pubDate:
 item_source:
+
+#Enclosure
+enclosure_url:
+enclosure_length:
+enclosure_type:
 
 ~-~-~-~-
 
@@ -66,7 +69,11 @@ item_source:
     item_author = None
     item_category = None
     item_comments = None
-    item_enclosure = None
     item_guid = None
     item_pubDate = None
     item_source = None
+
+    #Enclosure
+    enclosure_url = None
+    enclosure_length = None
+    enclosure_type = None
