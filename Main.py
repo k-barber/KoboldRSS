@@ -67,11 +67,11 @@ try:
             if (channel.lastBuildDate is not None):
                 if (now >= channel.lastBuildDate + timedelta(minutes=int(channel.ttl))):
                     print("Updating " + channel.title)
-                    #channel.print()
+                    channel.print()
                     channel.generate_items()
                     channel.save_channel()
             else:
-                #channel.print()
+                channel.print()
                 channel.generate_items()
                 channel.save_channel()
         index_channels()

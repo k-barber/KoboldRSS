@@ -5,47 +5,42 @@ from RSSItem import RSSItem
 Debug = False
 
 class RSSChannel:
-    #Required
-    title = "Default Title"
-    link = "https://www.w3.org/about"
-    description = "Default Description"
-    
-    #Optional
     category = None
     copyright = None
+    description = "Default Description"
     docs = "http://www.rssboard.org/rss-draft-1"
+
+    enclosure_length = None
+    enclosure_type = None
+    enclosure_url = None
+
     generator = "https://github.com/k-barber/RSS-Generator"
+
     image_link = None
     image_title = None
     image_url = None
-    language = "en-us"
-    lastBuildDate = None
-    managingEditor = None
-    pubDate = None
-    ttl = 60
-    webMaster = None
 
-    #Content
     items = []
-
-    #Item Definition - Required
-    item_pattern = None
-    item_title = None
-    item_link = None
-    item_description = None
-
-    #Item Definition - Optional
     item_author = None
     item_category = None
     item_comments = None
+    item_description = None
     item_guid = None
+    item_link = None
+    item_pattern = None
     item_pubDate = None
     item_source = None
+    item_title = None
 
-    #Enclosure
-    enclosure_url = None
-    enclosure_length = None
-    enclosure_type = None
+    language = "en-us"
+    lastBuildDate = None
+    link = "https://www.w3.org/about"
+    managingEditor = None
+    pubDate = None
+    title = "Default Title"
+    ttl = 60
+    webMaster = None
+    
 
     def __str__(self):
         output = "    <channel>\n"
@@ -94,42 +89,42 @@ class RSSChannel:
         return output
 
     def print(self):
-        #Required
-        print("Title: " + str(self.title))
-        print("Link: " + str(self.link))
-        print("Description: " + str(self.description))
-
-        # Optional
         print("Category: " + str(self.category))
         print("Copyright: " + str(self.copyright))
+        print("Description: " + str(self.description))
         print("Docs: " + str(self.docs))
+
+        print("Enclosure_length: " + str(self.enclosure_length))
+        print("Enclosure_type: " + str(self.enclosure_type))
+        print("Enclosure_url: " + str(self.enclosure_url))
+
         print("Generator: " + str(self.generator))
+
         print("Image Link: " + str(self.image_link))
         print("Image Title: " + str(self.image_title))
         print("Image URL: " + str(self.image_url))
-        print("Language: " + str(self.language))
-        print("Last Build Date: " + str(self.lastBuildDate))
-        print("Managing Editor: " + str(self.managingEditor))
-        print("Pub Date: " + str(self.pubDate))
-        print("TTL: " + str(self.ttl))
-        print("Web Master: " + str(self.webMaster))
 
-        #Item Definition - Required
-        print("Item_pattern: " + str(self.item_pattern))
-        print("Item_title: " + str(self.item_title))
-        print("Item_link: " + str(self.item_link))
-        print("Item_description: " + str(self.item_description))
-
-        #Item Definition - Optional
         print("Item_author: " + str(self.item_author))
         print("Item_category: " + str(self.item_category))
         print("Item_comments: " + str(self.item_comments))
-        print("Enclosure_url: " + str(self.enclosure_url))
-        print("Enclosure_length: " + str(self.enclosure_length))
-        print("Enclosure_type: " + str(self.enclosure_type))
+        print("Item_description: " + str(self.item_description))
         print("item_guid: " + str(self.item_guid))
+        print("Item_link: " + str(self.item_link))
+        print("Item_pattern: " + str(self.item_pattern))
         print("Item_pubDate: " + str(self.item_pubDate))
         print("Item_source: " + str(self.item_source))
+        print("Item_title: " + str(self.item_title))
+        
+        print("Language: " + str(self.language))
+        print("Last Build Date: " + str(self.lastBuildDate))
+        print("Link: " + str(self.link))
+        print("Managing Editor: " + str(self.managingEditor))
+        print("Pub Date: " + str(self.pubDate))
+        print("Title: " + str(self.title))
+        print("TTL: " + str(self.ttl))
+        print("Web Master: " + str(self.webMaster))
+        
+        
 
     def create_item(self, data):
         return RSSItem(
@@ -178,68 +173,65 @@ class RSSChannel:
             semi += 1
             
             # Unfortunately, Python does not include Switch
-
-            # Required
-            if (prefix == 'title'):
-                self.title = self.clean_input(line[semi:])
-            elif (prefix =='link'):
-                self.link = self.clean_input(line[semi:])
-            elif (prefix =='description'):
-                self.description = self.clean_input(line[semi:])
             
-            # Optional
-            elif (prefix =='category'):
+            if (prefix =='category'):
                 cats = self.clean_input(line[semi:]).split(",")
                 self.category = [cat.strip() for cat in cats]
             elif (prefix =='copyright'):
                 self.copyright = self.clean_input(line[semi:])
+            elif (prefix =='description'):
+                self.description = self.clean_input(line[semi:])
+            
+
+            elif (prefix =='enclosure_length'):
+                self.enclosure_length = self.clean_input(line[semi:])
+            elif (prefix =='enclosure_type'):
+                self.enclosure_type = self.clean_input(line[semi:])
+            elif (prefix =='enclosure_url'):
+                self.enclosure_url = self.clean_input(line[semi:])
+
+
             elif (prefix =='image_link'):
                 self.image_link = self.clean_input(line[semi:])
             elif (prefix =='image_title'):
                 self.image_title = self.clean_input(line[semi:])
             elif (prefix =='image_url'):
                 self.image_url = self.clean_input(line[semi:])
-            elif (prefix =='language'):
-                self.language = self.clean_input(line[semi:])
-            elif (prefix =='managingEditor'):
-                self.managingEditor = self.clean_input(line[semi:])
-            elif (prefix =='ttl'):
-                self.ttl = self.clean_input(line[semi:])
-            elif (prefix =='webMaster'):
-                self.webMaster = self.clean_input(line[semi:])
-            
-            # Item Definition - Required
-            elif (prefix =='item_pattern'):
-                self.item_pattern = self.clean_input(line[semi:])
-            elif (prefix =='item_title'):
-                self.item_title = self.clean_input(line[semi:])
-            elif (prefix =='item_link'):
-                self.item_link = self.clean_input(line[semi:])
-            elif (prefix =='item_description'):
-                self.item_description = self.clean_input(line[semi:])
 
-            # Item Definition - Optional
+
             elif (prefix =='item_author'):
                 self.item_author = self.clean_input(line[semi:])
             elif (prefix =='item_category'):
                 self.item_category = self.clean_input(line[semi:])
             elif (prefix =='item_comments'):
                 self.item_comments = self.clean_input(line[semi:])
+            elif (prefix =='item_description'):
+                self.item_description = self.clean_input(line[semi:])
             elif (prefix =='item_guid'):
                 self.item_guid = self.clean_input(line[semi:])
+            elif (prefix =='item_link'):
+                self.item_link = self.clean_input(line[semi:])
+            elif (prefix =='item_pattern'):
+                self.item_pattern = self.clean_input(line[semi:])
             elif (prefix =='item_pubDate'):
                 self.item_pubDate = self.clean_input(line[semi:])
             elif (prefix =='item_source'):
                 self.item_source = self.clean_input(line[semi:])
-            
-            #Enclosure Data
-            elif (prefix =='enclosure_url'):
-                self.enclosure_url = self.clean_input(line[semi:])
-            elif (prefix =='enclosure_length'):
-                self.enclosure_length = self.clean_input(line[semi:])
-            elif (prefix =='enclosure_type'):
-                self.enclosure_type = self.clean_input(line[semi:])
-            
+            elif (prefix =='item_title'):
+                self.item_title = self.clean_input(line[semi:])
+
+            elif (prefix =='language'):
+                self.language = self.clean_input(line[semi:])
+            elif (prefix =='link'):
+                self.link = self.clean_input(line[semi:])
+            elif (prefix =='managingEditor'):
+                self.managingEditor = self.clean_input(line[semi:])
+            elif (prefix == 'title'):
+                self.title = self.clean_input(line[semi:])
+            elif (prefix =='ttl'):
+                self.ttl = self.clean_input(line[semi:])
+            elif (prefix =='webMaster'):
+                self.webMaster = self.clean_input(line[semi:])
         if (Debug): self.print()
 
     def get_item_text(self, text, start_pattern, stop_pattern):
@@ -358,58 +350,46 @@ class RSSChannel:
             return None
 
     def clear(self):
-        self.title = "Default Title"
-        self.link = "https://www.w3.org/about"
-        self.description = "Default Description"
-        
-        #Optional
         self.category = None
         self.copyright = None
+        self.description = "Default Description"
         self.docs = "http://www.rssboard.org/rss-draft-1"
+
+        self.enclosure_length = None
+        self.enclosure_type = None
+        self.enclosure_url = None
+
         self.generator = "https://github.com/k-barber/RSS-Generator"
+
         self.image_link = None
         self.image_title = None
         self.image_url = None
-        self.language = "en-us"
-        self.lastBuildDate = None
-        self.managingEditor = None
-        self.pubDate = None
-        self.ttl = 60
-        self.webMaster = None
 
-        #Content
         self.items = []
-
-        #Item Definition - Required
-        self.item_pattern = None
-        self.item_title = None
-        self.item_link = None
-        self.item_description = None
-
-        #Item Definition - Optional
         self.item_author = None
         self.item_category = None
         self.item_comments = None
+        self.item_description = None
         self.item_guid = None
+        self.item_link = None
+        self.item_pattern = None
         self.item_pubDate = None
         self.item_source = None
+        self.item_title = None
+        
+        self.language = "en-us"
+        self.lastBuildDate = None
+        self.link = "https://www.w3.org/about"
+        self.managingEditor = None
+        self.pubDate = None
+        self.title = "Default Title"
+        self.ttl = 60
+        self.webMaster = None
 
-        #Enclosure
-        self.enclosure_url = None
-        self.enclosure_length = None
-        self.enclosure_type = None
 
     def print_definition(self):
         output = ""
-        # Required 
-        if (self.title is not None):
-            output += "title:" + self.title + "\n"
-        if (self.link is not None):
-            output += "link:" + self.link + "\n"
-        if (self.description is not None):
-            output += "description:" + self.description + "\n"
-
-        # Optional
+        
         if (self.category is not None):
             output += "category:"
             for cat in self.category:
@@ -418,42 +398,55 @@ class RSSChannel:
             output += "\n"
         if (self.copyright is not None):
             output += "copyright:" + self.copyright + "\n"
+        if (self.description is not None):
+            output += "description:" + self.description + "\n"
+
+
+        if (self.enclosure_length is not None):
+            output += "enclosure_length:" + self.enclosure_length + "\n"
+        if (self.enclosure_type is not None):
+            output += "enclosure_type:" + self.enclosure_type + "\n"
+        if (self.enclosure_url is not None):
+            output += "enclosure_url:" + self.enclosure_url + "\n"
+
         if (self.image_link is not None and self.image_title is not None and self.image_url is not None):
             output += "image_link:" + self.image_link + "\n"
             output += "image_title:" + self.image_title + "\n"
             output += "image_url:" + self.image_url + "\n"
-        if (self.language is not None):
-            output += "language:" + self.language + "\n"
-        if (self.managingEditor is not None):
-            output += "managingEditor:" + self.managingEditor + "\n"
-        if (self.ttl is not None):
-            output += "ttl:" + str(self.ttl) + "\n"
-        if (self.webMaster is not None):
-            output += "webMaster:" + self.webMaster + "\n"
 
-        #Item Definition - Required
-        if (self.item_pattern is not None):
-            output += "item_pattern:" + self.item_pattern + "\n"
-        if (self.item_title is not None):
-            output += "item_title:" + self.item_title + "\n"
-        if (self.item_link is not None):
-            output += "item_link:" + self.item_link + "\n"
-        if (self.item_description is not None):
-            output += "item_description:" + self.item_description + "\n"
 
-        #Item Definition - Optional
         if (self.item_author is not None):
             output += "item_author:" + self.item_author + "\n"
         if (self.item_category is not None):
             output += "item_category:" + self.item_category + "\n"
         if (self.item_comments is not None):
             output += "item_comments:" + self.item_comments + "\n"
-
-        # Enclosure
-        if (self.enclosure_url is not None):
-            output += "enclosure_url:" + self.enclosure_url + "\n"
-        if (self.enclosure_length is not None):
-            output += "enclosure_length:" + self.enclosure_length + "\n"
-        if (self.enclosure_type is not None):
-            output += "enclosure_type:" + self.enclosure_type + "\n"
+        if (self.item_description is not None):
+            output += "item_description:" + self.item_description + "\n"
+        if (self.item_guid is not None):
+            output += "item_guid:" + self.item_guid + "\n"
+        if (self.item_link is not None):
+            output += "item_link:" + self.item_link + "\n"
+        if (self.item_pattern is not None):
+            output += "item_pattern:" + self.item_pattern + "\n"
+        if (self.item_pubDate is not None):
+            output += "item_pubDate:" + self.item_pubDate + "\n"
+        if (self.item_source is not None):
+            output += "item_source:" + self.item_source + "\n"
+        if (self.item_title is not None):
+            output += "item_title:" + self.item_title + "\n"
+        
+        
+        if (self.language is not None):
+            output += "language:" + self.language + "\n"
+        if (self.link is not None):
+            output += "link:" + self.link + "\n"
+        if (self.managingEditor is not None):
+            output += "managingEditor:" + self.managingEditor + "\n"
+        if (self.title is not None):
+            output += "title:" + self.title + "\n"
+        if (self.ttl is not None):
+            output += "ttl:" + str(self.ttl) + "\n"
+        if (self.webMaster is not None):
+            output += "webMaster:" + self.webMaster + "\n"
         return output

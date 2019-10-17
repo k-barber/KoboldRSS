@@ -41,6 +41,13 @@ def channel_from_data(data):
         new_channel.copyright = data['copyright']
     if(data['description'] != ""):
         new_channel.description = data['description']
+    if(data['use_media'] == "True"):
+        if(data['enclosure_length'] != ""):
+            new_channel.enclosure_length = data['enclosure_length']
+        if(data['enclosure_type'] != ""):
+            new_channel.enclosure_type = data['enclosure_type']
+        if(data['enclosure_url'] != ""):
+            new_channel.enclosure_url = data['enclosure_url']
     if(data['use_image'] == "True"):
         if(data['image_link'] != ""):
             new_channel.image_link = data['image_link']
@@ -74,20 +81,12 @@ def channel_from_data(data):
         new_channel.link = data['link']
     if(data['managingEditor'] != ""):
         new_channel.managingEditor = data['managingEditor']
+    if(data['title'] != ""):
+        new_channel.title = data['title']
     if(data['ttl'] != ""):
         new_channel.ttl = data['ttl']
     if(data['webMaster'] != ""):
         new_channel.webMaster = data['webMaster']
-    if(data['item_pubDate'] != ""):
-        new_channel.item_pubDate = data['item_pubDate']
-    if(data['use_media'] == "True"):
-        if(data['enclosure_url'] != ""):
-            new_channel.enclosure_url = data['enclosure_url']
-        if(data['enclosure_length'] != ""):
-            new_channel.enclosure_length = data['enclosure_length']
-        if(data['enclosure_type'] != ""):
-            new_channel.enclosure_type = data['enclosure_type']
-
 
 def update_defs():
     output = new_channel.print_definition()
