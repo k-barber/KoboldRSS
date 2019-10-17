@@ -1,4 +1,4 @@
-import datetime
+from CleanInput import dirty_output
 
 class RSSItem:
     author = None
@@ -59,28 +59,28 @@ class RSSItem:
     def __str__(self):
         output = "        <item>\n"
         if (self.author is not None):
-            output += "            <author>" + self.author + "</author>\n"
+            output += "            <author>" + dirty_output(self.author) + "</author>\n"
         if (self.category is not None):
             for cat in self.category:
-                output += "            <category>" + cat + "</category>\n"
+                output += "            <category>" + dirty_output(cat) + "</category>\n"
         if (self.comments is not None):
-            output += "            <comments>" + self.comments + "</comments>\n"
+            output += "            <comments>" + dirty_output(self.comments) + "</comments>\n"
         if (self.description is not None):
-            output += "            <description>" + self.description + "</description>\n"
+            output += "            <description>" + dirty_output(self.description) + "</description>\n"
 
         if (self.enclosure_url is not None and self.enclosure_length is not None and self.enclosure_type is not None):
-            output += '            <enclosure url="' + self.enclosure_url +'" length="' + self.enclosure_length +'" type="' + self.enclosure_type + '" />\n'
+            output += '            <enclosure url="' + dirty_output(self.enclosure_url) +'" length="' + dirty_output(self.enclosure_length) +'" type="' + dirty_output(self.enclosure_type) + '" />\n'
 
         if (self.guid is not None):
-            output += "            <guid>" + self.guid + "</guid>\n"
+            output += "            <guid>" + dirty_output(self.guid) + "</guid>\n"
         if (self.link is not None):
-            output += "            <link>" + self.link.replace("&", "&amp;") + "</link>\n"
+            output += "            <link>" + dirty_output(self.link) + "</link>\n"
         if (self.pubDate is not None):
-            output += "            <pubDate>" + str(self.pubDate) + "</pubDate>\n"
+            output += "            <pubDate>" + dirty_output(str(self.pubDate)) + "</pubDate>\n"
         if (self.source is not None):
-            output += "            <source>" + self.source + "</source>\n"
+            output += "            <source>" + dirty_output(self.source) + "</source>\n"
         if (self.title is not None):
-            output += "            <title>" + self.title + "</title>\n"
+            output += "            <title>" + dirty_output(self.title) + "</title>\n"
         output +="        </item>\n"
         return output
     

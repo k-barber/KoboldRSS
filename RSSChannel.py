@@ -1,6 +1,7 @@
 import datetime
 import requests
 from RSSItem import RSSItem
+from CleanInput import clean_input, dirty_output
 
 Debug = False
 
@@ -47,40 +48,40 @@ class RSSChannel:
 
         # Required 
         if (self.title is not None):
-            output += "        <title>" + self.title + "</title>\n"
+            output += "        <title>" + dirty_output(self.title) + "</title>\n"
         if (self.link is not None):
-            output += "        <link>" + self.link.replace("&", "&amp;") + "</link>\n"
+            output += "        <link>" + dirty_output(self.link) + "</link>\n"
         if (self.description is not None):
-            output += "        <description>" + self.description + "</description>\n"
+            output += "        <description>" + dirty_output(self.description) + "</description>\n"
 
         # Optional
         if (self.category is not None):
             for cat in self.category:
-                output += "        <category>" + cat + "</category>\n"
+                output += "        <category>" + dirty_output(cat) + "</category>\n"
         if (self.copyright is not None):
-            output += "        <copyright>" + self.copyright + "</copyright>\n"
+            output += "        <copyright>" + dirty_output(self.copyright) + "</copyright>\n"
         if (self.docs is not None):
-            output += "        <docs>" + self.docs + "</docs>\n"
+            output += "        <docs>" + dirty_output(self.docs) + "</docs>\n"
         if (self.generator is not None):
-            output += "        <generator>" + self.generator + "</generator>\n"
+            output += "        <generator>" + dirty_output(self.generator) + "</generator>\n"
         if (self.image_link is not None and self.image_title is not None and self.image_url is not None):
             output += "        <image>\n"
-            output += "            <link>" + self.image_link + "</link>\n"
-            output += "            <title>" + self.image_title + "</title>\n"
-            output += "            <url>" + self.image_url + "</url>\n"
+            output += "            <link>" + dirty_output(self.image_link) + "</link>\n"
+            output += "            <title>" + dirty_output(self.image_title) + "</title>\n"
+            output += "            <url>" + dirty_output(self.image_url) + "</url>\n"
             output += "        </image>\n"
         if (self.language is not None):
-            output += "        <language>" + self.language + "</language>\n"
+            output += "        <language>" + dirty_output(self.language) + "</language>\n"
         if (self.lastBuildDate is not None):
-            output += "        <lastBuildDate>" + str(self.lastBuildDate) + "</lastBuildDate>\n"
+            output += "        <lastBuildDate>" + dirty_output(str(self.lastBuildDate)) + "</lastBuildDate>\n"
         if (self.managingEditor is not None):
-            output += "        <managingEditor>" + self.managingEditor + "</managingEditor>\n"
+            output += "        <managingEditor>" + dirty_output(self.managingEditor) + "</managingEditor>\n"
         if (self.pubDate is not None):
-            output += "        <pubDate>" + str(self.pubDate) + "</pubDate>\n"
+            output += "        <pubDate>" + dirty_output(str(self.pubDate)) + "</pubDate>\n"
         if (self.ttl is not None):
-            output += "        <ttl>" + str(self.ttl) + "</ttl>\n"
+            output += "        <ttl>" + dirty_output(str(self.ttl)) + "</ttl>\n"
         if (self.webMaster is not None):
-            output += "        <webMaster>" + self.webMaster + "</webMaster>\n"
+            output += "        <webMaster>" + dirty_output(self.webMaster) + "</webMaster>\n"
         
         if (len(self.items) != 0):
             for item in self.items:
@@ -143,21 +144,6 @@ class RSSChannel:
             source=self.item_source
         )
 
-    def clean_input(self, text):
-        text = text.strip()
-        text = text.replace("&amp;", "&")
-        text = text.replace("&gt;", ">")
-        text = text.replace("&lt;", "<")
-        text = text.replace("&nbsp;", " ")
-        text = text.replace("&quot;", '"')
-        text = text.replace("&apos;", "'")
-        text = text.replace("&#62;", ">")
-        text = text.replace("&#60;", "<")
-        text = text.replace("&#160;", " ")
-        text = text.replace("&#34;", '"')
-        text = text.replace("&#39", "'")
-        return text
-
     def __init__(self, data=None):
         self.items = []
 
@@ -175,63 +161,63 @@ class RSSChannel:
             # Unfortunately, Python does not include Switch
             
             if (prefix =='category'):
-                cats = self.clean_input(line[semi:]).split(",")
+                cats = clean_input(line[semi:]).split(",")
                 self.category = [cat.strip() for cat in cats]
             elif (prefix =='copyright'):
-                self.copyright = self.clean_input(line[semi:])
+                self.copyright = clean_input(line[semi:])
             elif (prefix =='description'):
-                self.description = self.clean_input(line[semi:])
+                self.description = clean_input(line[semi:])
             
 
             elif (prefix =='enclosure_length'):
-                self.enclosure_length = self.clean_input(line[semi:])
+                self.enclosure_length = clean_input(line[semi:])
             elif (prefix =='enclosure_type'):
-                self.enclosure_type = self.clean_input(line[semi:])
+                self.enclosure_type = clean_input(line[semi:])
             elif (prefix =='enclosure_url'):
-                self.enclosure_url = self.clean_input(line[semi:])
+                self.enclosure_url = clean_input(line[semi:])
 
 
             elif (prefix =='image_link'):
-                self.image_link = self.clean_input(line[semi:])
+                self.image_link = clean_input(line[semi:])
             elif (prefix =='image_title'):
-                self.image_title = self.clean_input(line[semi:])
+                self.image_title = clean_input(line[semi:])
             elif (prefix =='image_url'):
-                self.image_url = self.clean_input(line[semi:])
+                self.image_url = clean_input(line[semi:])
 
 
             elif (prefix =='item_author'):
-                self.item_author = self.clean_input(line[semi:])
+                self.item_author = clean_input(line[semi:])
             elif (prefix =='item_category'):
-                self.item_category = self.clean_input(line[semi:])
+                self.item_category = clean_input(line[semi:])
             elif (prefix =='item_comments'):
-                self.item_comments = self.clean_input(line[semi:])
+                self.item_comments = clean_input(line[semi:])
             elif (prefix =='item_description'):
-                self.item_description = self.clean_input(line[semi:])
+                self.item_description = clean_input(line[semi:])
             elif (prefix =='item_guid'):
-                self.item_guid = self.clean_input(line[semi:])
+                self.item_guid = clean_input(line[semi:])
             elif (prefix =='item_link'):
-                self.item_link = self.clean_input(line[semi:])
+                self.item_link = clean_input(line[semi:])
             elif (prefix =='item_pattern'):
-                self.item_pattern = self.clean_input(line[semi:])
+                self.item_pattern = clean_input(line[semi:])
             elif (prefix =='item_pubDate'):
-                self.item_pubDate = self.clean_input(line[semi:])
+                self.item_pubDate = clean_input(line[semi:])
             elif (prefix =='item_source'):
-                self.item_source = self.clean_input(line[semi:])
+                self.item_source = clean_input(line[semi:])
             elif (prefix =='item_title'):
-                self.item_title = self.clean_input(line[semi:])
+                self.item_title = clean_input(line[semi:])
 
             elif (prefix =='language'):
-                self.language = self.clean_input(line[semi:])
+                self.language = clean_input(line[semi:])
             elif (prefix =='link'):
-                self.link = self.clean_input(line[semi:])
+                self.link = clean_input(line[semi:])
             elif (prefix =='managingEditor'):
-                self.managingEditor = self.clean_input(line[semi:])
+                self.managingEditor = clean_input(line[semi:])
             elif (prefix == 'title'):
-                self.title = self.clean_input(line[semi:])
+                self.title = clean_input(line[semi:])
             elif (prefix =='ttl'):
-                self.ttl = self.clean_input(line[semi:])
+                self.ttl = clean_input(line[semi:])
             elif (prefix =='webMaster'):
-                self.webMaster = self.clean_input(line[semi:])
+                self.webMaster = clean_input(line[semi:])
         if (Debug): self.print()
 
     def get_item_text(self, text, start_pattern, stop_pattern):
@@ -279,11 +265,11 @@ class RSSChannel:
 
             if (Debug): print("Char: " + item_pattern[left_stop+1])
             if (item_pattern[left_stop+1] == "%"):
-                field = self.clean_input(item_text[item_text.find(left, start) + len(left): stop])
+                field = clean_input(item_text[item_text.find(left, start) + len(left): stop])
                 if (Debug): print("Field: " + field)
                 output.append(field)
             elif (Debug):
-                field = self.clean_input(item_text[item_text.find(left, start) + len(left): stop])
+                field = clean_input(item_text[item_text.find(left, start) + len(left): stop])
                 print("Field: " + field)
             
             pattern_start = right_start
@@ -307,7 +293,7 @@ class RSSChannel:
 
         output += "</rss>"
 
-        f = open("Feeds/" + self.title.replace(":", "~").replace(" ", "_") + ".xml", "wb")
+        f = open("Feeds/" + dirty_output(self.title) + ".xml", "wb")
         f.write(str.encode(output))
         f.close()
 
