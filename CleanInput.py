@@ -31,16 +31,4 @@ def dirty_output(text):
     str: Text with formatting
     """
     text = text.replace("&", "&amp;")
-    text = text.replace(">", "&gt;")
-    text = text.replace("<", "&lt;")
-    text = text.replace(" ", "&nbsp;")
-    text = text.replace('"', "&quot;")
-    text = text.replace("'", "&apos;")
-    text = text.replace(">", "&#62;")
-    text = text.replace("<", "&#60;")
-    text = text.replace(" ", "&#160;")
-    text = text.replace('"', "&#34;")
-    text = text.replace("'", "&#39")
-    text = text.replace(":", "~")
-    text = text.replace(" ", "_")
     return text
