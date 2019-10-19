@@ -1,3 +1,13 @@
+from datetime import datetime
+
+def log(text):
+    """Prints the given text with a current timestamp
+
+    Parameters:
+    text (str):  The text to print
+    """
+    print(datetime.now().strftime('[%Y/%m/%d %H:%M:%S] - ') + text)
+
 def clean_input(text):
     """Removes any web formatting & replaces it with regular text
 

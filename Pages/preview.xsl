@@ -12,7 +12,7 @@
         <div id="container">
             <div>
                 <a href="http://www.rssboard.org/rss-draft-1" target="_blank"><img id="icon" src="/Img/RSS.png"/></a>
-                <p><a href="/">Home</a> &gt; <a href="/Feeds/">Feeds</a> &gt; <xsl:value-of select="title"/>.xml</p>
+                <p><a href="/">Home</a> &gt; <a href="/Feeds/">My Feeds</a> &gt; <xsl:value-of select="title"/>.xml</p>
                 <h1>K-Barber's RSS-Manager: Feed Details &amp; Preview</h1>
                 <p>Congratulations! If you can see this page, you are ready to add your custom feed to your feed reader!</p>
                 <p>Simply add this page's url into your feed reader and you're all done.</p>
@@ -54,13 +54,11 @@
         <script>
         <![CDATA[
             var descriptions = document.getElementsByClassName("description");
-            console.log(descriptions);
             [].forEach.call(descriptions, function(description){
                 inner = description.innerHTML;
                 inner = inner.replace(/&lt;/g, "<");
                 inner = inner.replace(/&gt;/g, ">");
                 inner = inner.replace(/&amp;/g, "&");
-                console.log(inner);
                 description.innerHTML = inner;
             });
             ]]>

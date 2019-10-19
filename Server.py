@@ -125,6 +125,7 @@ urls ={
     "/favicon.ico": ["Img/favicon.ico", "image/x-icon"],
     "/Pages/styles.css": ["Pages/styles.css", "text/css"],
     "/New-Feed": ["Pages/New-Feed.html", "text/html"],
+    "/Success": ["Pages/Success.html", "text/html"],
 }
 
 class MyHandler(BaseHTTPRequestHandler):

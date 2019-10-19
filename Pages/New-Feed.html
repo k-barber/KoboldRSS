@@ -13,7 +13,7 @@
         <div>
             <a href="http://www.rssboard.org/rss-draft-1" target="_blank"><img id="icon" src="/Img/RSS.png"></a>
             <p><a href="/">Home</a> > New Feed</p>
-            <h1>K-Barber's RSS-Generator: Add a Feed</h1>
+            <h1>K-Barber's RSS-Generator: New Feed</h1>
             <p>Creating a new RSS feed is easy. The Generator just follow the instructions and fill in the form below.</p>
             <p>If you are unsure about what the field is asking for, mouse over it or check out the <a href="">Read Me Documentation</a></p>
             </br>
@@ -66,7 +66,7 @@
                         <input id="Image_URL" name="Image_URL" class="input_box" type="url">
                     </div>
                 </div>
-                <p class="Field tooltip">Feed Language:</p>
+                <p class="Field">Feed Language:</p>
                 <div class="padding">
                     <select id="Feed_Language" name="Feed_Language" class="input_box">
                         <option value="af">Afrikaans</option>
@@ -240,7 +240,7 @@
 
         function submit_form() {
             if (validateForm()) {
-                post_data()
+                post_data();
             }
         }
 
@@ -292,6 +292,11 @@
             var xhr = new XMLHttpRequest();
             xhr.onload = function () {
                 console.log(xhr.response);
+                if(xhr.response = "Recieved"){
+                    window.location.href = "/Success";
+                }else{
+                    window.alert("Uh oh. Something went wrong. Check the server's ")
+                }
             };
             xhr.open('POST', "/Feed_Data");
             xhr.send(JSON.stringify(get_form_data()));
