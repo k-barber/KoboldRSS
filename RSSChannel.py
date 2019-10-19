@@ -305,8 +305,12 @@ class RSSChannel:
             return
         if (len(self.items) > 0):
             self.items = []
-        start_pattern = self.item_pattern[:self.item_pattern.find("{")]
-        stop_pattern = self.item_pattern[self.item_pattern.rfind("}")+1:]
+        start = self.item_pattern.find("{")
+        stop = self.item_pattern.rfind("}")
+        if(start == -1 or stop == -1):
+            return
+        start_pattern = self.item_pattern[:start]
+        stop_pattern = self.item_pattern[stop+1:]
         if(Debug): print(start_pattern)
         if(Debug): print(stop_pattern)
         response = None
