@@ -1,7 +1,8 @@
 import datetime
 import requests
+from time import sleep
 from RSSItem import RSSItem
-from CleanInput import clean_input, dirty_output
+from Utils import clean_input, dirty_output, log
 
 Debug = False
 
@@ -308,15 +309,24 @@ class RSSChannel:
         stop_pattern = self.item_pattern[self.item_pattern.rfind("}")+1:]
         if(Debug): print(start_pattern)
         if(Debug): print(stop_pattern)
-
-        response = requests.get(self.link)
-        text = response.text
-        data = self.get_item_text(text, start_pattern, stop_pattern)
-        item_info = self.parse_items(data)
-        for item in item_info:
-            self.items.append(self.create_item(item))
-        self.lastBuildDate = datetime.datetime.now()
-        self.pubDate = datetime.datetime.now()
+        response = None
+        timer = 0
+        while (response is None):
+            sleep(timer)
+            try:
+                response = requests.get(self.link)
+                text = response.text
+                data = self.get_item_text(text, start_pattern, stop_pattern)
+                item_info = self.parse_items(data)
+                for item in item_info:
+                    self.items.append(self.create_item(item))
+                self.lastBuildDate = datetime.datetime.now()
+                self.pubDate = datetime.datetime.now()
+            except Exception as err:
+                log("ERROR:")
+                log(err)
+                timer += 1
+                log("Retrying in " + str(timer) + " seconds.")
 
     def test_pattern(self, pattern, text):
         try:

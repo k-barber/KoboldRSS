@@ -1,4 +1,4 @@
-from CleanInput import dirty_output
+from Utils import dirty_output
 
 class RSSItem:
     author = None
