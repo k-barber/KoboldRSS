@@ -28,16 +28,29 @@ It should be noted that this means the generator will only work with Feed reader
 
 A full list of compatible and incompatible readers can be found here.
 
+<table style="border: none;">
+  <tr style="border: none;">
+    <td style="border: none;">
+      <p>
+      To begin, download the program in one of three ways:
+        <ol>
+          <li>Direct Download</li>
+          <li>Torrent Download</li>
+          <li>Clone this git repository</li>
+        </ol>
+      </p>
+    </td>
+    <td style="border: none;">
+      <img style="float: right;" src="https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme%20images/download.jpg">
+    </td>
+  </tr>
+</table>
 
 
-To begin, download the program in one of three ways: 
-1.	Direct Download
-2.	Torrent Download
-3.	Clone this git repository
 
-<img style="float: right;" src="https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme%20images/download.jpg">
 
-![Download the Program](https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme%20images/download.jpg)
+
+
 
 If you opt to clone the git repo, I apologize for the mess.
 
