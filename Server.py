@@ -217,7 +217,6 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_response(500)
             return
 
-
 if __name__ == '__main__':
     server_class = HTTPServer
     httpd = server_class((HOST_NAME, PORT_NUMBER), MyHandler)

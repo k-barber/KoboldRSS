@@ -338,11 +338,11 @@ class RSSChannel:
             first = self.item_pattern.find("{")
             if (first < 0):
                 return None
-            second = self.item_pattern.rfind("}")+1
-            if (second < 1):
+            second = self.item_pattern.rfind("}")
+            if (second < 0):
                 return None
             start_pattern = self.item_pattern[:first]
-            stop_pattern = self.item_pattern[second:]
+            stop_pattern = self.item_pattern[second+1:]
             data = self.get_item_text(text, start_pattern, stop_pattern)
             item_info = self.parse_items(data)
             return item_info
