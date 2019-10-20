@@ -1,8 +1,9 @@
 # RSS-Manager 
 
 ## Table of Contents
-  1. Table of Contents
+  1. [Table of Contents](#table-of-contents)
   2. [Guide](#Guide)
+      1. [Download the Program](#download-the-program)
       1. [Starting the Server](#starting-the-Server)
       2. [Starting the Generator](#starting-the-generator)
       3. [Creating a New Feed](#creating-a-new-feed)
@@ -28,20 +29,18 @@ It should be noted that this means the generator will only work with Feed reader
 
 A full list of compatible and incompatible readers can be found here.
 
-<p align="center">
-  <img src="https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme%20images/download.jpg">
-</p>
+### Download the Program
 
 To begin, download the program in one of three ways:
   1. Direct Download
   2. Torrent Download
   3. Clone this Git Repository
+  
+<p align="center">
+  <img src="https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme%20images/download.jpg">
+</p>
 
 If you opt to clone the git repo, I apologize for the mess.
-
-<p align="center">
-  <img src="https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme%20images/unzip.jpg">
-</p>
 
 Once you have downloaded the .zip file, unzip it and you should have a folder with the following contents:
   - Feeds folder
@@ -51,7 +50,13 @@ Once you have downloaded the .zip file, unzip it and you should have a folder wi
   - Generator.exe
   - Server.exe
   
+<p align="center">
+  <img src="https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme%20images/unzip.jpg">
+</p>
+  
 If that is correct, you are ready to begin.
+
+
 
 *****
 
