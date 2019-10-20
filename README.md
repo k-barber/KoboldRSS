@@ -2,8 +2,8 @@
 
 ## Table of Contents
   1. Table of Contents
-  2. [Guide](#-Guide)
-      1. [Starting the Server](#-starting-the-Server)
+  2. [Guide](#Guide)
+      1. [Starting the Server](#starting-the-Server)
       2. Starting the Generator
       3. Creating a New Feed
           1. Defining the Feed
