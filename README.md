@@ -28,7 +28,10 @@ It should be noted that this means the generator will only work with Feed reader
 
 A full list of compatible and incompatible readers can be found here.
 
-<img align="right" style="margin:20px;" src="https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme%20images/download.jpg" width=224 height=163>
+<div align="right" style="margin:20px;">
+  <img align="right" src="https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme%20images/download.jpg" width=224 height=163>
+  <span>What the Folder should look like</span>
+</div>
 
 To begin, download the program in one of three ways:
   1. Direct Download
