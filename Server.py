@@ -126,6 +126,7 @@ urls ={
     "/Pages/styles.css": ["Pages/styles.css", "text/css"],
     "/New-Feed": ["Pages/New-Feed.html", "text/html"],
     "/Success": ["Pages/Success.html", "text/html"],
+    "/Help": ["Pages/Help.html", "text/html"],
 }
 
 class MyHandler(BaseHTTPRequestHandler):
