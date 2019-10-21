@@ -1,4 +1,4 @@
-# RSS-Manager 
+# RSS-Generator 
 
 ## Table of Contents
   1. [Table of Contents](#table-of-contents)
