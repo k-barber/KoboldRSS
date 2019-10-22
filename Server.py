@@ -131,62 +131,72 @@ urls ={
 
 class MyHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        self.protocol_version = "HTTP/1.1"
-        path = self.path
-        if (path in urls.keys()):
-            self.send_response(200)
-            if (urls[path][1].startswith("text")):
-                ind = open(urls[path][0], "r", encoding="utf-8")
+        try:
+            self.protocol_version = "HTTP/1.1"
+            path = self.path
+            if (path in urls.keys()):
+                if (urls[path][1].startswith("text")):
+                    ind = open(urls[path][0], "r", encoding="utf-8")
+                    st = ind.read()
+                    self.send_header("Content-Length", len(st))
+                    self.send_header("Content-type", urls[path][1])
+                    self.end_headers()
+                    self.wfile.write(bytes(st, "utf-8"))
+                    self.send_response(200)
+                elif(urls[path][1].startswith("image")):
+                    f = open(urls[self.path][0], "rb")
+                    st = f.read()
+                    self.send_header("Content-Length", len(st))
+                    self.send_header("Content-type", urls[path][1])
+                    self.end_headers()
+                    self.wfile.write(bytes(st))
+                    self.send_response(200)
+            elif(path.startswith("/Feeds/")):
+                self.send_header("Content-type", "application/xml")
+                self.end_headers()
+                path = path[1:]
+                ind = open(path, "r", encoding="utf-8")
                 st = ind.read()
                 self.send_header("Content-Length", len(st))
-                self.send_header("Content-type", urls[path][1])
-                self.end_headers()
                 self.wfile.write(bytes(st, "utf-8"))
-            elif(urls[path][1].startswith("image")):
-                f = open(urls[self.path][0], "rb")
+                self.send_response(200)
+            elif(path.startswith("/Img/")):
+                filetype = path.split(".")[1]
+                path = path[1:]
+                f = open(path, "rb")
                 st = f.read()
                 self.send_header("Content-Length", len(st))
-                self.send_header("Content-type", urls[path][1])
+                self.send_header("Content-type", "image/" + filetype)
                 self.end_headers()
                 self.wfile.write(bytes(st))
-        elif(path.startswith("/Feeds/")):
-            self.send_response(200)
-            self.send_header("Content-type", "application/xml")
-            self.end_headers()
-            path = path[1:]
-            ind = open(path, "r", encoding="utf-8")
-            st = ind.read()
-            self.send_header("Content-Length", len(st))
-            self.wfile.write(bytes(st, "utf-8"))
-        elif(path.startswith("/Img/")):
-            self.send_response(200)
-            filetype = path.split(".")[1]
-            path = path[1:]
-            f = open(path, "rb")
-            st = f.read()
-            self.send_header("Content-Length", len(st))
-            self.send_header("Content-type", "image/" + filetype)
-            self.end_headers()
-            self.wfile.write(bytes(st))
-        else:
-            self.send_response(404)
+                self.send_response(200)
+            else:
+                self.send_response(404)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+                ind = open("Pages/404.html", "r", encoding="utf-8")
+                st = ind.read()
+                self.send_header("Content-Length", len(st))
+                self.wfile.write(bytes(st, "utf-8"))
+            return
+        except Exception as err:
+            print(str(err))
+            self.send_response(500)
             self.send_header("Content-type", "text/html")
             self.end_headers()
-            ind = open("Pages/404.html", "r", encoding="utf-8")
+            ind = open("Pages/500.html", "r", encoding="utf-8")
             st = ind.read()
             self.send_header("Content-Length", len(st))
             self.wfile.write(bytes(st, "utf-8"))
-        return
+            return
 
     def do_POST(self):
         try:
             self.protocol_version = "HTTP/1.1"
-            self.send_response(200)
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
             if(self.path == "/Get_Source"):
                 url = str(post_data, encoding="utf-8")
-                print(url)
                 response = requests.get(url)
                 text = response.text
                 new_channel.link = url
@@ -194,28 +204,35 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-Length", len(text))
                 self.end_headers()
                 self.wfile.write(bytes(text, "utf-8"))
+                self.send_response(200)
             if(self.path == "/Test_Pattern"):
                 pattern = str(post_data, encoding="utf-8")
                 text = requests.get(new_channel.link).text
                 data = new_channel.test_pattern(pattern, text)
-                print(data)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
                 response = json.dumps(data)
-                print(response)
                 self.wfile.write(bytes(response, "utf-8"))
+                self.send_response(200)
             if(self.path == "/Feed_Data"):
                 data = json.loads(str(post_data, encoding="utf-8"))
-                print(data)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
                 self.wfile.write(bytes("Received", "utf-8"))
                 channel_from_data(data)
                 update_defs()
                 new_channel.clear()
+                self.send_response(200)
             return
-        except:
+        except Exception as err:
+            print(str(err))
             self.send_response(500)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            ind = open("Pages/500.html", "r", encoding="utf-8")
+            st = ind.read()
+            self.send_header("Content-Length", len(st))
+            self.wfile.write(bytes(st, "utf-8"))
             return
 
 if __name__ == '__main__':
