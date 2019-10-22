@@ -314,9 +314,9 @@ class RSSChannel:
         if(Debug): print(start_pattern)
         if(Debug): print(stop_pattern)
         response = None
-        timer = 0
+        timer = 1
+        count = 0
         while (response is None):
-            sleep(timer)
             try:
                 response = requests.get(self.link)
                 text = response.text
@@ -328,9 +328,14 @@ class RSSChannel:
                 self.pubDate = datetime.datetime.now()
             except Exception as err:
                 log("ERROR:")
-                log(err)
-                timer += 1
+                log(str(err))
                 log("Retrying in " + str(timer) + " seconds.")
+                sleep(timer)
+                timer = timer * 2
+                if (count == 6):
+                    break
+                else:
+                    count += 1
 
     def test_pattern(self, pattern, text):
         try:
