@@ -28,7 +28,8 @@ def clean_input(text):
     text = text.replace("&#60;", "<")
     text = text.replace("&#160;", " ")
     text = text.replace("&#34;", '"')
-    text = text.replace("&#39", "'")
+    text = text.replace("&#39;", "'")
+    text = text.replace("&#32;", " ")
     return text
 
 def dirty_output(text):

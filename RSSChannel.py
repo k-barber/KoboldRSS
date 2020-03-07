@@ -320,7 +320,8 @@ class RSSChannel:
             try:
                 response = requests.get(self.link)
                 text = response.text
-                data = self.get_item_text(text, start_pattern, stop_pattern)
+                if(Debug): print(text)
+                data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
                 item_info = self.parse_items(data)
                 for item in item_info:
                     self.items.append(self.create_item(item))
@@ -339,7 +340,7 @@ class RSSChannel:
 
     def test_pattern(self, pattern, text):
         try:
-            self.item_pattern = pattern
+            self.item_pattern = clean_input(pattern)
             first = self.item_pattern.find("{")
             if (first < 0):
                 return None
@@ -348,7 +349,7 @@ class RSSChannel:
                 return None
             start_pattern = self.item_pattern[:first]
             stop_pattern = self.item_pattern[second+1:]
-            data = self.get_item_text(text, start_pattern, stop_pattern)
+            data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
             item_info = self.parse_items(data)
             return item_info
         except:
