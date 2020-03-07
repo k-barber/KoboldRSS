@@ -261,8 +261,9 @@
         }
 
         function test_pattern() {
-            var body = document.getElementById("Item_Pattern").value
-            if ((body != null) & (document.getElementById("Item_Pattern").checkValidity())) {
+            var pattern = document.getElementById("Item_Pattern").value;
+            var body = document.getElementById("Page_Source").value;
+            if ((pattern != null) & (document.getElementById("Item_Pattern").checkValidity())) {
                 var xhr = new XMLHttpRequest();
                 xhr.onload = function () {
                     var array = JSON.parse(xhr.response);
@@ -283,7 +284,8 @@
                     document.getElementById("Item_Total").innerText = String(array.length);
                 };
                 xhr.open('POST', '/Test_Pattern');
-                xhr.send(body);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(JSON.stringify({pattern: pattern, body: body}));
             }
 
         }

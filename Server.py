@@ -206,8 +206,9 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(bytes(text, "utf-8"))
             if(self.path == "/Test_Pattern"):
-                pattern = str(post_data, encoding="utf-8")
-                text = requests.get(new_channel.link).text
+                params = json.loads(str(post_data, encoding="utf-8"))
+                pattern = params["pattern"]
+                text = params["body"]
                 data = new_channel.test_pattern(pattern, text)
                 response = json.dumps(data)
                 self.send_response(200)
