@@ -4,7 +4,7 @@ from time import sleep
 from RSSItem import RSSItem
 from Utils import clean_input, dirty_output, log
 
-Debug = False
+Debug = True
 
 class RSSChannel:
     category = None
@@ -318,7 +318,7 @@ class RSSChannel:
         count = 0
         while (response is None):
             try:
-                response = requests.get(self.link)
+                response = requests.get(self.link, headers = {'User-agent': 'RSS Generator Bot'})
                 text = response.text
                 if(Debug): print(text)
                 data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
