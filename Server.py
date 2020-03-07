@@ -191,7 +191,7 @@ class MyHandler(BaseHTTPRequestHandler):
             post_data = self.rfile.read(content_length)
             if(self.path == "/Get_Source"):
                 url = str(post_data, encoding="utf-8")
-                response = requests.get(url)
+                response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot'})
                 text = response.text
                 new_channel.link = url
                 self.send_response(200)
