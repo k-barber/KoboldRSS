@@ -139,7 +139,6 @@ class MyHandler(BaseHTTPRequestHandler):
                     ind = open(urls[path][0], "r", encoding="utf-8")
                     st = ind.read()
                     self.send_response(200)
-                    self.send_header("Content-Length", len(st))
                     self.send_header("Content-type", urls[path][1])
                     self.end_headers()
                     self.wfile.write(bytes(st, "utf-8"))
@@ -147,7 +146,6 @@ class MyHandler(BaseHTTPRequestHandler):
                     f = open(urls[self.path][0], "rb")
                     st = f.read()
                     self.send_response(200)
-                    self.send_header("Content-Length", len(st))
                     self.send_header("Content-type", urls[path][1])
                     self.end_headers()
                     self.wfile.write(bytes(st))
@@ -156,7 +154,6 @@ class MyHandler(BaseHTTPRequestHandler):
                 ind = open(path, "r", encoding="utf-8")
                 st = ind.read()
                 self.send_response(200)
-                self.send_header("Content-Length", len(st))
                 self.send_header("Content-type", "application/xml")
                 self.end_headers()
                 self.wfile.write(bytes(st, "utf-8"))
@@ -166,7 +163,6 @@ class MyHandler(BaseHTTPRequestHandler):
                 f = open(path, "rb")
                 st = f.read()
                 self.send_response(200)
-                self.send_header("Content-Length", len(st))
                 self.send_header("Content-type", "image/" + filetype)
                 self.end_headers()
                 self.wfile.write(bytes(st))
@@ -174,7 +170,6 @@ class MyHandler(BaseHTTPRequestHandler):
                 ind = open("Pages/404.html", "r", encoding="utf-8")
                 st = ind.read()
                 self.send_response(404)
-                self.send_header("Content-Length", len(st))
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
                 self.wfile.write(bytes(st, "utf-8"))
@@ -186,7 +181,6 @@ class MyHandler(BaseHTTPRequestHandler):
             self.end_headers()
             ind = open("Pages/500.html", "r", encoding="utf-8")
             st = ind.read()
-            self.send_header("Content-Length", len(st))
             self.wfile.write(bytes(st, "utf-8"))
             return
 
@@ -202,7 +196,6 @@ class MyHandler(BaseHTTPRequestHandler):
                 new_channel.link = url
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
-                self.send_header("Content-Length", len(text))
                 self.end_headers()
                 self.wfile.write(bytes(text, "utf-8"))
             if(self.path == "/Test_Pattern"):
@@ -232,7 +225,6 @@ class MyHandler(BaseHTTPRequestHandler):
             self.end_headers()
             ind = open("Pages/500.html", "r", encoding="utf-8")
             st = ind.read()
-            self.send_header("Content-Length", len(st))
             self.wfile.write(bytes(st, "utf-8"))
             return
 
