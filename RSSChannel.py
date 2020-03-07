@@ -4,7 +4,7 @@ from time import sleep
 from RSSItem import RSSItem
 from Utils import clean_input, dirty_output, log
 
-Debug = True
+Debug = False
 
 class RSSChannel:
     category = None
