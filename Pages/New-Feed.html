@@ -21,10 +21,62 @@
             </br>
             <h2>Defining the Feed</h2>
             <p>We'll start by defining some features of the RSS Feed. Fields marked with a <span class="required">*</span> are mandatory.</p>
-            <form id="Feed_Data" action="javascript:void(0);">
+            <form id="Feed_Data" action="javascript:void(0);" autocomplete="off">
                 <p class="Field tooltip"><span class="required">*</span> Feed Link:<span class="tooltiptext">The URL of the web site associated with the Feed. Where the Feed will get its content from.</span></p>
                 <div class="padding">
                     <input id="Feed_Link" name="Feed_Link" class="input_box" type="url" required>
+                </div>
+                <p><input type="checkbox" id="Login_Checkbox" name="Login_Required" onclick="show_login_fields()"> The page I'm scraping can only be seen when logged in</p>
+                <div id="Login_Fields" class="padding" style="display: none;">
+                    <p class="Field tooltip"><span class="required">*</span> Website:<span class="tooltiptext">Please select which website you are trying to log in to</span></p>
+                    <div style="border: 1px #0006 solid; overflow:auto; padding: 15px 0px;">
+                        <div class="col-3 site-select">
+                            <input id="Website_Twitter" type="radio" name="Login_Website" value="Twitter"></input>
+                            <label for="Website_Twitter">
+                                <img src="/Img/Icons/twitter.png"> Twitter
+                            </label>
+                        </div>
+                        <div class="col-3 site-select">
+                            <input id="Website_Instagram" type="radio" name="Login_Website" value="Instagram" disabled></input>
+                            <label for="Website_Instagram">
+                                <img src="/Img/Icons/instagram.png"> Instagram
+                            </label>
+                        </div>
+                        <div class="col-3 site-select">
+                            <input type="radio" id="Website_Facebook" name="Login_Website" value="Facebook" disabled></input>
+                            <label for="Website_Facebook">
+                                <img src="/Img/Icons/Facebook.png"> Facebook
+                            </label>
+                        </div>
+                        <div class="col-3 site-select">
+                            <input type="radio" id="Website_Pixiv" name="Login_Website" value="Pixiv"></input>
+                            <label for="Website_Pixiv">
+                                <img src="/Img/Icons/pixiv.png">
+                            </label>
+                        </div>
+                        <div class="col-3 site-select">
+                            <input id="Website_Newgrounds" type="radio" name="Login_Website" value="Newgrounds"></input>
+                            <label for="Website_Newgrounds">
+                                <img src="/Img/Icons/newgrounds.png">
+                            </label>
+                        </div>
+                        <div class="col-3 site-select">
+                            <input id="Website_MFC" type="radio" name="Login_Website" value="MFC" disabled></input>
+                            <label for="Website_MFC">
+                                <img src="/Img/Icons/MFC.png"> MyFigureCollection
+                            </label>
+                        </div>
+                    </div>
+                    <p class="Field tooltip"><span class="required">*</span> Username:<span class="tooltiptext">The username you use for the selected website</span></p>
+                    <div class="padding">
+                        <input id="Username" name="Username" class="input_box" type="text">
+                    </div>
+                    <p class="Field tooltip"><span class="required">*</span> Password:<span class="tooltiptext">The password you use for the selected website</span></p>
+                    <div class="padding">
+                        <input id="Password" name="Password" class="input_box" type="text">
+                    </div>
+                    <p>Your username and password will <strong>only</strong> be used to log in to the selected website to update your RSS feed.
+                        Connections will be HTTPS encrypted. Username and password will be stored in the "Feed_Definitions.txt" file.</p>
                 </div>
                 <p class="Field tooltip"><span class="required">*</span> Feed Title:<span class="tooltiptext">The name of the Feed. It's how people refer to your feed.</span></p>
                 <div class="padding">
@@ -81,7 +133,7 @@
                         <option value="cs">Czech</option>
                         <option value="da">Danish</option>
                         <option value="nl">Dutch</option>
-                        <option value="en">English</option>
+                        <option value="en" selected>English</option>
                         <option value="en-au">English (Australia)</option>
                         <option value="en-ca">English (Canada)</option>
                         <option value="en-uk">English (United Kingdom)</option>
@@ -179,6 +231,29 @@
                         <div class="padding">
                             <textarea id="Item_Description" name="Item_Description" class="input_box" rows="10" cols="100">&lt;![CDATA[&#10;&#10;]]&gt;</textarea>
                         </div>
+                        <button onclick="test_definition()">Test Definition</button>
+                        <table id="Item_Preview" style="display:none">
+                            <tr>
+                            <th id="title-header">Title</th>
+                            <th>Link</th>
+                            <th id="description-header">Description</th>
+                            </tr>
+                            <tr>
+                                <td><p id="row-1-title"></p></td>
+                                <td><a id="row-1-link"></a></td>
+                                <td><p id="row-1-desc"></p></td>
+                            </tr>
+                            <tr>
+                                <td><p id="row-2-title"></p></td>
+                                <td><a id="row-2-link"></a></td>
+                                <td><p id="row-2-desc"></p></td>
+                            </tr>
+                            <tr>
+                                <td><p id="row-3-title"></p></td>
+                                <td><a id="row-3-link"></a></td>
+                                <td><p id="row-3-desc"></p></td>
+                            </tr>
+                        </table>
                         <p class="Field tooltip">Item Author:<span class="tooltiptext">The e-mail address of the person who wrote the item.</span></p>
                         <div class="padding">
                             <input id="Item_Author" name="Item_Author" class="input_box" type="text"></input>
@@ -245,27 +320,46 @@
         }
 
         function scrape_URL() {
+            document.body.style.cursor="wait";
             var link = document.getElementById("Feed_Link");
             var url = link.value;
             if ((url != null) & (link.checkValidity())) {
                 var xhr = new XMLHttpRequest();
                 xhr.onload = function () {
+                    document.body.style.cursor="default";
                     document.getElementById("Page_Source").value = xhr.response;
                     document.getElementById("Item_Definition").style.display = "block";
                 };
+                var websites = document.getElementsByName('Login_Website');
+                var website;
+                for (var i = 0, length = websites.length; i < length; i++) {
+                    if (websites[i].checked) {
+                        website = websites[i].value;
+                        break;
+                    }
+                }
                 xhr.open('POST', '/Get_Source');
-                xhr.send(url);
+                xhr.send(
+                    JSON.stringify({
+                        url: url,
+                        login_required: document.getElementById("Login_Checkbox").checked,
+                        username : document.getElementById("Username").value,
+                        password : document.getElementById("Password").value,
+                        website : website,
+                        }));
             }else{
                 console.log("Check failed");
             }
         }
 
         function test_pattern() {
+            document.body.style.cursor="wait";
             var pattern = document.getElementById("Item_Pattern").value;
             var body = document.getElementById("Page_Source").value;
             if ((pattern != null) & (document.getElementById("Item_Pattern").checkValidity())) {
                 var xhr = new XMLHttpRequest();
                 xhr.onload = function () {
+                    document.body.style.cursor="default";
                     var array = JSON.parse(xhr.response);
                     document.getElementById("Pattern_Results").style.display = "block";
                     var output = "";
@@ -287,12 +381,78 @@
                 xhr.setRequestHeader("Content-Type", "application/json");
                 xhr.send(JSON.stringify({pattern: pattern, body: body}));
             }
+        }
 
+        function test_definition(){
+            document.body.style.cursor="wait";
+            document.getElementById("row-1-desc").textContent = "";
+            document.getElementById("row-2-desc").textContent = "";
+            document.getElementById("row-3-desc").textContent = "";
+            var pattern = document.getElementById("Item_Pattern").value;
+            var body = document.getElementById("Page_Source").value;
+            var title = document.getElementById("Item_Title").value;
+            var link = document.getElementById("Item_Link").value;
+            var description = document.getElementById("Item_Description").value;
+            if ((pattern != null) & (document.getElementById("Item_Pattern").checkValidity())) {
+                var xhr = new XMLHttpRequest();
+                xhr.onload = function () {
+                    document.body.style.cursor="default";
+                    var array = JSON.parse(xhr.response);
+                    array.forEach(function (item) {
+                        item["description"] = item["description"].replace("&lt;","<");
+                        item["description"] = item["description"].replace("&gt;",">");
+                        item["description"] = item["description"].replace("<![CDATA[","");
+                        item["description"] = item["description"].replace("]]>","");
+                    });
+                        
+                    document.getElementById("Item_Preview").style.display = "block";
+                    console.log(array);
+                    document.getElementById("row-1-title").innerText = array[0]["title"];
+                    document.getElementById("row-1-link").innerText = array[0]["link"];
+                    document.getElementById("row-1-link").href = array[0]["link"];
+                    document.getElementById("row-1-desc").insertAdjacentHTML("beforeend", array[0]["description"]);
+                    document.getElementById("row-2-title").innerText = array[1]["title"];
+                    document.getElementById("row-2-link").innerText = array[1]["link"];
+                    document.getElementById("row-2-link").href = array[1]["link"];
+                    document.getElementById("row-2-desc").insertAdjacentHTML("beforeend", array[1]["description"]);
+                    document.getElementById("row-3-title").innerText = array[2]["title"];
+                    document.getElementById("row-3-link").innerText = array[2]["link"];
+                    document.getElementById("row-3-link").href = array[2]["link"];
+                    document.getElementById("row-3-desc").insertAdjacentHTML("beforeend", array[2]["description"]);
+                };
+                xhr.open('POST', '/Test_Description');
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(JSON.stringify({pattern: pattern, body: body, title: title, link: link, description: description}));
+            }
+        }
+
+        function show_login_fields(){
+            var checkBox = document.getElementById("Login_Checkbox");
+            var text = document.getElementById("Login_Fields");
+            if (checkBox.checked == true){
+                text.style.display = "block";
+                document.getElementById("Website_Newgrounds").required = true;
+                document.getElementById("Username").required = true;
+                document.getElementById("Password").required = true;
+                document.getElementById("Website_Newgrounds").formnovalidate = false;
+                document.getElementById("Username").formnovalidate = false;
+                document.getElementById("Password").formnovalidate = false;
+            } else {
+                text.style.display = "none";
+                document.getElementById("Website_Newgrounds").required = false;
+                document.getElementById("Username").required = false;
+                document.getElementById("Password").required = false;
+                document.getElementById("Website_Newgrounds").formnovalidate = true;
+                document.getElementById("Username").formnovalidate = true;
+                document.getElementById("Password").formnovalidate = true;
+            }
         }
 
         function post_data() {
+            document.body.style.cursor="wait";
             var xhr = new XMLHttpRequest();
             xhr.onload = function () {
+                document.body.style.cursor="default";
                 console.log(xhr.response);
                 if(xhr.response = "Recieved"){
                     window.location.href = "/Success";
@@ -323,8 +483,19 @@
                 }
             }
 
+            var websites = document.getElementsByName('Login_Website');
+            var website;
+            for (var i = 0, length = websites.length; i < length; i++) {
+                if (websites[i].checked) {
+                    website = websites[i].value;
+                    break;
+                }
+            }
+
             var e = document.getElementById("Feed_Language");
             var lang = e.options[e.selectedIndex].value;
+            var a = document.getElementById("Feed_Language");
+            var lang = a.options[a.selectedIndex].value;
             output = {
                 'title': document.getElementById("Feed_Title").value,
                 'link': document.getElementById("Feed_Link").value,
@@ -353,6 +524,10 @@
                 'enclosure_type' : document.getElementById("Enclosure_Type").value,
                 'item_pubDate' : document.getElementById("Item_PubDate").value,
                 'item_source' : document.getElementById("Item_Source").value,
+                'login_required' : document.getElementById("Login_Checkbox").checked,
+                'website' : website,
+                'username' : document.getElementById("Username").value,
+                'password' : document.getElementById("Password").value,
             }
             return output;
         }

@@ -5,6 +5,7 @@ import requests
 from RSSChannel import RSSChannel
 import json
 import gc
+import login_utils
 
 HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
 PORT_NUMBER = 8000
@@ -87,6 +88,13 @@ def channel_from_data(data):
         new_channel.ttl = data['ttl']
     if(data['webMaster'] != ""):
         new_channel.webMaster = data['webMaster']
+    if(data['login_required'] == True):
+        if(data['website'] != ""):
+            new_channel.website = data['website']
+        if(data['username'] != ""):
+            new_channel.username = data['username']
+        if(data['password'] != ""):
+            new_channel.password = data['password']
 
 def update_defs():
     output = new_channel.print_definition()
@@ -190,9 +198,18 @@ class MyHandler(BaseHTTPRequestHandler):
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
             if(self.path == "/Get_Source"):
-                url = str(post_data, encoding="utf-8")
-                response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot'})
-                text = response.text
+                params = json.loads(str(post_data, encoding="utf-8"))
+                url = params["url"]
+                login_required = params["login_required"]
+                if (login_required == True):
+                    text = login_utils.multi_scrape(
+                        params["username"],
+                        params["password"],
+                        params["website"],
+                        url)
+                else :
+                    response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot'})
+                    text = response.text
                 new_channel.link = url
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
@@ -217,6 +234,19 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
                 self.wfile.write(bytes("Received", "utf-8"))
+            if(self.path == "/Test_Description"):
+                data = json.loads(str(post_data, encoding="utf-8"))
+                response = new_channel.test_definition(
+                    data["pattern"],
+                    data["body"],
+                    data["title"],
+                    data["link"],
+                    data["description"])
+                response = json.dumps(response)
+                self.send_response(200)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+                self.wfile.write(bytes(response, "utf-8"))
             return
         except Exception as err:
             print(str(err))

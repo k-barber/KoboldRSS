@@ -55,6 +55,25 @@ class RSSItem:
         self.title = title
 
         self.replace()
+
+    def toJSON(self):
+        json_representation = {
+            'author' : self.author,
+            'category' : self.category,
+            'comments' : self.comments,
+            'data' : self.data, 
+            'description' : self.description,
+            'enclosure_length' : self.enclosure_length,
+            'enclosure_type' : self.enclosure_type,
+            'enclosure_url' : self.enclosure_url,
+            'guid' : self.guid,
+            'link' : self.link,
+            'pubDate' : self.pubDate,
+            'source' : self.source,
+            'title' : self.title 
+        }
+        
+        return json_representation
     
     def __str__(self):
         output = "        <item>\n"
