@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 
 def log(text):
     """Prints the given text with a current timestamp
@@ -18,6 +19,7 @@ def clean_input(text):
     str: Text with formatting removed
     """
     text = text.strip()
+    text = re.sub(r"[\n\t]+", "", text)
     text = text.replace("&amp;", "&")
     text = text.replace("&gt;", ">")
     text = text.replace("&lt;", "<")

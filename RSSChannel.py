@@ -3,6 +3,7 @@ import requests
 from time import sleep
 from RSSItem import RSSItem
 from Utils import clean_input, dirty_output, log
+import login_utils
 
 Debug = False
 
@@ -42,7 +43,10 @@ class RSSChannel:
     title = "Default Title"
     ttl = 60
     webMaster = None
-    
+
+    username = None
+    password = None
+    website = None
 
     def __str__(self):
         output = "    <channel>\n"
@@ -125,8 +129,9 @@ class RSSChannel:
         print("Title: " + str(self.title))
         print("TTL: " + str(self.ttl))
         print("Web Master: " + str(self.webMaster))
-        
-        
+
+        print("Website: " + str(self.website))
+        print("Username: " + str(self.username))        
 
     def create_item(self, data):
         return RSSItem(
@@ -219,6 +224,14 @@ class RSSChannel:
                 self.ttl = clean_input(line[semi:])
             elif (prefix =='webMaster'):
                 self.webMaster = clean_input(line[semi:])
+
+            elif (prefix =='username'):
+                self.username = clean_input(line[semi:])
+            elif (prefix =='website'):
+                self.website = clean_input(line[semi:])
+            elif (prefix =='password'):
+                self.password = clean_input(line[semi:])
+
         if (Debug): self.print()
 
     def get_item_text(self, text, start_pattern, stop_pattern):
@@ -233,14 +246,17 @@ class RSSChannel:
                 start += 1
         return item_data
 
-    def parse_item_text(self, item_text):
+    def parse_item_text(self, item_text, pattern = None):
         if (Debug): print("Parsing Item Text")
-        if (self.item_pattern == None):
-            return
+        if (pattern is None):
+            if (self.item_pattern is None):
+                return
+            item_pattern = self.item_pattern
+        else:
+            item_pattern = pattern
         output = []
         pattern_start = 0
         start = 0
-        item_pattern = self.item_pattern
         if (Debug): print("Item Pattern: " + item_pattern)
         while(start >= 0):
             left_start = pattern_start
@@ -279,10 +295,11 @@ class RSSChannel:
             if (Debug): print("start: " + str(start))
         return output
 
-    def parse_items(self, data):
+    def parse_items(self, data, pattern = None):
+        if (Debug): print("Parsing Items")
         output = []
         for text in data:
-            output.append(self.parse_item_text(text))
+            output.append(self.parse_item_text(text, pattern))
         return output
 
     def save_channel(self):
@@ -313,30 +330,41 @@ class RSSChannel:
         stop_pattern = self.item_pattern[stop+1:]
         if(Debug): print(start_pattern)
         if(Debug): print(stop_pattern)
-        response = None
-        timer = 1
-        count = 0
-        while (response is None):
-            try:
-                response = requests.get(self.link, headers = {'User-agent': 'RSS Generator Bot'})
-                text = response.text
-                if(Debug): print(text)
-                data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
-                item_info = self.parse_items(data)
-                for item in item_info:
-                    self.items.append(self.create_item(item))
-                self.lastBuildDate = datetime.datetime.now()
-                self.pubDate = datetime.datetime.now()
-            except Exception as err:
-                log("ERROR:")
-                log(str(err))
-                log("Retrying in " + str(timer) + " seconds.")
-                sleep(timer)
-                timer = timer * 2
-                if (count == 6):
-                    break
-                else:
-                    count += 1
+
+        if ((self.website is not None) & (self.username is not None) & (self.password is not None)):
+            text = login_utils.multi_scrape(self.username, self.password, self.website, self.link)
+            if (Debug): print(text)
+            data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
+            item_info = self.parse_items(data)
+            for item in item_info:
+                self.items.append(self.create_item(item))
+            self.lastBuildDate = datetime.datetime.now()
+            self.pubDate = datetime.datetime.now()
+        else:
+            response = None
+            timer = 1
+            count = 0
+            while (response is None):
+                try:
+                    response = requests.get(self.link, headers = {'User-agent': 'RSS Generator Bot'})
+                    text = response.text
+                    if(Debug): print(text)
+                    data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
+                    item_info = self.parse_items(data)
+                    for item in item_info:
+                        self.items.append(self.create_item(item))
+                    self.lastBuildDate = datetime.datetime.now()
+                    self.pubDate = datetime.datetime.now()
+                except Exception as err:
+                    log("ERROR:")
+                    log(str(err))
+                    log("Retrying in " + str(timer) + " seconds.")
+                    sleep(timer)
+                    timer = timer * 2
+                    if (count == 6):
+                        break
+                    else:
+                        count += 1
 
     def test_pattern(self, pattern, text):
         try:
@@ -349,11 +377,43 @@ class RSSChannel:
                 return None
             start_pattern = self.item_pattern[:first]
             stop_pattern = self.item_pattern[second+1:]
+            if(Debug): print(start_pattern)
+            if(Debug): print(stop_pattern)
             data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
+            if(Debug): print(data)
             item_info = self.parse_items(data)
             return item_info
         except:
             return None
+
+    def test_definition(self, pattern, text, title, link, description):
+        if (pattern == None):
+            return
+        if (link == "https://www.w3.org/about"):
+            return
+        start = pattern.find("{")
+        stop = pattern.rfind("}")
+        if(start == -1 or stop == -1):
+            return
+        start_pattern = pattern[:start]
+        stop_pattern = pattern[stop+1:]
+        if(Debug): print(start_pattern)
+        if(Debug): print(stop_pattern)
+        data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
+        if(Debug): print(data[0])
+        item_info = self.parse_items(data[:3], pattern)
+        if(Debug): print(item_info)
+        iterator = 0
+        items = []
+        for item in item_info:
+            items.append(RSSItem(
+                    item,
+                    title=title,
+                    link=link,
+                    description=description).toJSON())
+        if(Debug): print(items)
+        if (Debug): print("Test complete")
+        return items
 
     def clear(self):
         self.category = None
@@ -392,6 +452,9 @@ class RSSChannel:
         self.ttl = 60
         self.webMaster = None
 
+        self.username = None
+        self.website = None
+        self.password = None
 
     def print_definition(self):
         output = ""
@@ -455,4 +518,12 @@ class RSSChannel:
             output += "ttl:" + str(self.ttl) + "\n"
         if (self.webMaster is not None):
             output += "webMaster:" + self.webMaster + "\n"
+
+        if (self.website is not None):
+            output += "website:" + self.website + "\n"
+        if (self.username is not None):
+            output += "username:" + str(self.username) + "\n"
+        if (self.password is not None):
+            output += "password:" + self.password + "\n"
+
         return output
