@@ -5,7 +5,7 @@ from RSSItem import RSSItem
 from Utils import clean_input, dirty_output, log
 import login_utils
 
-Debug = True
+Debug = False
 
 class RSSChannel:
     category = None

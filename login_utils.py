@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 import time
 import os
 
-Debug = True
+Debug = False
 
 def certcheck():
     chrome_options = Options()
@@ -16,7 +16,7 @@ def certcheck():
     chrome_driver = os.path.join(os.getcwd(), "chromedriver")
     driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
     driver.get("https://cacert.org/")
-    print(driver.page_source)
+    if (Debug): print(driver.page_source)
     driver.close()
 
 def multi_scrape(username, password, website, url):
