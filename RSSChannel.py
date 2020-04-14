@@ -260,54 +260,56 @@ class RSSChannel:
 
         num_fields_total = item_pattern.count("{%}")
         num_fields_captured = 0
-        if (Debug): print("Total Fields: " + str(num_fields_total))
-
-        if (Debug): print("Item Pattern: " + item_pattern)
+        if (Debug): print("Total Fields: '" + str(num_fields_total) + "'")
+        if (Debug): print("Item Text: '" + item_text + "'")
+        if (Debug): print("Item Pattern: '" + item_pattern + "'")
         while(capture_search_start_index >= 0):
             if (Debug): print("==========================================")
-            if (Debug): print("Left Capture Pattern Start Index: " + str(Left_capture_pattern_start_index))
+            if (Debug): print("Left Capture Pattern Start Index: '" + str(Left_capture_pattern_start_index) + "'")
             Left_capture_pattern_stop_index = item_pattern.find("{", Left_capture_pattern_start_index)
-            if (Debug): print("Left Capture Pattern Stop Index: " + str(Left_capture_pattern_stop_index))
+            if (Debug): print("Left Capture Pattern Stop Index: '" + str(Left_capture_pattern_stop_index) + "'")
             Left_capture_pattern = item_pattern[Left_capture_pattern_start_index:Left_capture_pattern_stop_index]
-            if (Debug): print("Left Capture Pattern: " + Left_capture_pattern)
+            if (Debug): print("Left Capture Pattern: '" + Left_capture_pattern + "'")
             
             right_capture_pattern_start_index = item_pattern.find("}", Left_capture_pattern_stop_index)+1
-            if (Debug): print("Right Capture Pattern Start Index: " + str(right_capture_pattern_start_index))
+            if (Debug): print("Right Capture Pattern Start Index: '" + str(right_capture_pattern_start_index) + "'")
             right_capture_pattern_stop_index = item_pattern.find("{", right_capture_pattern_start_index)
-            if (Debug): print("Right Capture Pattern Stop Index: : " + str(right_capture_pattern_stop_index))
+            if (Debug): print("Right Capture Pattern Stop Index: : '" + str(right_capture_pattern_stop_index) + "'")
 
             if (right_capture_pattern_stop_index > 0):
                 right_capture_pattern = item_pattern[right_capture_pattern_start_index:right_capture_pattern_stop_index]
             else:
                 right_capture_pattern = item_pattern[right_capture_pattern_start_index:]
 
-            if (Debug): print("Right Capture Pattern: " + right_capture_pattern)
+            if (Debug): print("Right Capture Pattern: '" + right_capture_pattern + "'")
 
             capture_character = item_pattern[Left_capture_pattern_stop_index+1]
-            if (Debug): print("Capture Character: " + capture_character)
+            if (Debug): print("Capture Character: '" + capture_character + "'")
 
-            if (Debug): print("Capture Search Start Index: " + str(capture_search_start_index))
+            if (Debug): print("Capture Search Start Index: '" + str(capture_search_start_index) + "'")
 
             left_capture_pattern_found = item_text.find(Left_capture_pattern, capture_search_start_index)
             if (left_capture_pattern_found >= 0):
                 capture_start_index =  left_capture_pattern_found + len(Left_capture_pattern)
-            if (Debug): print("Capture Start Index: " + str(capture_start_index))
+            else :
+                capture_start_index = -1
+            if (Debug): print("Capture Start Index: '" + str(capture_start_index) + "'")
 
-            capture_end_index = item_text.find(right_capture_pattern, capture_search_start_index)
-            if (Debug): print("Capture End Index: " + str(capture_end_index))
+            capture_end_index = item_text.find(right_capture_pattern, capture_start_index)
+            if (Debug): print("Capture End Index: '" + str(capture_end_index) + "'")
 
-            if ((capture_character == "%") & (left_capture_pattern_found >= 0)):
-                captured = clean_input(item_text[capture_start_index:capture_end_index])
-                if (Debug): print("Captured: " + captured)
-                output.append(captured)
+            if (capture_character == "%"):
+                if (left_capture_pattern_found >= 0):
+                    captured = clean_input(item_text[capture_start_index:capture_end_index])
+                    if (Debug): print("Captured: '" + captured + "'")
+                    output.append(captured)
+                    capture_search_start_index = capture_end_index
+                else:
+                    output.append("")
                 num_fields_captured += 1
-
             if (Debug): print(str(num_fields_captured) + " of " + str(num_fields_total) + " fields captured")
-            if ((capture_end_index <= -1) & (num_fields_captured < num_fields_total)):
-                output.append("")
-                num_fields_captured += 1
-            else:
-                capture_search_start_index = capture_end_index
+            if (num_fields_captured == num_fields_total):
+                capture_search_start_index = -1
             Left_capture_pattern_start_index = right_capture_pattern_start_index
             if (Debug): print("==========================================")
         return output
@@ -386,7 +388,7 @@ class RSSChannel:
     def test_pattern(self, pattern, text):
         try:
             self.item_pattern = clean_input(pattern)
-            if(Debug): print("Item Pattern: " + self.item_pattern)
+            if(Debug): print("Item Pattern: '" + self.item_pattern + "'")
             first = self.item_pattern.find("{")
             if (first < 0):
                 return None
@@ -395,13 +397,14 @@ class RSSChannel:
                 return None
             start_pattern = self.item_pattern[:first]
             stop_pattern = self.item_pattern[second+1:]
-            if(Debug): print("Start pattern: " + start_pattern)
-            if(Debug): print("Stop pattern: " +stop_pattern)
+            if(Debug): print("Start pattern: '" + start_pattern + "'")
+            if(Debug): print("Stop pattern: '" + stop_pattern + "'")
             data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
             #if(Debug): print(data)
             item_info = self.parse_items(data)
             return item_info
-        except:
+        except Exception as e:
+            print(e)
             return None
 
     def test_definition(self, pattern, text, title, link, description):

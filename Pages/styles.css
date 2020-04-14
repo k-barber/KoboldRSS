@@ -46,6 +46,10 @@ td {
     max-height: 50px;
 }
 
+body {
+    background-color: ghostwhite;
+}
+
 .col-3{
     width: 33.33333333%;
     position: relative;
@@ -92,6 +96,7 @@ h4 {
     width: 67%;
     min-width: 430px;
     word-wrap: break-word;
+    background-color: white;
 }
 
 .description {

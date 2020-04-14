@@ -12,7 +12,7 @@ Debug = False
 def certcheck():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--window-size=1024x1400")
+    chrome_options.add_argument("--window-size=2000x2000")
     chrome_driver = os.path.join(os.getcwd(), "chromedriver")
     driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
     driver.get("https://cacert.org/")
@@ -42,7 +42,7 @@ def pixiv_scrape(username, password, url):
     """Scrapes the pixiv url after logging in with the username and password"""
     chrome_options = Options()
     chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--window-size=1024x1400")
+    chrome_options.add_argument("--window-size=2000x2000")
 
     chrome_driver = os.path.join(os.getcwd(), "chromedriver")
 
@@ -62,6 +62,7 @@ def pixiv_scrape(username, password, url):
     wait.until(EC.title_is("[pixiv]"))
 
     driver.get(url)
+    time.sleep(5)
     scraped = driver.execute_script("return document.documentElement.outerHTML")
     driver.close()
     return scraped
@@ -69,7 +70,7 @@ def pixiv_scrape(username, password, url):
 def newgrounds_scrape(username, password, url):
     chrome_options = Options()
     chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--window-size=1024x1400")
+    chrome_options.add_argument("--window-size=2000x2000")
 
     chrome_driver = os.path.join(os.getcwd(), "chromedriver")
 
@@ -100,7 +101,7 @@ def newgrounds_scrape(username, password, url):
 def twitter_scrape(username, password, url):
     chrome_options = Options()
     chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--window-size=1024x1400")
+    chrome_options.add_argument("--window-size=2000x2000")
 
     chrome_driver = os.path.join(os.getcwd(), "chromedriver")
 
