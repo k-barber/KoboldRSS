@@ -58,7 +58,7 @@ def pixiv_scrape(username, password, url):
     password_field.send_keys(password)
     password_field.submit()
 
-    try 
+    try:
         wait.until(EC.title_is("[pixiv]"))
     except Exception as err:
         print(str(err))
@@ -89,7 +89,7 @@ def newgrounds_scrape(username, password, url):
     password_field.send_keys(password)
     password_field.submit()
 
-    try
+    try:
         wait.until(EC.title_is("Your Feed"))
     except Exception as err:
         print(str(err))
@@ -116,7 +116,7 @@ def twitter_scrape(username, password, url):
     
     driver.get("https://twitter.com/login")
     if (Debug): driver.get_screenshot_as_file("get.png")
-    try
+    try:
         wait.until(EC.presence_of_element_located((By.NAME,"session[username_or_email]")))
     except Exception as err:
         print(str(err))
