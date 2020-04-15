@@ -51,7 +51,6 @@ def pixiv_scrape(username, password, url):
     wait = WebDriverWait(driver, 10)
 
     driver.get("https://accounts.pixiv.net/login")
-    assert "Login".lower() in driver.title.lower()
     
     username_field = driver.find_element_by_xpath("//input[@autocomplete='username']")
     password_field = driver.find_element_by_xpath("//input[@autocomplete='current-password']")
@@ -59,7 +58,10 @@ def pixiv_scrape(username, password, url):
     password_field.send_keys(password)
     password_field.submit()
 
-    wait.until(EC.title_is("[pixiv]"))
+    try 
+        wait.until(EC.title_is("[pixiv]"))
+    except Exception as err:
+        print(str(err))
 
     driver.get(url)
     time.sleep(5)
@@ -80,7 +82,6 @@ def newgrounds_scrape(username, password, url):
 
     driver.get("https://www.newgrounds.com/passport")
     if (Debug): driver.get_screenshot_as_file("login.png")
-    assert "Passport".lower() in driver.title.lower()
     
     username_field = driver.find_element_by_id("username")
     password_field = driver.find_element_by_id("password")
@@ -88,7 +89,11 @@ def newgrounds_scrape(username, password, url):
     password_field.send_keys(password)
     password_field.submit()
 
-    wait.until(EC.title_is("Your Feed"))
+    try
+        wait.until(EC.title_is("Your Feed"))
+    except Exception as err:
+        print(str(err))
+        print(driver.title)
 
     driver.get(url)
 
@@ -108,12 +113,15 @@ def twitter_scrape(username, password, url):
     driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
 
     wait = WebDriverWait(driver, 10)
-
+    
     driver.get("https://twitter.com/login")
     if (Debug): driver.get_screenshot_as_file("get.png")
-    wait.until(EC.presence_of_element_located((By.NAME,"session[username_or_email]")))
+    try
+        wait.until(EC.presence_of_element_located((By.NAME,"session[username_or_email]")))
+    except Exception as err:
+        print(str(err))
+
     if (Debug): driver.get_screenshot_as_file("login.png")
-    assert "login".lower() in driver.title.lower()
     
     username_field = driver.find_element_by_name("session[username_or_email]")
     password_field = driver.find_element_by_name("session[password]")
