@@ -5,7 +5,7 @@ import requests
 from RSSChannel import RSSChannel
 import json
 import gc
-import login_utils
+from io import BytesIO
 
 HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
 PORT_NUMBER = 8000
@@ -157,6 +157,15 @@ class MyHandler(BaseHTTPRequestHandler):
                     self.send_header("Content-type", urls[path][1])
                     self.end_headers()
                     self.wfile.write(bytes(st))
+            elif(path.startswith("/Proxy/")):
+                url = path[7:]
+                if (url.startswith("i.pximg.net") | url.startswith("s.pximg.net")):
+                    url = "https://" + url
+                    print(url)
+                    response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot', 'referer':'https://pixiv.net'})
+                    self.send_response(response.status_code)
+                    self.end_headers()
+                    self.wfile.write(bytes(response.content))
             elif(path.startswith("/Feeds/")):
                 path = path[1:]
                 ind = open(path, "r", encoding="utf-8")
