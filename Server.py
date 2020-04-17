@@ -7,11 +7,10 @@ import json
 import gc
 from io import BytesIO
 import login_utils
-
-HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
-PORT_NUMBER = 8000
-
-new_channel = RSSChannel()
+import os
+from os import path as file_path, listdir
+from os.path import isfile, join
+from datetime import datetime, timedelta
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -23,6 +22,15 @@ def get_ip():
     finally:
         s.close()
     return IP
+
+def clear_cache():
+    now = datetime.now()
+    onlyfiles = [join("Img/Cache/", f) for f in listdir("Img/Cache/") if isfile(join("Img/Cache/", f))]
+    for file_name in onlyfiles:
+        modified = datetime.fromtimestamp(file_path.getmtime(file_name))
+
+        if (now >= modified + timedelta(days=7)):
+            os.remove(file_name)
 
 def validate_input(num):
     try:
@@ -111,21 +119,6 @@ def return_source():
     return text
     '''
 
-IP = get_ip()
-if (IP is not None):
-    print("Detected IP address as: " + IP + "\n")
-    #HOST_NAME = IP
-ans = ""
-while ((ans != "y") and (ans != "n")):
-    ans = input("Default port number is 8000. Use 8000? (y/n)")
-if (ans == "n"):
-    port = 0
-    while (not validate_input(port)):
-        print("Ports can be between 1 and 65535 inclusive.")
-        port = input("Enter a new port number:")
-    PORT_NUMBER = int(port)
-print("Server will accessible as localhost:" + str(PORT_NUMBER) + " on this machine or " + IP + ":" + str(PORT_NUMBER) + " for machines on this network")
-
 urls ={
     "/":["Pages/Main.html", "text/html"],
     "/res/preview.xsl":["Pages/preview.xsl", "text/html"],
@@ -160,13 +153,25 @@ class MyHandler(BaseHTTPRequestHandler):
                     self.wfile.write(bytes(st))
             elif(path.startswith("/Proxy/")):
                 url = path[7:]
-                if (url.startswith("i.pximg.net") | url.startswith("s.pximg.net")):
-                    url = "https://" + url
-                    print(url)
-                    response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot', 'referer':'https://pixiv.net'})
-                    self.send_response(response.status_code)
-                    self.end_headers()
-                    self.wfile.write(bytes(response.content))
+                try:
+                    if (url.startswith("i.pximg.net") | url.startswith("s.pximg.net")):
+                        filename = url[url.rfind("/"):]
+                        if file_path.exists("Img/Cache" + filename):
+                            cached = open("Img/Cache" + filename, "rb").read()
+                            self.send_response(200)
+                            self.end_headers()
+                            self.wfile.write(bytes(cached))
+                        else:
+                            url = "https://" + url
+                            response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot', 'referer':'https://pixiv.net'})
+                            cached = open("Img/Cache" + filename, "wb")
+                            cached.write(response.content)
+                            cached.close()
+                            self.send_response(response.status_code)
+                            self.end_headers()
+                            self.wfile.write(bytes(response.content))
+                except Exception as err:
+                    print(str(err))
             elif(path.startswith("/Feeds/")):
                 path = path[1:]
                 ind = open(path, "r", encoding="utf-8")
@@ -268,7 +273,25 @@ class MyHandler(BaseHTTPRequestHandler):
             self.wfile.write(bytes(st, "utf-8"))
             return
 
-if __name__ == '__main__':
+def main():
+    clear_cache()
+    HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
+    PORT_NUMBER = 8000
+    new_channel = RSSChannel()
+    IP = get_ip()
+    if (IP is not None):
+        print("Detected IP address as: " + IP + "\n")
+        #HOST_NAME = IP
+    ans = ""
+    while ((ans != "y") and (ans != "n")):
+        ans = input("Default port number is 8000. Use 8000? (y/n)")
+    if (ans == "n"):
+        port = 0
+        while (not validate_input(port)):
+            print("Ports can be between 1 and 65535 inclusive.")
+            port = input("Enter a new port number:")
+        PORT_NUMBER = int(port)
+    print("Server will accessible as localhost:" + str(PORT_NUMBER) + " on this machine or " + IP + ":" + str(PORT_NUMBER) + " for machines on this network")
     server_class = HTTPServer
     httpd = server_class((HOST_NAME, PORT_NUMBER), MyHandler)
     print(time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, PORT_NUMBER))
@@ -278,3 +301,6 @@ if __name__ == '__main__':
         pass
     httpd.server_close()
     print(time.asctime(), "Server Stops - %s:%s" % (HOST_NAME, PORT_NUMBER))
+
+if __name__ == '__main__':
+    main()    

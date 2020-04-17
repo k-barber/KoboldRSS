@@ -1,8 +1,7 @@
 import requests
 import itertools as it
 from RSSChannel import RSSChannel
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from Utils import log
 import os
 import time
