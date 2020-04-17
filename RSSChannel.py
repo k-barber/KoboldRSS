@@ -298,12 +298,13 @@ class RSSChannel:
             capture_end_index = item_text.find(right_capture_pattern, capture_start_index)
             if (Debug): print("Capture End Index: '" + str(capture_end_index) + "'")
 
+            if (left_capture_pattern_found >= 0 & capture_end_index >= 0):
+                capture_search_start_index = capture_end_index
             if (capture_character == "%"):
                 if (left_capture_pattern_found >= 0):
                     captured = clean_input(item_text[capture_start_index:capture_end_index])
                     if (Debug): print("Captured: '" + captured + "'")
                     output.append(captured)
-                    capture_search_start_index = capture_end_index
                 else:
                     output.append("")
                 num_fields_captured += 1
