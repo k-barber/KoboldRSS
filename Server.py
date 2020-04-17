@@ -12,6 +12,8 @@ from os import path as file_path, listdir
 from os.path import isfile, join
 from datetime import datetime, timedelta
 
+new_channel = RSSChannel()
+
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -43,6 +45,7 @@ def validate_input(num):
         return False
 
 def channel_from_data(data):
+    global new_channel
     if(data['category'] != ""):
         cats = data['category'].strip().split(",")
         cats = [cat.strip() for cat in cats]
@@ -208,6 +211,7 @@ class MyHandler(BaseHTTPRequestHandler):
             return
 
     def do_POST(self):
+        global new_channel
         try:
             self.protocol_version = "HTTP/1.1"
             content_length = int(self.headers['Content-Length'])
@@ -277,7 +281,6 @@ def main():
     clear_cache()
     HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
     PORT_NUMBER = 8000
-    new_channel = RSSChannel()
     IP = get_ip()
     if (IP is not None):
         print("Detected IP address as: " + IP + "\n")
