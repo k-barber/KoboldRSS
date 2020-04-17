@@ -413,17 +413,21 @@ class RSSChannel:
             return
         if (link == "https://www.w3.org/about"):
             return
-        start = pattern.find("{")
-        stop = pattern.rfind("}")
-        if(start == -1 or stop == -1):
-            return
-        start_pattern = pattern[:start]
-        stop_pattern = pattern[stop+1:]
-        if(Debug): print(start_pattern)
-        if(Debug): print(stop_pattern)
+        self.item_pattern = clean_input(pattern)
+        if(Debug): print("Item Pattern: '" + self.item_pattern + "'")
+        first = self.item_pattern.find("{")
+        if (first < 0):
+            return None
+        second = self.item_pattern.rfind("}")
+        if (second < 0):
+            return None
+        start_pattern = self.item_pattern[:first]
+        stop_pattern = self.item_pattern[second+1:]
+        if(Debug): print("Start pattern: '" + start_pattern + "'")
+        if(Debug): print("Stop pattern: '" + stop_pattern + "'")
         data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
         if(Debug): print(data[0])
-        item_info = self.parse_items(data[:3], pattern)
+        item_info = self.parse_items(data[:3])
         if(Debug): print(item_info)
         iterator = 0
         items = []
