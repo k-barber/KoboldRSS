@@ -272,7 +272,7 @@ hr {
     cursor: pointer;
 }
 
-#Feed_TTL {
+#Feed_TTL, #Scrape_delay {
     width: calc(100% - 66px);
     display: inline;
     text-align: center;

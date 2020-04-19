@@ -48,6 +48,8 @@ class RSSChannel:
     password = None
     website = None
 
+    delay = 0
+
     def __str__(self):
         output = "    <channel>\n"
 
@@ -232,6 +234,9 @@ class RSSChannel:
             elif (prefix =='password'):
                 self.password = clean_input(line[semi:])
 
+            elif (prefix =='delay'):
+                self.delay = int(clean_input(line[semi:]))
+
         if (Debug): self.print()
 
     def get_item_text(self, text, start_pattern, stop_pattern):
@@ -352,7 +357,16 @@ class RSSChannel:
         if(Debug): print(stop_pattern)
 
         if ((self.website is not None) & (self.username is not None) & (self.password is not None)):
-            text = login_utils.multi_scrape(self.username, self.password, self.website, self.link)
+            text = login_utils.multi_scrape(self.username, self.password, self.website, self.link, delay=self.delay)
+            if (Debug): print(text)
+            data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
+            item_info = self.parse_items(data)
+            for item in item_info:
+                self.items.append(self.create_item(item))
+            self.lastBuildDate = datetime.datetime.now()
+            self.pubDate = datetime.datetime.now()
+        elif (self.delay > 0):
+            text = login_utils.generic_scrape(self.link, self.delay)
             if (Debug): print(text)
             data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
             item_info = self.parse_items(data)
@@ -551,5 +565,8 @@ class RSSChannel:
             output += "username:" + str(self.username) + "\n"
         if (self.password is not None):
             output += "password:" + self.password + "\n"
+
+        if (self.delay is not 0):
+            output += "delay:" + self.delay + "\n"
 
         return output

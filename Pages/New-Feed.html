@@ -22,6 +22,14 @@
             <h2>Defining the Feed</h2>
             <p>We'll start by defining some features of the RSS Feed. Fields marked with a <span class="required">*</span> are mandatory.</p>
             <form id="Feed_Data" action="javascript:void(0);" autocomplete="off">
+                <p class="Field tooltip"><span class="required">*</span> Feed Title:<span class="tooltiptext">The name of the Feed. It's how people refer to your feed.</span></p>
+                <div class="padding">
+                    <input id="Feed_Title" name="Feed_Title" class="input_box" type="text" required>
+                </div>
+                <p class="Field tooltip"><span class="required">*</span> Feed Description:<span class="tooltiptext">A few sentences describing the Feed & summarizing its contents.</span></p>
+                <div class="padding">
+                    <textarea id="Feed_Description" name="Feed_Description" class="input_box" rows="10" cols="100" required></textarea>
+                </div>
                 <p class="Field tooltip"><span class="required">*</span> Feed Link:<span class="tooltiptext">The URL of the web site associated with the Feed. Where the Feed will get its content from.</span></p>
                 <div class="padding">
                     <input id="Feed_Link" name="Feed_Link" class="input_box" type="url" required>
@@ -78,13 +86,9 @@
                     <p>Your username and password will <strong>only</strong> be used to log in to the selected website to update your RSS feed.
                         Connections will be HTTPS encrypted. Username and password will be stored in the "Feed_Definitions.txt" file.</p>
                 </div>
-                <p class="Field tooltip"><span class="required">*</span> Feed Title:<span class="tooltiptext">The name of the Feed. It's how people refer to your feed.</span></p>
+                <p class="Field tooltip">Scraping Delay:<span class="tooltiptext">The number of seconds the generator should wait to ensure the content has loaded before scraping. Only needed on pages with lazy loading.</span></p>
                 <div class="padding">
-                    <input id="Feed_Title" name="Feed_Title" class="input_box" type="text" required>
-                </div>
-                <p class="Field tooltip"><span class="required">*</span> Feed Description:<span class="tooltiptext">A few sentences describing the Feed & summarizing its contents.</span></p>
-                <div class="padding">
-                    <textarea id="Feed_Description" name="Feed_Description" class="input_box" rows="10" cols="100" required></textarea>
+                    <div id="left_button" onclick="down()">-</div><input id="Scrape_delay" name="Scrape_delay" class="input_box" type="number" min="0" value="0" step="1" /><div id="right_button" onclick="up()">+</div>
                 </div>
                 <p class="Field tooltip">Feed TTL:<span class="tooltiptext">TTL stands for "time to live". It's a number of minutes that indicates how long a Feed can be cached before refreshing. Rounds to the nearest 5.</span></p>
                 <div class="padding">
@@ -195,7 +199,7 @@
                 <p>The Generator will load the page from the Feed Link, then scan it for the Item Pattern, turning anything that matches into an Item in the RSS Feed.</p>
                 <p>Items are pieces of content published to the Feed</p>
                 <p>Click the button below to get the data from the Feed Link.</p>
-                <button onclick="scrape_URL()">Scrape URL</button>
+                <button onclick="scrape_URL()" formnovalidate>Scrape URL</button>
                 <div id="Item_Definition" style="display: none;">
                     <p class="Field">Scraped Page Source Data: </p>
                     <div class="padding"><textarea readonly id="Page_Source" rows="10" cols="100" class="input_box"></textarea></div>
@@ -203,7 +207,7 @@
                     <p>Copy that item into the box below, and replace any dynamic text with either {*} for data you don't want to keep, or {%} for data you do want to keep</p>
                     <p class="Field tooltip">Item Patttern:<span class="tooltiptext">The text that the Generator uses to create Feed Items. Dynamic text represented by {%} is saved by the Generator, {*} is discarded.</span></p>
                     <div class="padding"><textarea id="Item_Pattern" rows="10" cols="100" class="input_box" required spellcheck="false"></textarea></div>
-                    <button onclick="test_pattern()">Test Pattern</button>
+                    <button onclick="test_pattern()" formnovalidate>Test Pattern</button>
                     <div id="Pattern_Results" style="display: none;">
                         <p class="Field">Items Found: <span id="Item_Total"></span></p>
                         <div class="padding"><textarea readonly id="Item_List" rows="10" cols="100" class="input_box"></textarea></div>
@@ -219,7 +223,7 @@
                         <p>Anything else you type will be the same for every item in the feed.</p>
                         <p class="Field tooltip"><span class="required">*</span> Item Title:<span class="tooltiptext">The item's headline</span></p>
                         <div class="padding">
-                            <input id="Item_Title" name="Item_Title" class="input_box" type="text"></input>
+                            <input id="Item_Title" name="Item_Title" class="input_box" type="text" required></input>
                         </div>
                         <p class="Field tooltip">Item Link:<span class="tooltiptext">The URL of a web page associated with the item.</span></p>
                         <div class="padding">
@@ -229,9 +233,9 @@
                         <p>If you want, you can add HTML markup to the Item Description by using <a href="https://www.w3.org/TR/xml/#dt-cdsection">CDATA formatting</a>.</p>
                         <p>Simply add &lt;![CDATA[ at the start of your HTML and ]]&gt; to the end.</p>
                         <div class="padding">
-                            <textarea id="Item_Description" name="Item_Description" class="input_box" rows="10" cols="100">&lt;![CDATA[&#10;&#10;]]&gt;</textarea>
+                            <textarea required id="Item_Description" name="Item_Description" class="input_box" rows="10" cols="100">&lt;![CDATA[&#10;&#10;]]&gt;</textarea>
                         </div>
-                        <button onclick="test_definition()">Test Definition</button>
+                        <button onclick="test_definition()" formnovalidate>Test Definition</button>
                         <table id="Item_Preview" style="display:none">
                             <tr>
                             <th id="title-header">Title</th>
@@ -346,6 +350,7 @@
                         username : document.getElementById("Username").value,
                         password : document.getElementById("Password").value,
                         website : website,
+                        delay : Number(0 || document.getElementById("Scrape_delay").value),
                         }));
             }else{
                 console.log("Check failed");
@@ -500,7 +505,8 @@
                 'title': document.getElementById("Feed_Title").value,
                 'link': document.getElementById("Feed_Link").value,
                 'description': document.getElementById("Feed_Description").value.replace(/(\r\n|\n|\r)/gm,""),
-                'ttl' : document.getElementById("Feed_TTL").value,
+                'ttl' : Number(document.getElementById("Feed_TTL").value || 60),
+                'delay' : Number(0 || document.getElementById("Scrape_delay").value),
                 'category' : document.getElementById("Feed_Categories").value,
                 'copyright' : document.getElementById("Feed_Copyright").value,
                 'image_link': document.getElementById("Image_Link").value,
@@ -549,6 +555,24 @@
                 box.value = Math.floor(temp / 5) * 5;
             } else {
                 box.value = 5;
+            }
+        }
+
+        function up() {
+            var box = document.getElementById("Scrape_delay");
+            if (box.value >= 0) {
+                box.value = parseInt(box.value) + 1;
+            } else {
+                box.value = 0;
+            }
+        }
+
+        function down() {
+            var box = document.getElementById("Scrape_delay");
+            if (box.value >= 1) {
+                box.value = parseInt(box.value) - 1;
+            } else {
+                box.value = 0;
             }
         }
 

@@ -4,10 +4,30 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+import sys
 import time
 import os
 
 Debug = False
+
+driver = None
+wait = None
+
+def __initialize():
+    global driver
+    global wait
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--window-size=2000x2000")
+    if (not Debug): chrome_options.add_argument("--log-level=3")
+    chrome_driver = os.path.join(os.getcwd(), "chromedriver")
+    driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
+    wait = WebDriverWait(driver, 10)
+
+def close():
+    global driver
+    driver.close()
+
 
 def certcheck():
     chrome_options = Options()
@@ -19,15 +39,17 @@ def certcheck():
     if (Debug): print(driver.page_source)
     driver.close()
 
-def multi_scrape(username, password, website, url):
+def multi_scrape(username, password, website, url, delay=5):
     if (Debug): print("Start of switch")
+    global driver
+    if (driver == None): __initialize()
 
     if (website == "Newgrounds"):
-        result = newgrounds_scrape(username, password, url)
+        result = __newgrounds_scrape(username, password, url, delay)
     elif (website == "Pixiv"):
-        result = pixiv_scrape(username, password, url)
+        result = __pixiv_scrape(username, password, url, delay)
     elif (website == "Twitter"):
-        result = twitter_scrape(username, password, url)
+        result = __twitter_scrape(username, password, url, delay)
     else:
         result = "Test"
 
@@ -37,106 +59,91 @@ def multi_scrape(username, password, website, url):
 
     return result
 
+def generic_scrape(url, delay):
+    global driver
+    if (driver == None): __initialize()
+    driver.get(url)
+    time.sleep(delay)
+    scraped = driver.execute_script("return document.documentElement.outerHTML")
+    return scraped
 
-def pixiv_scrape(username, password, url):
+
+def __pixiv_scrape(username, password, url, delay):
     """Scrapes the pixiv url after logging in with the username and password"""
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--window-size=2000x2000")
-
-    chrome_driver = os.path.join(os.getcwd(), "chromedriver")
-
-    driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
-
-    wait = WebDriverWait(driver, 10)
-
-    driver.get("https://accounts.pixiv.net/login")
-    
-    username_field = driver.find_element_by_xpath("//input[@autocomplete='username']")
-    password_field = driver.find_element_by_xpath("//input[@autocomplete='current-password']")
-    username_field.send_keys(username)
-    password_field.send_keys(password)
-    password_field.submit()
+    global driver
+    global wait
 
     try:
-        wait.until(EC.title_is("[pixiv]"))
+        driver.get("https://accounts.pixiv.net/login")
+        if ( (not wait.until(EC.title_contains("Login | pixiv"))) \
+            and (not wait.until(EC.title_contains("[pixiv]")))):
+            if (EC.title_contains("Login | pixiv")):
+                username_field = driver.find_element_by_xpath("//input[@autocomplete='username']")
+                password_field = driver.find_element_by_xpath("//input[@autocomplete='current-password']")
+                username_field.send_keys(username)
+                password_field.send_keys(password)
+                password_field.submit()
+                wait.until(EC.title_contains("[pixiv]"))
     except Exception as err:
-        print(str(err))
+        __print_error(err)
 
-    driver.get(url)
-    time.sleep(5)
+    if (driver.current_url != url): driver.get(url)
+    time.sleep(delay)
     scraped = driver.execute_script("return document.documentElement.outerHTML")
-    driver.close()
     return scraped
 
-def newgrounds_scrape(username, password, url):
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--window-size=2000x2000")
-
-    chrome_driver = os.path.join(os.getcwd(), "chromedriver")
-
-    driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
-
-    wait = WebDriverWait(driver, 10)
-
-    driver.get("https://www.newgrounds.com/passport")
-    if (Debug): driver.get_screenshot_as_file("login.png")
-    
-    username_field = driver.find_element_by_id("username")
-    password_field = driver.find_element_by_id("password")
-    username_field.send_keys(username)
-    password_field.send_keys(password)
-    password_field.submit()
+def __newgrounds_scrape(username, password, url, delay):
+    global driver
+    global wait
 
     try:
-        wait.until(EC.title_is("Your Feed"))
+        driver.get("https://www.newgrounds.com/passport")
+        if ((not wait.until(EC.title_contains("Newgrounds Passport"))) \
+             and (not wait.until(EC.title_contains("Your Feed")))):
+            if (EC.title_contains("Newgrounds Passport")):
+                username_field = driver.find_element_by_id("username")
+                password_field = driver.find_element_by_id("password")
+                username_field.send_keys(username)
+                password_field.send_keys(password)
+                password_field.submit()
+                wait.until(EC.title_contains("Your Feed"))
     except Exception as err:
-        print(str(err))
-        print(driver.title)
+        __print_error(err)
 
-    driver.get(url)
-
-    if (Debug): driver.get_screenshot_as_file("feed.png")
+    if (driver.current_url != url): driver.get(url)
+    time.sleep(delay)
     scraped = driver.execute_script("return document.documentElement.outerHTML")
-    driver.close()
     if (Debug): print(scraped)
     return scraped
 
-def twitter_scrape(username, password, url):
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--window-size=2000x2000")
-
-    chrome_driver = os.path.join(os.getcwd(), "chromedriver")
-
-    driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
-
-    wait = WebDriverWait(driver, 10)
+def __twitter_scrape(username, password, url, delay):
+    global driver
+    global wait
     
-    driver.get("https://twitter.com/login")
-    if (Debug): driver.get_screenshot_as_file("get.png")
     try:
-        wait.until(EC.presence_of_element_located((By.NAME,"session[username_or_email]")))
+        driver.get("https://twitter.com/login")
+        if ((not wait.until(EC.presence_of_element_located(By.NAME,"session[username_or_email]"))) \
+             and (not wait.until(EC.title_contains("Home / Twitter")))):
+            if (EC.presence_of_element_located((By.NAME,"session[username_or_email]"))):
+                username_field = driver.find_element_by_name("session[username_or_email]")
+                password_field = driver.find_element_by_name("session[password]")
+                username_field.send_keys(username)
+                password_field.send_keys(password)
+                password_field.submit()
+                wait.until(EC.title_contains("Home / Twitter"))
     except Exception as err:
-        print(str(err))
+        __print_error(err)
 
-    if (Debug): driver.get_screenshot_as_file("login.png")
-    
-    username_field = driver.find_element_by_name("session[username_or_email]")
-    password_field = driver.find_element_by_name("session[password]")
-    username_field.send_keys(username)
-    password_field.send_keys(password)
-    password_field.submit()
-
-    wait.until(EC.presence_of_element_located((By.TAG_NAME, "article")))
-
-    # Wait 5 seconds for content to load. I could get more specific, but it might not hold up for pages other than twitter.com/home
-    time.sleep(5)
-    assert "home".lower() in driver.title.lower()
-
-    if (Debug): driver.get_screenshot_as_file("feed.png")
+    if (driver.current_url != url): driver.get(url)
+    time.sleep(delay)
     scraped = driver.execute_script("return document.documentElement.outerHTML")
-    driver.close()
     if (Debug): print(scraped)
     return scraped
+
+def __print_error(err):
+    global driver
+    print("~~~~~~ ERROR ~~~~~~")
+    print("Unexpected error:", sys.exc_info()[0])
+    print(str(err))
+    if (driver != None): print(driver.title)
+    print("~~~~~~~~~~~~~~~~~~~")

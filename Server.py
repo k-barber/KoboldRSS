@@ -107,6 +107,8 @@ def channel_from_data(data):
             new_channel.username = data['username']
         if(data['password'] != ""):
             new_channel.password = data['password']
+    if(data['delay'] != 0):
+        new_channel.delay = data['delay']
 
 def update_defs():
     output = new_channel.print_definition()
@@ -220,13 +222,16 @@ class MyHandler(BaseHTTPRequestHandler):
                 params = json.loads(str(post_data, encoding="utf-8"))
                 url = params["url"]
                 login_required = params["login_required"]
+                delay = int(params["delay"])
                 if (login_required == True):
                     text = login_utils.multi_scrape(
                         params["username"],
                         params["password"],
                         params["website"],
                         url)
-                else :
+                elif (delay > 0):
+                    text = login_utils.generic_scrape(url, delay)
+                else:
                     response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot'})
                     text = response.text
                 new_channel.link = url
