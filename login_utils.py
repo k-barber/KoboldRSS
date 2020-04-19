@@ -17,6 +17,8 @@ wait = None
 logged_in = []
 
 def __initialize():
+    """Initializes the headless chrome instance
+    """
     global driver
     global wait
     chrome_options = Options()
@@ -28,6 +30,8 @@ def __initialize():
     wait = WebDriverWait(driver, 5)
 
 def close():
+    """Closes the headless chrome instance
+    """
     global driver
     driver.close()
 
@@ -43,6 +47,18 @@ def certcheck():
     driver.close()
 
 def multi_scrape(username, password, website, url, delay=5):
+    """Scrapes the html from URL
+    
+    Parameters:
+
+    username (str):  The username to login with
+
+    password (str):  The password to login with
+
+    website (str):  The website the page is on
+
+    url (str):  The url to scrape
+    """
     if (Debug): print("Start of switch")
     global driver
     if (driver == None): __initialize()
@@ -63,6 +79,14 @@ def multi_scrape(username, password, website, url, delay=5):
     return result
 
 def generic_scrape(url, delay):
+    """Scrapes the html from URL
+    
+    Parameters:
+
+    url (str):  The url to scrape
+
+    delay (int): How many seconds selenium should wait before scraping
+    """
     global driver
     if (driver == None): __initialize()
     driver.get(url)
@@ -72,7 +96,18 @@ def generic_scrape(url, delay):
 
 
 def __pixiv_scrape(username, password, url, delay):
-    """Scrapes the pixiv url after logging in with the username and password"""
+    """Scrapes the html from the pixiv URL
+    
+    Parameters:
+
+    username (str):  The username to login with
+
+    password (str):  The password to login with
+
+    url (str):  The url to scrape
+
+    delay (int): How many seconds selenium should wait before scraping
+    """
     global driver
     global wait
     global logged_in
@@ -96,6 +131,18 @@ def __pixiv_scrape(username, password, url, delay):
     return scraped
 
 def __newgrounds_scrape(username, password, url, delay):
+    """Scrapes the html from the newgrounds URL
+    
+    Parameters:
+
+    username (str):  The username to login with
+
+    password (str):  The password to login with
+
+    url (str):  The url to scrape
+
+    delay (int): How many seconds selenium should wait before scraping
+    """
     global driver
     global wait
     global logged_in
@@ -120,6 +167,18 @@ def __newgrounds_scrape(username, password, url, delay):
     return scraped
 
 def __twitter_scrape(username, password, url, delay):
+    """Scrapes the html from the twitter URL
+    
+    Parameters:
+
+    username (str):  The username to login with
+
+    password (str):  The password to login with
+
+    url (str):  The url to scrape
+
+    delay (int): How many seconds selenium should wait before scraping
+    """
     global driver
     global wait
     global logged_in

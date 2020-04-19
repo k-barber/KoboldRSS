@@ -51,6 +51,8 @@ class RSSChannel:
     delay = None
 
     def __str__(self):
+        """Produces the xml formatted representation of the object
+        """
         output = "    <channel>\n"
 
         # Required 
@@ -97,6 +99,8 @@ class RSSChannel:
         return output
 
     def print(self):
+        """Prints information about channel to STDout
+        """
         print("Category: " + str(self.category))
         print("Copyright: " + str(self.copyright))
         print("Description: " + str(self.description))
@@ -136,6 +140,12 @@ class RSSChannel:
         print("Username: " + str(self.username))        
 
     def create_item(self, data):
+        """generates an RSS Item
+    
+        Parameters:
+
+        data (list): the fields of an item in the form [{%1}, {%2}, ...]  
+        """
         return RSSItem(
             data,
             title=self.item_title,
@@ -153,6 +163,17 @@ class RSSChannel:
         )
 
     def __init__(self, data=None):
+        """generates an RSS Channel
+    
+        Parameters:
+
+        data (string list): the variables of a channel in the format:
+            item_title:{%6}
+            language:en-ca
+            link:https://google.com
+            title:Google.com Feed
+            ttl:30  
+        """
         self.items = []
 
         if data is None:
@@ -240,6 +261,16 @@ class RSSChannel:
         if (Debug): self.print()
 
     def get_item_text(self, text, start_pattern, stop_pattern):
+        """Creates a list of text snippets that match start_pattern{*}stop_pattern
+    
+        Parameters:
+
+        text (string): the raw source of the page
+
+        start_pattern (string): the item pattern up to the first {
+        
+        stop_pattern (string): the item pattern after the last }
+        """
         start = 0
         if Debug: print("Getting Image Data")
         item_data = []
@@ -252,6 +283,14 @@ class RSSChannel:
         return item_data
 
     def parse_item_text(self, item_text, pattern = None):
+        """generates a list of item fields from the item pattern and a snippet of text from get_item_text
+    
+        Parameters:
+
+        item_text (string): A snippet of text from the source code that matches the item pattern
+        
+        pattern (string): An item pattern
+        """
         if (Debug): print("Parsing Item Text")
         if (pattern is None):
             if (self.item_pattern is None):
@@ -321,6 +360,14 @@ class RSSChannel:
         return output
 
     def parse_items(self, data, pattern = None):
+        """Creates a list of items field lists
+    
+        Parameters:
+
+        data (string): a list of item text snippets from get_item_text()
+        
+        pattern (string): an item pattern
+        """
         if (Debug): print("Parsing Items")
         output = []
         for text in data:
@@ -328,10 +375,10 @@ class RSSChannel:
         return output
 
     def save_channel(self):
+        """Creates the xml file of the channel
+        """
 
-        output = '''<?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="/res/preview.xsl"?>
-<rss version="2.0">'''
+        output = '''<?xml version="1.0" encoding="utf-8"?>\n<?xml-stylesheet type="text/xsl" href="/res/preview.xsl"?>\n<rss version="2.0">'''
         output += "\n" + str(self)
 
         output += "</rss>"
@@ -341,6 +388,8 @@ class RSSChannel:
         f.close()
 
     def generate_items(self):
+        """scrapes the page to find any new items
+        """
         if (self.item_pattern == None):
             return
         if (self.link == "https://www.w3.org/about"):
@@ -404,6 +453,14 @@ class RSSChannel:
                         count += 1
 
     def test_pattern(self, pattern, text):
+        """Creates a list of items from the given text and item pattern
+    
+        Parameters:
+
+        pattern (string): an item pattern
+
+        text (string): the text to scrape for items
+        """
         try:
             self.item_pattern = clean_input(pattern)
             if(Debug): print("Item Pattern: '" + self.item_pattern + "'")
@@ -459,6 +516,8 @@ class RSSChannel:
         return items
 
     def clear(self):
+        """clear all the variables
+        """
         self.category = None
         self.copyright = None
         self.description = "Default Description"
@@ -500,6 +559,8 @@ class RSSChannel:
         self.password = None
 
     def print_definition(self):
+        """Produce a string representation of the channel for use in Feed_Definitions.txt
+        """
         output = ""
         
         if (self.category is not None):
@@ -569,7 +630,7 @@ class RSSChannel:
         if (self.password is not None):
             output += "password:" + self.password + "\n"
 
-        if (self.delay is not 0):
+        if ((self.delay is not None) and (self.delay is not 0)):
             output += "delay:" + self.delay + "\n"
 
         return output
