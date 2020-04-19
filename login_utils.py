@@ -14,6 +14,8 @@ Debug = False
 driver = None
 wait = None
 
+logged_in = []
+
 def __initialize():
     global driver
     global wait
@@ -23,7 +25,7 @@ def __initialize():
     if (not Debug): chrome_options.add_argument("--log-level=3")
     chrome_driver = os.path.join(os.getcwd(), "chromedriver")
     driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, 5)
 
 def close():
     global driver
@@ -73,20 +75,21 @@ def __pixiv_scrape(username, password, url, delay):
     """Scrapes the pixiv url after logging in with the username and password"""
     global driver
     global wait
+    global logged_in
 
-    try:
-        driver.get("https://accounts.pixiv.net/login")
-        if ((wait.until(EC.title_contains("Login | pixiv"))) or (wait.until(EC.title_contains("[pixiv]")))):
-            if (EC.title_contains("Login | pixiv")):
-                username_field = driver.find_element_by_xpath("//input[@autocomplete='username']")
-                password_field = driver.find_element_by_xpath("//input[@autocomplete='current-password']")
-                username_field.send_keys(username)
-                password_field.send_keys(password)
-                password_field.submit()
-                wait.until(EC.title_contains("[pixiv]"))
-    except Exception as err:
-        __print_error(err)
-
+    if ("pixiv" not in logged_in):
+        try:
+            driver.get("https://accounts.pixiv.net/login")
+            username_field = driver.find_element_by_xpath("//input[@autocomplete='username']")
+            password_field = driver.find_element_by_xpath("//input[@autocomplete='current-password']")
+            username_field.send_keys(username)
+            password_field.send_keys(password)
+            password_field.submit()
+            wait.until(EC.title_contains("[pixiv]"))
+            logged_in.append("pixiv")
+        except Exception as err:
+            __print_error(err)
+    
     if (driver.current_url != url): driver.get(url)
     time.sleep(delay)
     scraped = driver.execute_script("return document.documentElement.outerHTML")
@@ -95,48 +98,49 @@ def __pixiv_scrape(username, password, url, delay):
 def __newgrounds_scrape(username, password, url, delay):
     global driver
     global wait
+    global logged_in
 
-    try:
-        driver.get("https://www.newgrounds.com/passport")
-        if ((wait.until(EC.title_contains("Newgrounds Passport"))) or (wait.until(EC.title_contains("Your Feed")))):
-            if (EC.title_contains("Newgrounds Passport")):
-                username_field = driver.find_element_by_id("username")
-                password_field = driver.find_element_by_id("password")
-                username_field.send_keys(username)
-                password_field.send_keys(password)
-                password_field.submit()
-                wait.until(EC.title_contains("Your Feed"))
-    except Exception as err:
-        __print_error(err)
+    if ("newgrounds" not in logged_in):
+        try:
+            driver.get("https://www.newgrounds.com/passport")
+            wait.until(EC.title_contains("Newgrounds Passport"))
+            username_field = driver.find_element_by_id("username")
+            password_field = driver.find_element_by_id("password")
+            username_field.send_keys(username)
+            password_field.send_keys(password)
+            password_field.submit()
+            wait.until(EC.title_contains("Your Feed"))
+            logged_in.append("newgrounds")
+        except Exception as err:
+            __print_error(err)
 
     if (driver.current_url != url): driver.get(url)
     time.sleep(delay)
     scraped = driver.execute_script("return document.documentElement.outerHTML")
-    if (Debug): print(scraped)
     return scraped
 
 def __twitter_scrape(username, password, url, delay):
     global driver
     global wait
-    
-    try:
-        driver.get("https://twitter.com/login")
-        if ((wait.until(EC.presence_of_element_located((By.NAME,"session[username_or_email]"))))\
-            or (wait.until(EC.title_contains("Home / Twitter")))):
-            if (EC.presence_of_element_located((By.NAME,"session[username_or_email]"))):
-                username_field = driver.find_element_by_name("session[username_or_email]")
-                password_field = driver.find_element_by_name("session[password]")
-                username_field.send_keys(username)
-                password_field.send_keys(password)
-                password_field.submit()
-                wait.until(EC.title_contains("Home / Twitter"))
-    except Exception as err:
-        __print_error(err)
+    global logged_in
+
+    if ("twitter" not in logged_in):
+        try:
+            driver.get("https://twitter.com/login")
+            wait.until(EC.presence_of_element_located((By.NAME,"session[username_or_email]")))
+            username_field = driver.find_element_by_name("session[username_or_email]")
+            password_field = driver.find_element_by_name("session[password]")
+            username_field.send_keys(username)
+            password_field.send_keys(password)
+            password_field.submit()
+            wait.until(EC.title_contains("Home / Twitter"))
+            logged_in.append("twitter")
+        except Exception as err:
+            __print_error(err)
 
     if (driver.current_url != url): driver.get(url)
     time.sleep(delay)
     scraped = driver.execute_script("return document.documentElement.outerHTML")
-    if (Debug): print(scraped)
     return scraped
 
 def __print_error(err):
