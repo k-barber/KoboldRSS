@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+import traceback
 import sys
 import time
 import os
@@ -75,8 +76,7 @@ def __pixiv_scrape(username, password, url, delay):
 
     try:
         driver.get("https://accounts.pixiv.net/login")
-        if ( (not wait.until(EC.title_contains("Login | pixiv"))) \
-            and (not wait.until(EC.title_contains("[pixiv]")))):
+        if ((wait.until(EC.title_contains("Login | pixiv"))) or (wait.until(EC.title_contains("[pixiv]")))):
             if (EC.title_contains("Login | pixiv")):
                 username_field = driver.find_element_by_xpath("//input[@autocomplete='username']")
                 password_field = driver.find_element_by_xpath("//input[@autocomplete='current-password']")
@@ -98,8 +98,7 @@ def __newgrounds_scrape(username, password, url, delay):
 
     try:
         driver.get("https://www.newgrounds.com/passport")
-        if ((not wait.until(EC.title_contains("Newgrounds Passport"))) \
-             and (not wait.until(EC.title_contains("Your Feed")))):
+        if ((wait.until(EC.title_contains("Newgrounds Passport"))) or (wait.until(EC.title_contains("Your Feed")))):
             if (EC.title_contains("Newgrounds Passport")):
                 username_field = driver.find_element_by_id("username")
                 password_field = driver.find_element_by_id("password")
@@ -122,8 +121,8 @@ def __twitter_scrape(username, password, url, delay):
     
     try:
         driver.get("https://twitter.com/login")
-        if ((not wait.until(EC.presence_of_element_located(By.NAME,"session[username_or_email]"))) \
-             and (not wait.until(EC.title_contains("Home / Twitter")))):
+        if ((wait.until(EC.presence_of_element_located((By.NAME,"session[username_or_email]"))))\
+            or (wait.until(EC.title_contains("Home / Twitter")))):
             if (EC.presence_of_element_located((By.NAME,"session[username_or_email]"))):
                 username_field = driver.find_element_by_name("session[username_or_email]")
                 password_field = driver.find_element_by_name("session[password]")
@@ -143,7 +142,7 @@ def __twitter_scrape(username, password, url, delay):
 def __print_error(err):
     global driver
     print("~~~~~~ ERROR ~~~~~~")
-    print("Unexpected error:", sys.exc_info()[0])
-    print(str(err))
+    print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
+    traceback.print_tb(sys.exc_info()[2])
     if (driver != None): print(driver.title)
     print("~~~~~~~~~~~~~~~~~~~")

@@ -228,7 +228,8 @@ class MyHandler(BaseHTTPRequestHandler):
                         params["username"],
                         params["password"],
                         params["website"],
-                        url)
+                        url,
+                        delay=delay)
                 elif (delay > 0):
                     text = login_utils.generic_scrape(url, delay)
                 else:
