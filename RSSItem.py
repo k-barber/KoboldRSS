@@ -85,7 +85,10 @@ class RSSItem:
         if (self.comments is not None):
             output += "            <comments>" + dirty_output(self.comments) + "</comments>\n"
         if (self.description is not None):
-            output += "            <description>" + dirty_output(self.description) + "</description>\n"
+            if (self.description.startswith("<![CDATA[")):
+                output += "            <description>" + self.description + "</description>\n"
+            else:
+                output += "            <description>" + dirty_output(self.description) + "</description>\n"
 
         if (self.enclosure_url is not None and self.enclosure_length is not None and self.enclosure_type is not None):
             output += '            <enclosure url="' + dirty_output(self.enclosure_url) +'" length="' + dirty_output(self.enclosure_length) +'" type="' + dirty_output(self.enclosure_type) + '" />\n'
