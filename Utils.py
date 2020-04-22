@@ -44,4 +44,6 @@ def dirty_output(text):
     str: Text with formatting
     """
     text = text.replace("&", "&amp;")
+    text = text.replace(">", "&#62;")
+    text = text.replace("<", "&#60;")
     return text
