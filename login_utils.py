@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from pathlib import Path
 import traceback
 import sys
 import time
@@ -24,6 +25,9 @@ def __initialize():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--window-size=2000x2000")
+    home = str(Path.home())
+    default_profile = "user-data-dir=" + home + "\\AppData\\Local\\Google\\Chrome\\User Data\\"
+    chrome_options.add_argument(default_profile)
     if (not Debug): chrome_options.add_argument("--log-level=3")
     chrome_driver = os.path.join(os.getcwd(), "chromedriver")
     driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
@@ -123,7 +127,10 @@ def __pixiv_scrape(username, password, url, delay):
             wait.until(EC.title_contains("[pixiv]"))
             logged_in.append("pixiv")
         except Exception as err:
-            __print_error(err)
+            if (EC.title_contains("[pixiv]")):
+                logged_in.append("pixiv")
+            else:
+                __print_error(err)
     
     if (driver.current_url != url): driver.get(url)
     time.sleep(delay)
@@ -159,7 +166,10 @@ def __newgrounds_scrape(username, password, url, delay):
             wait.until(EC.title_contains("Your Feed"))
             logged_in.append("newgrounds")
         except Exception as err:
-            __print_error(err)
+            if (EC.title_contains("Your Feed")):
+                logged_in.append("newgrounds")
+            else:
+                __print_error(err)
 
     if (driver.current_url != url): driver.get(url)
     time.sleep(delay)
@@ -195,7 +205,10 @@ def __twitter_scrape(username, password, url, delay):
             wait.until(EC.title_contains("Home / Twitter"))
             logged_in.append("twitter")
         except Exception as err:
-            __print_error(err)
+            if (EC.title_contains("Home / Twitter")):
+                logged_in.append("twitter")
+            else:
+                __print_error(err)
 
     if (driver.current_url != url): driver.get(url)
     time.sleep(delay)
