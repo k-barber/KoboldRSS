@@ -631,6 +631,6 @@ class RSSChannel:
             output += "password:" + self.password + "\n"
 
         if ((self.delay is not None) and (self.delay is not 0)):
-            output += "delay:" + self.delay + "\n"
+            output += "delay:" + str(self.delay) + "\n"
 
         return output
