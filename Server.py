@@ -159,22 +159,25 @@ class MyHandler(BaseHTTPRequestHandler):
             elif(path.startswith("/Proxy/")):
                 url = path[7:]
                 try:
-                    if (url.startswith("i.pximg.net") | url.startswith("s.pximg.net")):
-                        filename = url[url.rfind("/"):]
-                        if file_path.exists("Img/Cache" + filename):
-                            cached = open("Img/Cache" + filename, "rb").read()
-                            self.send_response(200)
-                            self.end_headers()
-                            self.wfile.write(bytes(cached))
-                        else:
-                            url = "https://" + url
-                            response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot', 'referer':'https://pixiv.net'})
-                            cached = open("Img/Cache" + filename, "wb")
-                            cached.write(response.content)
-                            cached.close()
-                            self.send_response(response.status_code)
-                            self.end_headers()
-                            self.wfile.write(bytes(response.content))
+                    filename = url[url.find("/")+1:].replace("/","-")
+                    if file_path.exists("Img/Cache/" + filename):
+                        cached = open("Img/Cache/" + filename, "rb").read()
+                        self.send_response(200)
+                        self.end_headers()
+                        self.wfile.write(bytes(cached))
+                    else:
+                        domain = url[:url.find("/")]
+                        if (domain.count(".") > 1):
+                            domain = domain[domain.rfind(".", 0, domain.rfind("."))+1:]
+                        referer = "https://" + domain
+                        url = "https://" + url
+                        response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot', 'referer': referer})
+                        cached = open("Img/Cache/" + filename, "wb")
+                        cached.write(response.content)
+                        cached.close()
+                        self.send_response(response.status_code)
+                        self.end_headers()
+                        self.wfile.write(bytes(response.content))
                 except Exception as err:
                     print(str(err))
             elif(path.startswith("/Feeds/")):
