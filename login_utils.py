@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
 from pathlib import Path
 import traceback
 import sys
@@ -31,6 +32,7 @@ def __initialize():
     if (not Debug): chrome_options.add_argument("--log-level=3")
     chrome_driver = os.path.join(os.getcwd(), "chromedriver")
     driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
+    #driver = webdriver.Chrome(ChromeDriverManager().install())
     wait = WebDriverWait(driver, 5)
 
 def close():
