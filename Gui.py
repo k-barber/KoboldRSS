@@ -49,8 +49,9 @@ class RSSWindow:
         mainframe.grid(row=0, column=0, sticky="news")
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
-        mainframe.columnconfigure(0, weight=1)
-        mainframe.rowconfigure(0, weight=1)
+        mainframe.columnconfigure(1, weight=1)
+        mainframe.columnconfigure(2, weight=1)
+        mainframe.rowconfigure(1, weight=1)
 
         generator_output_box = ttk.Frame(mainframe, borderwidth=2, relief="sunken", width=400, height=400)
         server_output_box = ttk.Frame(mainframe, borderwidth=2, relief="sunken", width=400, height=400)
@@ -62,8 +63,12 @@ class RSSWindow:
 
         options_box.grid(row=1, column=0, sticky="news", pady=5, padx=5)
         generator_output_box.grid(row=1, column=1, sticky="news", pady=5, padx=5)
-        server_output_box.grid(row=1, column=2, sticky="news", pady=5, padx=5)
+        generator_output_box.columnconfigure(0, weight=1)
+        generator_output_box.rowconfigure(0, weight=1)
 
+        server_output_box.grid(row=1, column=2, sticky="news", pady=5, padx=5)
+        server_output_box.columnconfigure(0, weight=1)
+        server_output_box.rowconfigure(0, weight=1)
 
         # Set up generator output
         generator_output_y_scrollbar = Scrollbar(generator_output_box)
@@ -80,7 +85,7 @@ class RSSWindow:
 
         generator_output_x_scrollbar.config(command=generator_output.xview)
 
-        generator_output.grid(row=0, column=0)
+        generator_output.grid(row=0, column=0, sticky="news")
 
         # Set up server output
         server_output_y_scrollbar = Scrollbar(server_output_box)
@@ -97,7 +102,7 @@ class RSSWindow:
 
         server_output_x_scrollbar.config(command=self.server_output.xview)
 
-        self.server_output.grid(row=0, column=0)
+        self.server_output.grid(row=0, column=0, sticky="news")
 
         debug_mode = BooleanVar()
 
@@ -118,8 +123,8 @@ class RSSWindow:
         def stop_server():
             self.shell.stop_server()
 
-        ttk.Button(options_box, text="Start Server", command=start_server).grid(row=3, column=0, sticky="news", pady=5, padx=5, columnspan=2)
-        ttk.Button(options_box, text="Stop Server", command=stop_server).grid(row=4, column=0, sticky="news", pady=5, padx=5, columnspan=2)
+        ttk.Button(options_box, text="Start", command=start_server).grid(row=3, column=0, sticky="news", pady=5, padx=5)
+        ttk.Button(options_box, text="Stop", command=stop_server).grid(row=3, column=1, sticky="news", pady=5, padx=5)
         
         port.set("8000")
         generator_output.insert(END, str(debug_mode.get()))
