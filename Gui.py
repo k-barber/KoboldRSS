@@ -1,6 +1,30 @@
 from tkinter import *
 from tkinter import ttk
 import tkinter.scrolledtext as tkst
+import queue
+
+class ThreadSafeConsole(Text):
+    def __init__(self, master, **options):
+        Text.__init__(self, master, **options)
+        self.queue = queue.Queue()
+        self.update_me()
+    def write(self, line):
+        self.queue.put(line)
+    def clear(self):
+        self.queue.put(None)
+    def update_me(self):
+        try:
+            while 1:
+                line = self.queue.get_nowait()
+                if line is None:
+                    self.delete(1.0, END)
+                else:
+                    self.insert(END, str(line))
+                self.see(END)
+                self.update_idletasks()
+        except queue.Empty:
+            pass
+        self.after(100, self.update_me)
 
 class RSSWindow:
 
@@ -13,7 +37,7 @@ class RSSWindow:
         self.root.update()
 
     def print_to_server_output(self, string):
-        self.server_output.insert(END, str(string) + "\n\r")
+        self.server_output.write(str(string) + "\n\r")
     
     def __init__(self, ShellInstance):
         self.shell = ShellInstance
@@ -27,8 +51,6 @@ class RSSWindow:
         self.root.rowconfigure(0, weight=1)
         mainframe.columnconfigure(0, weight=1)
         mainframe.rowconfigure(0, weight=1)
-        mainframe.columnconfigure(1, weight=1)
-        mainframe.rowconfigure(1, weight=1)
 
         generator_output_box = ttk.Frame(mainframe, borderwidth=2, relief="sunken", width=200, height=400)
         server_output_box = ttk.Frame(mainframe, borderwidth=2, relief="sunken", width=200, height=400)
@@ -47,7 +69,7 @@ class RSSWindow:
         generator_output_y_scrollbar = Scrollbar(generator_output_box)
         generator_output_x_scrollbar = Scrollbar(generator_output_box, orient=HORIZONTAL)
 
-        generator_output = Text(generator_output_box, width=30, wrap="none",
+        generator_output = ThreadSafeConsole(generator_output_box, width=30, wrap="none",
                         xscrollcommand=generator_output_x_scrollbar.set,
                         yscrollcommand=generator_output_y_scrollbar.set,
                         borderwidth=0, highlightthickness=0, bg="#000000", fg="#FFFFFF", insertbackground="#FFFFFF")
@@ -64,7 +86,7 @@ class RSSWindow:
         server_output_y_scrollbar = Scrollbar(server_output_box)
         server_output_x_scrollbar = Scrollbar(server_output_box, orient=HORIZONTAL)
 
-        self.server_output = Text(server_output_box, width=30, wrap="none",
+        self.server_output = ThreadSafeConsole(server_output_box, width=30, wrap="none",
                         xscrollcommand=server_output_x_scrollbar.set,
                         yscrollcommand=server_output_y_scrollbar.set,
                         borderwidth=0, highlightthickness=0, bg="#000000", fg="#FFFFFF", insertbackground="#FFFFFF")
@@ -88,9 +110,16 @@ class RSSWindow:
         port_number.grid(row=2, column=1, sticky="news", pady=5, padx=5)
 
         def print_port():
-            self.shell.print_port(port.get())
+            self.shell.print_server_output(port.get())
 
-        ttk.Button(options_box, text="Start Server", command=print_port).grid(row=3, column=0, sticky="news", pady=5, padx=5, columnspan=2)
+        def start_server():
+            self.shell.start_server(port.get(), debug_mode.get())
+
+        def stop_server():
+            self.shell.stop_server()
+
+        ttk.Button(options_box, text="Start Server", command=start_server).grid(row=3, column=0, sticky="news", pady=5, padx=5, columnspan=2)
+        ttk.Button(options_box, text="Stop Server", command=stop_server).grid(row=4, column=0, sticky="news", pady=5, padx=5, columnspan=2)
         
         port.set("8000")
         generator_output.insert(END, str(debug_mode.get()))

@@ -12,6 +12,30 @@ from os import path as file_path, listdir
 from os.path import isfile, join
 from datetime import datetime, timedelta
 
+shell = None
+
+class ServerInstance:
+    
+    debug_mode = None
+    running = None
+    httpd = None
+
+    def __init__(self, shell_param, port_number, debug):
+        self.debug_mode = debug
+        global shell
+        shell = shell_param
+        clear_cache()
+        HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
+        IP = get_ip()
+        if (IP is not None):
+            shell.print_server_output("Detected IP address as: " + IP)
+            #HOST_NAME = IP
+        ans = ""
+        PORT_NUMBER = int(port_number)
+        shell.print_server_output("Server will accessible as localhost:" + str(PORT_NUMBER) + " on this machine or " + IP + ":" + str(PORT_NUMBER) + " for machines on this network")
+        self.httpd = HTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)
+        shell.print_server_output(time.asctime() + " Server Starts - " + str(HOST_NAME) + ":" + str(PORT_NUMBER))
+
 new_channel = RSSChannel()
 
 def get_ip():
@@ -116,14 +140,6 @@ def update_defs():
     f.write("~-~-~-~-\n"+output)
     f.close()
 
-def return_source():
-    print("Test")
-    '''
-    response = requests.get(url)
-    text = response.text
-    return text
-    '''
-
 urls ={
     "/":["Pages/Main.html", "text/html"],
     "/res/preview.xsl":["Pages/preview.xsl", "text/html"],
@@ -138,6 +154,8 @@ urls ={
 
 class MyHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+        global shell
+        shell.print_server_output(time.asctime())
         try:
             self.protocol_version = "HTTP/1.1"
             path = self.path
@@ -217,6 +235,8 @@ class MyHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         global new_channel
+        global shell
+        shell.print_server_output(time.asctime())
         try:
             self.protocol_version = "HTTP/1.1"
             content_length = int(self.headers['Content-Length'])
@@ -285,34 +305,3 @@ class MyHandler(BaseHTTPRequestHandler):
             st = ind.read()
             self.wfile.write(bytes(st, "utf-8"))
             return
-
-def main():
-    clear_cache()
-    HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
-    PORT_NUMBER = 8000
-    IP = get_ip()
-    if (IP is not None):
-        print("Detected IP address as: " + IP + "\n")
-        #HOST_NAME = IP
-    ans = ""
-    while ((ans != "y") and (ans != "n")):
-        ans = input("Default port number is 8000. Use 8000? (y/n)")
-    if (ans == "n"):
-        port = 0
-        while (not validate_input(port)):
-            print("Ports can be between 1 and 65535 inclusive.")
-            port = input("Enter a new port number:")
-        PORT_NUMBER = int(port)
-    print("Server will accessible as localhost:" + str(PORT_NUMBER) + " on this machine or " + IP + ":" + str(PORT_NUMBER) + " for machines on this network")
-    server_class = HTTPServer
-    httpd = server_class((HOST_NAME, PORT_NUMBER), MyHandler)
-    print(time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, PORT_NUMBER))
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    httpd.server_close()
-    print(time.asctime(), "Server Stops - %s:%s" % (HOST_NAME, PORT_NUMBER))
-
-if __name__ == '__main__':
-    main()    
