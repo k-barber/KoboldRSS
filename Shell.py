@@ -2,6 +2,7 @@ import login_utils
 from Server import ServerInstance
 from Gui import RSSWindow
 import threading
+from datetime import datetime 
 
 class ShellInstance:
 
@@ -26,7 +27,7 @@ class ShellInstance:
         while True:
             self.server.httpd.handle_request()
             if self.server_interrupt:
-                self.print_server_output(time.asctime() + " Server Stops - " + str(HOST_NAME) + ":" + str(PORT_NUMBER))
+                self.print_server_output(datetime.now().strftime('[%Y/%m/%d %H:%M:%S] - ') + "Server Stops")
                 break
 
     def start_server(self, port_number, debug):
@@ -38,6 +39,11 @@ class ShellInstance:
             self.print_server_output("Server is already running")
 
     def __init__(self):
-        self.gui = RSSWindow(self)
-        while True:
-            self.gui.update()
+        try:
+            self.gui = RSSWindow(self)
+            while True:
+                self.gui.update()
+        except Exception as err:
+            self.server_interrupt = True
+            self.server.httpd.server_close()
+            exit()

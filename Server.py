@@ -1,4 +1,3 @@
-import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import socket
 import requests
@@ -34,7 +33,7 @@ class ServerInstance:
         PORT_NUMBER = int(port_number)
         shell.print_server_output("Server will accessible as localhost:" + str(PORT_NUMBER) + " on this machine or " + IP + ":" + str(PORT_NUMBER) + " for machines on this network")
         self.httpd = HTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)
-        shell.print_server_output(time.asctime() + " Server Starts - " + str(HOST_NAME) + ":" + str(PORT_NUMBER))
+        shell.print_server_output(datetime.now().strftime('[%Y/%m/%d %H:%M:%S] ') + IP + ":" + str(PORT_NUMBER) + " Server Start")
 
 new_channel = RSSChannel()
 
@@ -153,9 +152,18 @@ urls ={
 }
 
 class MyHandler(BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        global shell
+        output = datetime.now().strftime('[%Y/%m/%d %H:%M:%S] ') + self.client_address[0] + " " + args[0] + " - " + args[1] 
+        shell.print_server_output(output)
+
+    def log_error(self, format, *args):
+        global shell
+        output = datetime.now().strftime('[%Y/%m/%d %H:%M:%S] ') + self.client_address[0] + " " + args[0] + " - " + args[1] 
+        shell.print_server_output(output)
+
     def do_GET(self):
         global shell
-        shell.print_server_output(time.asctime())
         try:
             self.protocol_version = "HTTP/1.1"
             path = self.path
@@ -197,7 +205,7 @@ class MyHandler(BaseHTTPRequestHandler):
                         self.end_headers()
                         self.wfile.write(bytes(response.content))
                 except Exception as err:
-                    print(str(err))
+                    shell.print_server_output(str(err))
             elif(path.startswith("/Feeds/")):
                 path = path[1:]
                 ind = open(path, "r", encoding="utf-8")
@@ -224,7 +232,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.wfile.write(bytes(st, "utf-8"))
             return
         except Exception as err:
-            print(str(err))
+            shell.print_server_output(str(err))
             self.send_response(500)
             self.send_header("Content-type", "text/html")
             self.end_headers()
@@ -236,7 +244,6 @@ class MyHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         global new_channel
         global shell
-        shell.print_server_output(time.asctime())
         try:
             self.protocol_version = "HTTP/1.1"
             content_length = int(self.headers['Content-Length'])
@@ -297,7 +304,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.wfile.write(bytes(response, "utf-8"))
             return
         except Exception as err:
-            print(str(err))
+            shell.print_server_output(str(err))
             self.send_response(500)
             self.send_header("Content-type", "text/html")
             self.end_headers()

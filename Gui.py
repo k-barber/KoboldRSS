@@ -52,8 +52,8 @@ class RSSWindow:
         mainframe.columnconfigure(0, weight=1)
         mainframe.rowconfigure(0, weight=1)
 
-        generator_output_box = ttk.Frame(mainframe, borderwidth=2, relief="sunken", width=200, height=400)
-        server_output_box = ttk.Frame(mainframe, borderwidth=2, relief="sunken", width=200, height=400)
+        generator_output_box = ttk.Frame(mainframe, borderwidth=2, relief="sunken", width=400, height=400)
+        server_output_box = ttk.Frame(mainframe, borderwidth=2, relief="sunken", width=400, height=400)
         options_box = ttk.Frame(mainframe, width=200, height=400)
 
         Label(mainframe, text="Options: ").grid(row=0, column=0, sticky="news", pady=5, padx=5)
@@ -69,7 +69,7 @@ class RSSWindow:
         generator_output_y_scrollbar = Scrollbar(generator_output_box)
         generator_output_x_scrollbar = Scrollbar(generator_output_box, orient=HORIZONTAL)
 
-        generator_output = ThreadSafeConsole(generator_output_box, width=30, wrap="none",
+        generator_output = ThreadSafeConsole(generator_output_box, width=60, wrap="none",
                         xscrollcommand=generator_output_x_scrollbar.set,
                         yscrollcommand=generator_output_y_scrollbar.set,
                         borderwidth=0, highlightthickness=0, bg="#000000", fg="#FFFFFF", insertbackground="#FFFFFF")
@@ -86,7 +86,7 @@ class RSSWindow:
         server_output_y_scrollbar = Scrollbar(server_output_box)
         server_output_x_scrollbar = Scrollbar(server_output_box, orient=HORIZONTAL)
 
-        self.server_output = ThreadSafeConsole(server_output_box, width=30, wrap="none",
+        self.server_output = ThreadSafeConsole(server_output_box, width=60, wrap="none",
                         xscrollcommand=server_output_x_scrollbar.set,
                         yscrollcommand=server_output_y_scrollbar.set,
                         borderwidth=0, highlightthickness=0, bg="#000000", fg="#FFFFFF", insertbackground="#FFFFFF")
