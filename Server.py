@@ -5,13 +5,13 @@ from RSSChannel import RSSChannel
 import json
 import gc
 from io import BytesIO
-import login_utils
 import os
 from os import path as file_path, listdir
 from os.path import isfile, join
 from datetime import datetime, timedelta
 
 shell = None
+chrome = None
 
 class ServerInstance:
     
@@ -19,10 +19,11 @@ class ServerInstance:
     running = None
     httpd = None
 
-    def __init__(self, shell_param, port_number, debug):
+    def __init__(self, shell_param, port_number, debug, chrome_instance):
         self.debug_mode = debug
-        global shell
+        global shell, chrome
         shell = shell_param
+        chrome = chrome_instance
         clear_cache()
         HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
         IP = get_ip()
@@ -242,8 +243,7 @@ class MyHandler(BaseHTTPRequestHandler):
             return
 
     def do_POST(self):
-        global new_channel
-        global shell
+        global new_channel, shell, chrome
         try:
             self.protocol_version = "HTTP/1.1"
             content_length = int(self.headers['Content-Length'])
@@ -254,14 +254,14 @@ class MyHandler(BaseHTTPRequestHandler):
                 login_required = params["login_required"]
                 delay = int(params["delay"])
                 if (login_required == True):
-                    text = login_utils.multi_scrape(
+                    text = chrome.multi_scrape(
                         params["username"],
                         params["password"],
                         params["website"],
                         url,
                         delay=delay)
                 elif (delay > 0):
-                    text = login_utils.generic_scrape(url, delay)
+                    text = chrome.generic_scrape(url, delay)
                 else:
                     response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot'})
                     text = response.text

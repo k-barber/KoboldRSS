@@ -11,51 +11,53 @@ import sys
 import time
 import os
 
-class Login_Utils:
+class ChromeWindow:
 
-    Debug = None
+    debug_mode = None
     logged_in = None
     driver = None
     wait = None
 
-    def __init__(self, debug):
-        self.Debug = debug
+    def __init__(self, debug_mode):
         self.logged_in = []
+        self.debug_mode = debug_mode
 
-    def __initialize():
+    def __initialize(self):
         """Initializes the headless chrome instance
         """
         self.driver
         self.wait
         chrome_options = Options()
-        chrome_options.add_argument("--headless")
+        print(self.debug_mode)
+        if (self.debug_mode): print("Initializing Chrome")
+        if (not self.debug_mode): chrome_options.add_argument("--headless")
         chrome_options.add_argument("--window-size=2000x2000")
         home = str(Path.home())
         default_profile = "user-data-dir=" + home + "\\AppData\\Local\\Google\\Chrome\\User Data\\"
         chrome_options.add_argument(default_profile)
-        if (not Debug): chrome_options.add_argument("--log-level=3")
+        if (not self.debug_mode): chrome_options.add_argument("--log-level=3")
         chrome_driver = os.path.join(os.getcwd(), "chromedriver")
         self.driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
         #driver = webdriver.Chrome(ChromeDriverManager().install())
         self.wait = WebDriverWait(self.driver, 5)
 
-    def close():
+    def close(self):
         """Closes the headless chrome instance
         """
         self.driver.close()
 
 
-    def certcheck():
+    def certcheck(self):
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--window-size=2000x2000")
         chrome_driver = os.path.join(os.getcwd(), "chromedriver")
         self.driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
         self.driver.get("https://cacert.org/")
-        if (Debug): print(self.driver.page_source)
+        if (self.debug_mode): print(self.driver.page_source)
         self.driver.close()
 
-    def multi_scrape(username, password, website, url, delay=5):
+    def multi_scrape(self, username, password, website, url, delay=5):
         """Scrapes the html from URL
         
         Parameters:
@@ -68,25 +70,25 @@ class Login_Utils:
 
         url (str):  The url to scrape
         """
-        if (Debug): print("Start of switch")
-        if (self.driver == None): __initialize()
+        if (self.debug_mode): print("Start of switch")
+        if (self.driver == None): self.__initialize()
 
         if (website == "Newgrounds"):
-            result = __newgrounds_scrape(username, password, url, delay)
+            result = self.__newgrounds_scrape(username, password, url, delay)
         elif (website == "Pixiv"):
-            result = __pixiv_scrape(username, password, url, delay)
+            result = self.__pixiv_scrape(username, password, url, delay)
         elif (website == "Twitter"):
-            result = __twitter_scrape(username, password, url, delay)
+            result = self.__twitter_scrape(username, password, url, delay)
         else:
             result = "Test"
 
-        if (Debug): print("End of Switch")
+        if (self.debug_mode): print("End of Switch")
 
-        if (Debug): print(result)
+        if (self.debug_mode): print(result)
 
         return result
 
-    def generic_scrape(url, delay):
+    def generic_scrape(self, url, delay):
         """Scrapes the html from URL
         
         Parameters:
@@ -95,14 +97,15 @@ class Login_Utils:
 
         delay (int): How many seconds selenium should wait before scraping
         """
-        if (self.driver == None): __initialize()
+        if (self.debug_mode): print("Starting scrape")
+        if (self.driver == None): self.__initialize()
         self.driver.get(url)
         time.sleep(delay)
         scraped = self.driver.execute_script("return document.documentElement.outerHTML")
         return scraped
 
 
-    def __pixiv_scrape(username, password, url, delay):
+    def __pixiv_scrape(self, username, password, url, delay):
         """Scrapes the html from the pixiv URL
         
         Parameters:
@@ -137,7 +140,7 @@ class Login_Utils:
         scraped = self.driver.execute_script("return document.documentElement.outerHTML")
         return scraped
 
-    def __newgrounds_scrape(username, password, url, delay):
+    def __newgrounds_scrape(self, username, password, url, delay):
         """Scrapes the html from the newgrounds URL
         
         Parameters:
@@ -173,7 +176,7 @@ class Login_Utils:
         scraped = self.driver.execute_script("return document.documentElement.outerHTML")
         return scraped
 
-    def __twitter_scrape(username, password, url, delay):
+    def __twitter_scrape(self, username, password, url, delay):
         """Scrapes the html from the twitter URL
         
         Parameters:
@@ -209,7 +212,7 @@ class Login_Utils:
         scraped = self.driver.execute_script("return document.documentElement.outerHTML")
         return scraped
 
-    def __print_error(err):
+    def __print_error(self, err):
         print("~~~~~~ ERROR ~~~~~~")
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
         traceback.print_tb(sys.exc_info()[2])

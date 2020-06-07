@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox
 import tkinter.scrolledtext as tkst
 import queue
 
@@ -31,6 +32,7 @@ class RSSWindow:
     shell = None
     server_output = None
     root = None
+    debug_mode = None
 
     def update(self):
         self.root.update_idletasks()
@@ -104,9 +106,10 @@ class RSSWindow:
 
         self.server_output.grid(row=0, column=0, sticky="news")
 
-        debug_mode = BooleanVar()
+        self.debug_mode = BooleanVar()
 
-        ttk.Checkbutton(options_box, text="Debug Mode", variable=debug_mode, onvalue=True).grid(row=0, column=0, sticky="news", pady=5, padx=5, columnspan=2)
+        ttk.Checkbutton(options_box, text="Debug Mode", variable=self.debug_mode,
+                        command=self.shell.toggle_debug, onvalue=True).grid(row=0, column=0, sticky="news", pady=5, padx=5, columnspan=2)
         port = StringVar()
         Label(options_box, text="Server Options:").grid(row=1, column=0, sticky="news", pady=5, padx=5, columnspan=2)
         Label(options_box, text="Port:").grid(row=2, column=0, sticky="news")
@@ -117,8 +120,17 @@ class RSSWindow:
         def print_port():
             self.shell.print_server_output(port.get())
 
+        port.set("8000")
+
         def start_server():
-            self.shell.start_server(port.get(), debug_mode.get())
+            try:
+                port_num = int(port.get())
+                if 1 <= port_num <= 65535:
+                    self.shell.start_server(port_num)
+                else:
+                    messagebox.showerror("Invalid Port Number", "Port numbers must be between 1 and 65535")
+            except ValueError:
+                messagebox.showerror("Invalid Port Number", "Port numbers must be whole numbers")
 
         def stop_server():
             self.shell.stop_server()
@@ -126,5 +138,5 @@ class RSSWindow:
         ttk.Button(options_box, text="Start", command=start_server).grid(row=3, column=0, sticky="news", pady=5, padx=5)
         ttk.Button(options_box, text="Stop", command=stop_server).grid(row=3, column=1, sticky="news", pady=5, padx=5)
         
-        port.set("8000")
-        generator_output.insert(END, str(debug_mode.get()))
+        
+        generator_output.insert(END, str(self.debug_mode.get()))
