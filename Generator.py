@@ -7,15 +7,24 @@ import os
 import time
 import sys
 
-Debug = False
+class GeneratorInstance:
 
-log("Hello World!")
+    debug_mode = False
+    shell = None
+    chrome = None
 
+    def __init__(self, shell_param, debug, chrome_instance):
+        self.debug_mode = debug
+        self.shell = shell_param
+        self.chrome = chrome_instance
+        self.shell.print_generator_output("Hello World!")
+
+'''
 start_time = datetime.now()
 
 log("Code start time: " + str(start_time))
 channels = []
-
+'''
 top = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -78,7 +87,7 @@ def create_channels():
                 channel = RSSChannel(group)
                 log(channel.title)
                 channels.append(channel)
-
+'''
 create_channels()
 try:
     while True:
@@ -94,12 +103,12 @@ try:
             if (channel.lastBuildDate is not None):
                 if (now >= channel.lastBuildDate + timedelta(minutes=int(channel.ttl))):
                     log("Updating " + channel.title)
-                    if (Debug): channel.print()
+                    if (self.debug_mode): channel.print()
                     channel.generate_items()
                     channel.save_channel()
             else:
                 log("Updating " + channel.title)
-                if (Debug): channel.print()
+                if (self.debug_mode): channel.print()
                 channel.generate_items()
                 channel.save_channel()
         index_channels()
@@ -108,3 +117,4 @@ try:
 except KeyboardInterrupt:
     pass
 log("Stopping")
+'''

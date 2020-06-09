@@ -33,6 +33,7 @@ class RSSWindow:
     server_output = None
     root = None
     debug_mode = None
+    generator_output = None
 
     def update(self):
         self.root.update_idletasks()
@@ -40,10 +41,12 @@ class RSSWindow:
 
     def print_to_server_output(self, string):
         self.server_output.write(str(string) + "\n\r")
+
+    def print_to_generator_output(self, string):
+        self.generator_output.write(str(string) + "\n\r")
     
     def __init__(self, ShellInstance):
         self.shell = ShellInstance
-        print(self.shell.get_value())
         self.root = Tk(screenName="RSS Generator")
         self.root.title("RSS Generator")
 
@@ -76,18 +79,18 @@ class RSSWindow:
         generator_output_y_scrollbar = Scrollbar(generator_output_box)
         generator_output_x_scrollbar = Scrollbar(generator_output_box, orient=HORIZONTAL)
 
-        generator_output = ThreadSafeConsole(generator_output_box, width=60, wrap="none",
+        self.generator_output = ThreadSafeConsole(generator_output_box, width=60, wrap="none",
                         xscrollcommand=generator_output_x_scrollbar.set,
                         yscrollcommand=generator_output_y_scrollbar.set,
                         borderwidth=0, highlightthickness=0, bg="#000000", fg="#FFFFFF", insertbackground="#FFFFFF")
 
-        generator_output_y_scrollbar.config(command=generator_output.yview)
+        generator_output_y_scrollbar.config(command=self.generator_output.yview)
         generator_output_y_scrollbar.grid(row=0, column=1, sticky=N+S+E+W)
         generator_output_x_scrollbar.grid(row=1, column=0, sticky=N+S+E+W)
 
-        generator_output_x_scrollbar.config(command=generator_output.xview)
+        generator_output_x_scrollbar.config(command=self.generator_output.xview)
 
-        generator_output.grid(row=0, column=0, sticky="news")
+        self.generator_output.grid(row=0, column=0, sticky="news")
 
         # Set up server output
         server_output_y_scrollbar = Scrollbar(server_output_box)
@@ -135,8 +138,16 @@ class RSSWindow:
         def stop_server():
             self.shell.stop_server()
 
+        def start_generator():
+            self.shell.start_generator()
+
+        def stop_generator():
+            self.shell.stop_generator()
+
         ttk.Button(options_box, text="Start", command=start_server).grid(row=3, column=0, sticky="news", pady=5, padx=5)
         ttk.Button(options_box, text="Stop", command=stop_server).grid(row=3, column=1, sticky="news", pady=5, padx=5)
         
-        
-        generator_output.insert(END, str(self.debug_mode.get()))
+        Label(options_box, text="Generator Options:").grid(row=4, column=0, sticky="news", pady=5, padx=5, columnspan=2)
+
+        ttk.Button(options_box, text="Start", command=start_generator).grid(row=5, column=0, sticky="news", pady=5, padx=5)
+        ttk.Button(options_box, text="Stop", command=stop_generator).grid(row=5, column=1, sticky="news", pady=5, padx=5)
