@@ -3,11 +3,13 @@ import requests
 from time import sleep
 from RSSItem import RSSItem
 from Utils import clean_input, dirty_output, log
-import login_utils
+from login_utils import ChromeWindow
 
 Debug = False
 
 class RSSChannel:
+    chrome_instance = None
+
     category = None
     copyright = None
     description = "Default Description"
@@ -162,7 +164,7 @@ class RSSChannel:
             source=self.item_source
         )
 
-    def __init__(self, data=None):
+    def __init__(self, data=None, chrome_instance=None):
         """generates an RSS Channel
     
         Parameters:
@@ -179,6 +181,9 @@ class RSSChannel:
         if data is None:
             if (Debug): self.print()
             return
+
+        if self.chrome_instance is None:
+            self.chrome_instance = ChromeWindow(False)
 
         for line in data:
 
@@ -407,9 +412,9 @@ class RSSChannel:
 
         if ((self.website is not None) & (self.username is not None) & (self.password is not None)):
             if (self.delay is not None):
-                text = login_utils.multi_scrape(self.username, self.password, self.website, self.link, delay=self.delay)
+                text = self.chrome_instance.multi_scrape(self.username, self.password, self.website, self.link, delay=self.delay)
             else:
-                text = login_utils.multi_scrape(self.username, self.password, self.website, self.link)
+                text = self.chrome_instance.multi_scrape(self.username, self.password, self.website, self.link)
             if (Debug): print(text)
             data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
             item_info = self.parse_items(data)
@@ -418,7 +423,7 @@ class RSSChannel:
             self.lastBuildDate = datetime.datetime.now()
             self.pubDate = datetime.datetime.now()
         elif ((self.delay is not None) and (self.delay > 0)):
-            text = login_utils.generic_scrape(self.link, self.delay)
+            text = self.chrome_instance.generic_scrape(self.link, self.delay)
             if (Debug): print(text)
             data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
             item_info = self.parse_items(data)

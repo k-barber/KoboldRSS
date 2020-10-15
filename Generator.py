@@ -7,24 +7,6 @@ import os
 import time
 import sys
 
-class GeneratorInstance:
-
-    debug_mode = False
-    shell = None
-    chrome = None
-
-    def __init__(self, shell_param, debug, chrome_instance):
-        self.debug_mode = debug
-        self.shell = shell_param
-        self.chrome = chrome_instance
-        self.shell.print_generator_output("Hello World!")
-
-'''
-start_time = datetime.now()
-
-log("Code start time: " + str(start_time))
-channels = []
-'''
 top = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -60,61 +42,73 @@ bottom = '''
 </html>
 '''
 
+class GeneratorInstance:
 
-def index_channels():
-    global channels
-    f = open("Pages/Feeds.html", "wb")
-    output = top
-    for channel in channels:
-        title = channel.title.replace(":", "~").replace(" ", "_")
-        output += '''                <li>
-                    <a href="/Feeds/''' + title + '.xml">' + title + '''.xml</a>
-                </li>
-'''
-    output += bottom
-    f.write(str.encode(output))
-    f.close()
-
-
-def create_channels():
-    global channels
+    debug_mode = False
+    shell = None
+    chrome = None
+    stop_event = None
+    start_time = None
     channels = []
-    log("Feed_Definitions.txt defines the following:")
-    with open('Feed_Definitions.txt') as fp:
-        for key, group in it.groupby(fp, lambda line: line.startswith('~-~-~-~-')):
-            if not key:
-                group = list(group)
-                channel = RSSChannel(group)
-                log(channel.title)
-                channels.append(channel)
-'''
-create_channels()
-try:
-    while True:
+
+    def __init__(self, shell_param, debug, chrome_instance):
+        self.debug_mode = debug
+        self.shell = shell_param
+        self.chrome = chrome_instance
+        self.shell.print_generator_output("Hello World!")
+        self.start_time = datetime.now()
+        log("Generator start time: " + str(self.start_time))
+        self.create_channels()
+
+    def index_channels(self):
+        global channels
+        f = open("Pages/Feeds.html", "wb")
+        output = top
+        for channel in self.channels:
+            title = channel.title.replace(":", "~").replace(" ", "_")
+            output += '''                <li>
+                        <a href="/Feeds/''' + title + '.xml">' + title + '''.xml</a>
+                    </li>
+    '''
+        output += bottom
+        f.write(str.encode(output))
+        f.close()
+
+    def quit(self):
+        print("Generator shutting down")
+        self.stop_event.set()
+
+
+    def create_channels(self):
+        self.channels = []
+        self.shell.print_generator_output("Feed_Definitions.txt defines the following:")
+        with open('Feed_Definitions.txt') as fp:
+            for key, group in it.groupby(fp, lambda line: line.startswith('~-~-~-~-')):
+                if not key:
+                    group = list(group)
+                    channel = RSSChannel(group)
+                    self.shell.print_generator_output(channel.title)
+                    self.channels.append(channel)
+
+    def update_channels(self):
         now = datetime.now()
         modified = datetime.fromtimestamp(os.path.getmtime('Feed_Definitions.txt'))
-        if (modified >= start_time):
-            log("Feed Definitions have been updated, regenerating feed list")
-            start_time = now
-            create_channels()
-
-        log("Updating Channels")
-        for channel in channels:
+        if (modified >= self.start_time):
+            self.shell.print_generator_output("Feed Definitions have been updated, regenerating feed list")
+            self.start_time = now
+            self.create_channels()
+        self.index_channels()
+        self.shell.print_generator_output("Updating Channels")
+        for channel in self.channels:
             if (channel.lastBuildDate is not None):
                 if (now >= channel.lastBuildDate + timedelta(minutes=int(channel.ttl))):
-                    log("Updating " + channel.title)
+                    self.shell.print_generator_output("Updating " + channel.title)
                     if (self.debug_mode): channel.print()
                     channel.generate_items()
                     channel.save_channel()
             else:
-                log("Updating " + channel.title)
+                self.shell.print_generator_output("Updating " + channel.title)
                 if (self.debug_mode): channel.print()
                 channel.generate_items()
                 channel.save_channel()
-        index_channels()
-        log("Updating in 5 Minutes. Press 'Ctrl + C' to abort")
-        time.sleep(300)
-except KeyboardInterrupt:
-    pass
-log("Stopping")
-'''
+        self.shell.print_generator_output("Updating in 5 Minutes. Press 'Ctrl + C' to abort")

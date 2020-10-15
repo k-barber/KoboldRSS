@@ -13,7 +13,7 @@ import os
 
 class ChromeWindow:
 
-    debug_mode = None
+    debug_mode = False
     logged_in = None
     driver = None
     wait = None
@@ -30,12 +30,12 @@ class ChromeWindow:
         chrome_options = Options()
         print(self.debug_mode)
         if (self.debug_mode): print("Initializing Chrome")
-        if (not self.debug_mode): chrome_options.add_argument("--headless")
+        if (self.debug_mode == False): chrome_options.add_argument("--headless")
         chrome_options.add_argument("--window-size=2000x2000")
         home = str(Path.home())
         default_profile = "user-data-dir=" + home + "\\AppData\\Local\\Google\\Chrome\\User Data\\"
         chrome_options.add_argument(default_profile)
-        if (not self.debug_mode): chrome_options.add_argument("--log-level=3")
+        if (self.debug_mode == False): chrome_options.add_argument("--log-level=3")
         chrome_driver = os.path.join(os.getcwd(), "chromedriver")
         self.driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
         #driver = webdriver.Chrome(ChromeDriverManager().install())
@@ -119,7 +119,7 @@ class ChromeWindow:
         delay (int): How many seconds selenium should wait before scraping
         """
 
-        if ("pixiv" not in logged_in):
+        if ("pixiv" not in self.logged_in):
             try:
                 self.driver.get("https://accounts.pixiv.net/login")
                 username_field = self.driver.find_element_by_xpath("//input[@autocomplete='username']")
@@ -133,7 +133,7 @@ class ChromeWindow:
                 if (EC.title_contains("[pixiv]")):
                     self.logged_in.append("pixiv")
                 else:
-                    __print_error(err)
+                    self.__print_error(err)
         
         if (self.driver.current_url != url): self.driver.get(url)
         time.sleep(delay)
@@ -154,7 +154,7 @@ class ChromeWindow:
         delay (int): How many seconds selenium should wait before scraping
         """
 
-        if ("newgrounds" not in logged_in):
+        if ("newgrounds" not in self.logged_in):
             try:
                 self.driver.get("https://www.newgrounds.com/passport")
                 self.wait.until(EC.title_contains("Newgrounds Passport"))
@@ -169,7 +169,7 @@ class ChromeWindow:
                 if (EC.title_contains("Your Feed")):
                     self.logged_in.append("newgrounds")
                 else:
-                    __print_error(err)
+                    self.__print_error(err)
 
         if (self.driver.current_url != url): self.driver.get(url)
         time.sleep(delay)
@@ -190,7 +190,7 @@ class ChromeWindow:
         delay (int): How many seconds selenium should wait before scraping
         """
 
-        if ("twitter" not in logged_in):
+        if ("twitter" not in self.logged_in):
             try:
                 self.driver.get("https://twitter.com/login")
                 self.wait.until(EC.presence_of_element_located((By.NAME,"session[username_or_email]")))
@@ -205,7 +205,7 @@ class ChromeWindow:
                 if (EC.title_contains("Home / Twitter")):
                     self.logged_in.append("twitter")
                 else:
-                    __print_error(err)
+                    self.__print_error(err)
 
         if (self.driver.current_url != url): self.driver.get(url)
         time.sleep(delay)
@@ -216,5 +216,5 @@ class ChromeWindow:
         print("~~~~~~ ERROR ~~~~~~")
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
         traceback.print_tb(sys.exc_info()[2])
-        if (driver != None): print(self.driver.title)
+        if (self.driver != None): print(self.driver.title)
         print("~~~~~~~~~~~~~~~~~~~")

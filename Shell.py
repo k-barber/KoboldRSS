@@ -10,9 +10,11 @@ class ShellInstance:
     gui = None
     server = None
     server_interrupt = None
+    generator_interrupt = None
     debug_mode = False
     chrome_instance = None
     generator = None
+    stop_event = None
     
     #utils = login_utils.Login_Utils(debug_mode.get())
 
@@ -25,8 +27,23 @@ class ShellInstance:
     def start_generator(self):
         if self.generator is None:
             self.generator = GeneratorInstance(self, self.debug_mode, self.chrome_instance)
+            generator_thread = threading.Thread(target=self.run_generator)
+            generator_thread.start()
         else:
             self.print_generator_output("Generator is already running")
+
+    def run_generator(self):
+        while not self.stop_event.is_set():
+            self.generator.update_channels()
+            if self.generator_interrupt:
+                self.print_generator_output(datetime.now().strftime('[%Y/%m/%d %H:%M:%S] - ') + "Server Stops")
+                self.generator_interrupt = False
+                break
+            self.stop_event.wait(300)
+
+    def stop_generator(self):
+        self.generator_interrupt = True
+        self.stop_event.set()
 
     def stop_server(self):
         self.server_interrupt = True
@@ -52,18 +69,19 @@ class ShellInstance:
     def start_server(self, port_number):
         if self.server is None:
             self.server = ServerInstance(self, port_number, self.debug_mode, self.chrome_instance)
-            x = threading.Thread(target=self.run_server)
-            x.start()
+            server_thread = threading.Thread(target=self.run_server)
+            server_thread.start()
         else:
             self.print_server_output("Server is already running")
 
     def __init__(self):
+        self.stop_event = threading.Event()
         self.chrome_instance = ChromeWindow(self.debug_mode)
         try:
             self.gui = RSSWindow(self)
             while True:
                 self.gui.update()
         except Exception as err:
-            self.server_interrupt = True
-            self.server.httpd.server_close()
+            self.stop_server()
+            self.stop_generator()
             exit()
