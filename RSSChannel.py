@@ -1,9 +1,7 @@
 import datetime
-import requests
 from time import sleep
 from RSSItem import RSSItem
-from Utils import clean_input, dirty_output, log
-from login_utils import ChromeWindow
+from Utils import clean_input, dirty_output
 
 Debug = False
 
@@ -181,9 +179,6 @@ class RSSChannel:
         if data is None:
             if (Debug): self.print()
             return
-
-        if self.chrome_instance is None:
-            self.chrome_instance = ChromeWindow(False)
 
         for line in data:
 

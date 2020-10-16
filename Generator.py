@@ -100,34 +100,33 @@ class GeneratorInstance:
             self.create_channels()
 
     def update_channels(self, stop_signal, generator_stopped_signal):
-        now = datetime.now()
-        self.log("Updating Channels")
-        for channel in self.channels:
-            if(not stop_signal.is_set()):
-                if (channel.lastBuildDate is not None):
-                    if (now >= channel.lastBuildDate + timedelta(minutes=int(channel.ttl))):
+        self.log("Checking Chrome")
+        self.chrome_instance.login_check(self.channels)
+        if self.chrome_instance.start() == True:
+            now = datetime.now()
+            self.log("Updating Channels")
+            for channel in self.channels:
+                if(not stop_signal.is_set()):
+                    if (channel.lastBuildDate is not None):
+                        if (now >= channel.lastBuildDate + timedelta(minutes=int(channel.ttl))):
+                            self.generate_items(channel)
+                    else:
                         self.generate_items(channel)
-                else:
-                    self.generate_items(channel)
-        if (stop_signal.is_set()):
-            self.log("Cancelled Update")
-            generator_stopped_signal.set()
+            if (stop_signal.is_set()):
+                self.log("Cancelled Update")
+                generator_stopped_signal.set()
+            else:
+                self.log("Updating in 5 Minutes")
         else:
-            self.log("Updating in 5 Minutes")
+            self.log("Chrome failed to start, please restart generator")
 
     def generate_items(self, channel):
         text = ""
         self.log("Updating " + channel.title)
         
-        if ((channel.website is not None) & (channel.username is not None) & (channel.password is not None)):
-            if (channel.delay is not None):
-                text = self.chrome_instance.multi_scrape(channel.username, channel.password, channel.website, channel.link, delay=channel.delay)
-            else:
-                text = self.chrome_instance.multi_scrape(channel.username, channel.password, channel.website, channel.link)
-            if (self.debug_mode): self.log(text)
-        elif ((channel.delay is not None) and (channel.delay > 0)):
+        if ((channel.website is not None) or (channel.delay is not None)):
             text = self.chrome_instance.generic_scrape(channel.link, channel.delay)
-            if (self.debug_mode): self.log(text)
+            #if (self.debug_mode): self.log(text)
         else:
             response = None
             timer = 1
@@ -136,7 +135,7 @@ class GeneratorInstance:
                 try:
                     response = requests.get(channel.link, headers = {'User-agent': 'RSS Generator Bot'})
                     text = response.text
-                    if(self.debug_mode): self.log(text)
+                    #if(self.debug_mode): self.log(text)
                 except Exception as err:
                     self.log("ERROR:")
                     self.log(str(err))

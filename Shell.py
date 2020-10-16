@@ -112,7 +112,7 @@ class ShellInstance:
         self.stop_signal = threading.Event()
         self.generator_stopped_signal = threading.Event()
         self.chrome_stopped_signal = threading.Event()
-        self.chrome_instance = ChromeWindow(self.debug_mode)
+        self.chrome_instance = ChromeWindow(self.debug_mode, self)
         try:
             self.gui = RSSWindow(self)
             while True:
