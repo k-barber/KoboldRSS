@@ -2,7 +2,6 @@ import requests
 import itertools as it
 from RSSChannel import RSSChannel
 from datetime import datetime, timedelta
-from Utils import log
 import os
 import time
 import sys
@@ -46,18 +45,20 @@ class GeneratorInstance:
 
     debug_mode = False
     shell = None
-    chrome = None
+    chrome_instance = None
     stop_event = None
     start_time = None
     channels = []
 
+    def log(self, text):
+        self.shell.print_generator_output(text)
+
     def __init__(self, shell_param, debug, chrome_instance):
         self.debug_mode = debug
         self.shell = shell_param
-        self.chrome = chrome_instance
-        self.shell.print_generator_output("Hello World!")
+        self.chrome_instance = chrome_instance
         self.start_time = datetime.now()
-        log("Generator start time: " + str(self.start_time))
+        self.log("Generator starts")
         self.create_channels()
 
     def index_channels(self):
@@ -81,34 +82,70 @@ class GeneratorInstance:
 
     def create_channels(self):
         self.channels = []
-        self.shell.print_generator_output("Feed_Definitions.txt defines the following:")
+        if self.debug_mode: self.log("Feed_Definitions.txt defines the following:")
         with open('Feed_Definitions.txt') as fp:
             for key, group in it.groupby(fp, lambda line: line.startswith('~-~-~-~-')):
                 if not key:
                     group = list(group)
                     channel = RSSChannel(group)
-                    self.shell.print_generator_output(channel.title)
+                    if self.debug_mode: self.log(channel.title)
                     self.channels.append(channel)
 
-    def update_channels(self):
+    def check_for_updates(self):
         now = datetime.now()
         modified = datetime.fromtimestamp(os.path.getmtime('Feed_Definitions.txt'))
         if (modified >= self.start_time):
-            self.shell.print_generator_output("Feed Definitions have been updated, regenerating feed list")
+            self.log("Feed Definitions have been updated, regenerating feed list")
             self.start_time = now
             self.create_channels()
-        self.index_channels()
-        self.shell.print_generator_output("Updating Channels")
+
+    def update_channels(self, stop_signal, generator_stopped_signal):
+        now = datetime.now()
+        self.log("Updating Channels")
         for channel in self.channels:
-            if (channel.lastBuildDate is not None):
-                if (now >= channel.lastBuildDate + timedelta(minutes=int(channel.ttl))):
-                    self.shell.print_generator_output("Updating " + channel.title)
-                    if (self.debug_mode): channel.print()
-                    channel.generate_items()
-                    channel.save_channel()
+            if(not stop_signal.is_set()):
+                if (channel.lastBuildDate is not None):
+                    if (now >= channel.lastBuildDate + timedelta(minutes=int(channel.ttl))):
+                        self.generate_items(channel)
+                else:
+                    self.generate_items(channel)
+        if (stop_signal.is_set()):
+            self.log("Cancelled Update")
+            generator_stopped_signal.set()
+        else:
+            self.log("Updating in 5 Minutes")
+
+    def generate_items(self, channel):
+        text = ""
+        self.log("Updating " + channel.title)
+        
+        if ((channel.website is not None) & (channel.username is not None) & (channel.password is not None)):
+            if (channel.delay is not None):
+                text = self.chrome_instance.multi_scrape(channel.username, channel.password, channel.website, channel.link, delay=channel.delay)
             else:
-                self.shell.print_generator_output("Updating " + channel.title)
-                if (self.debug_mode): channel.print()
-                channel.generate_items()
-                channel.save_channel()
-        self.shell.print_generator_output("Updating in 5 Minutes. Press 'Ctrl + C' to abort")
+                text = self.chrome_instance.multi_scrape(channel.username, channel.password, channel.website, channel.link)
+            if (self.debug_mode): self.log(text)
+        elif ((channel.delay is not None) and (channel.delay > 0)):
+            text = self.chrome_instance.generic_scrape(channel.link, channel.delay)
+            if (self.debug_mode): self.log(text)
+        else:
+            response = None
+            timer = 1
+            count = 0
+            while (response is None):
+                try:
+                    response = requests.get(channel.link, headers = {'User-agent': 'RSS Generator Bot'})
+                    text = response.text
+                    if(self.debug_mode): self.log(text)
+                except Exception as err:
+                    self.log("ERROR:")
+                    self.log(str(err))
+                    self.log("Retrying in " + str(timer) + " seconds.")
+                    time.sleep(timer)
+                    timer = timer * 2
+                    if (count == 6):
+                        break
+                    else:
+                        count += 1
+        channel.generate_items(text)
+        channel.save_channel()

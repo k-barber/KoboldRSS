@@ -392,7 +392,7 @@ class RSSChannel:
         f.write(str.encode(output))
         f.close()
 
-    def generate_items(self):
+    def generate_items(self, text):
         """scrapes the page to find any new items
         """
         if (self.item_pattern == None):
@@ -409,53 +409,12 @@ class RSSChannel:
         stop_pattern = self.item_pattern[stop+1:]
         if(Debug): print(start_pattern)
         if(Debug): print(stop_pattern)
-
-        if ((self.website is not None) & (self.username is not None) & (self.password is not None)):
-            if (self.delay is not None):
-                text = self.chrome_instance.multi_scrape(self.username, self.password, self.website, self.link, delay=self.delay)
-            else:
-                text = self.chrome_instance.multi_scrape(self.username, self.password, self.website, self.link)
-            if (Debug): print(text)
-            data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
-            item_info = self.parse_items(data)
-            for item in item_info:
-                self.items.append(self.create_item(item))
-            self.lastBuildDate = datetime.datetime.now()
-            self.pubDate = datetime.datetime.now()
-        elif ((self.delay is not None) and (self.delay > 0)):
-            text = self.chrome_instance.generic_scrape(self.link, self.delay)
-            if (Debug): print(text)
-            data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
-            item_info = self.parse_items(data)
-            for item in item_info:
-                self.items.append(self.create_item(item))
-            self.lastBuildDate = datetime.datetime.now()
-            self.pubDate = datetime.datetime.now()
-        else:
-            response = None
-            timer = 1
-            count = 0
-            while (response is None):
-                try:
-                    response = requests.get(self.link, headers = {'User-agent': 'RSS Generator Bot'})
-                    text = response.text
-                    if(Debug): print(text)
-                    data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
-                    item_info = self.parse_items(data)
-                    for item in item_info:
-                        self.items.append(self.create_item(item))
-                    self.lastBuildDate = datetime.datetime.now()
-                    self.pubDate = datetime.datetime.now()
-                except Exception as err:
-                    log("ERROR:")
-                    log(str(err))
-                    log("Retrying in " + str(timer) + " seconds.")
-                    sleep(timer)
-                    timer = timer * 2
-                    if (count == 6):
-                        break
-                    else:
-                        count += 1
+        data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
+        item_info = self.parse_items(data)
+        for item in item_info:
+            self.items.append(self.create_item(item))
+        self.lastBuildDate = datetime.datetime.now()
+        self.pubDate = datetime.datetime.now()
 
     def test_pattern(self, pattern, text):
         """Creates a list of items from the given text and item pattern

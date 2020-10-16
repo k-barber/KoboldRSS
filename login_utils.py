@@ -28,7 +28,7 @@ class ChromeWindow:
         self.driver
         self.wait
         chrome_options = Options()
-        print(self.debug_mode)
+        print("Utils Debug mode: " + str(self.debug_mode))
         if (self.debug_mode): print("Initializing Chrome")
         if (self.debug_mode == False): chrome_options.add_argument("--headless")
         chrome_options.add_argument("--window-size=2000x2000")
@@ -41,11 +41,12 @@ class ChromeWindow:
         #driver = webdriver.Chrome(ChromeDriverManager().install())
         self.wait = WebDriverWait(self.driver, 5)
 
-    def close(self):
+    def close(self, chrome_stopped_signal):
         """Closes the headless chrome instance
         """
         self.driver.close()
-
+        self.driver = None
+        chrome_stopped_signal.set()
 
     def certcheck(self):
         chrome_options = Options()
