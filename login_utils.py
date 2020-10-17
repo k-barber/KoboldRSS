@@ -37,9 +37,9 @@ class ChromeWindow:
         if (self.debug_mode): self.log("Initializing Chrome")
         if (self.debug_mode == False and force_debug == False):
             chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--log-level=1")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--window-size=1280,720")
+        chrome_options.add_argument("--disable-infobars")
+        chrome_options.add_argument("--window-size=2000,2000")
+        chrome_options.add_argument("--enable-file-cookies")
         home = str(Path.home())
         default_profile = "user-data-dir=" + home + "\\AppData\\Local\\Google\\Chrome\\User Data"
         chrome_options.add_argument(default_profile)
@@ -125,6 +125,8 @@ class ChromeWindow:
             except Exception as err:
                 print(self.driver.title)
                 return False
+        else:
+            return True
 
     def close(self, chrome_stopped_signal):
         """Closes the headless chrome instance
@@ -155,7 +157,13 @@ class ChromeWindow:
         if (self.debug_mode): self.log("Starting scrape")
         if (self.driver == None): self.__initialize()
         self.driver.get(url)
-        time.sleep(5)
+        time.sleep(1)
         if delay is not None: time.sleep(delay)
+        height = self.driver.execute_script("return document.body.scrollHeight")
+        x = 0
+        while x < height:
+            time.sleep(0.1)
+            self.driver.execute_script("window.scrollTo(0, " + str(x) +");")
+            x = x + 100
         scraped = self.driver.execute_script("return document.documentElement.outerHTML")
         return scraped

@@ -253,14 +253,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 url = params["url"]
                 login_required = params["login_required"]
                 delay = int(params["delay"])
-                if (login_required == True):
-                    text = chrome.multi_scrape(
-                        params["username"],
-                        params["password"],
-                        params["website"],
-                        url,
-                        delay=delay)
-                elif (delay > 0):
+                if (delay > 0 or login_required == True):
                     text = chrome.generic_scrape(url, delay)
                 else:
                     response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot'})
