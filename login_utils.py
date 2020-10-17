@@ -158,12 +158,18 @@ class ChromeWindow:
         if (self.driver == None): self.__initialize()
         self.driver.get(url)
         time.sleep(1)
-        if delay is not None: time.sleep(delay)
         height = self.driver.execute_script("return document.body.scrollHeight")
         x = 0
         while x < height:
-            time.sleep(0.1)
+            time.sleep(0.05)
             self.driver.execute_script("window.scrollTo(0, " + str(x) +");")
             x = x + 100
+        time.sleep(0.05)
+        while x > 0:
+            time.sleep(0.05)
+            self.driver.execute_script("window.scrollTo(0, " + str(x) +");")
+            x = x - 100
+        time.sleep(1)
+        if delay is not None: time.sleep(delay)
         scraped = self.driver.execute_script("return document.documentElement.outerHTML")
         return scraped
