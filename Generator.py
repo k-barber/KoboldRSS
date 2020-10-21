@@ -46,7 +46,6 @@ class GeneratorInstance:
     debug_mode = False
     shell = None
     chrome_instance = None
-    stop_event = None
     start_time = None
     channels = []
 
@@ -62,7 +61,6 @@ class GeneratorInstance:
         self.create_channels()
 
     def index_channels(self):
-        global channels
         f = open("Pages/Feeds.html", "wb")
         output = top
         for channel in self.channels:
@@ -74,10 +72,6 @@ class GeneratorInstance:
         output += bottom
         f.write(str.encode(output))
         f.close()
-
-    def quit(self):
-        print("Generator shutting down")
-        self.stop_event.set()
 
 
     def create_channels(self):
@@ -99,26 +93,36 @@ class GeneratorInstance:
             self.start_time = now
             self.create_channels()
 
-    def update_channels(self, stop_signal, generator_stopped_signal):
+    def update_channels(self):
         self.log("Checking Chrome")
+        self.shell.generator_running_signal.set()
         self.chrome_instance.login_check(self.channels)
+        if(self.is_aborted()): return
         if self.chrome_instance.start() == True:
             now = datetime.now()
             self.log("Updating Channels")
             for channel in self.channels:
-                if(not stop_signal.is_set()):
-                    if (channel.lastBuildDate is not None):
-                        if (now >= channel.lastBuildDate + timedelta(minutes=int(channel.ttl))):
-                            self.generate_items(channel)
-                    else:
+                if(self.is_aborted()): return
+                if (channel.lastBuildDate is not None):
+                    if (now >= channel.lastBuildDate + timedelta(minutes=int(channel.ttl))):
                         self.generate_items(channel)
-            if (stop_signal.is_set()):
-                self.log("Cancelled Update")
-                generator_stopped_signal.set()
+                else:
+                    self.generate_items(channel)
+            if(self.is_aborted()): return
             else:
                 self.log("Updating in 5 Minutes")
+                self.shell.generator_running_signal.clear()
         else:
             self.log("Chrome failed to start, please restart generator")
+            self.shell.generator_running_signal.clear()
+
+    def is_aborted(self):
+        if (self.shell.stop_signal.is_set()):
+            self.shell.generator_stopped_signal.set()
+            self.shell.generator_running_signal.clear()
+            return 1
+        else: 
+            return 0
 
     def generate_items(self, channel):
         text = ""

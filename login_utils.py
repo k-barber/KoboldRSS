@@ -44,12 +44,14 @@ class ChromeWindow:
         default_profile = "user-data-dir=" + home + "\\AppData\\Local\\Google\\Chrome\\User Data"
         chrome_options.add_argument(default_profile)
         chrome_driver = os.path.join(os.getcwd(), "chromedriver")
+        if (self.is_aborted()): return
         self.driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
         #driver = webdriver.Chrome(ChromeDriverManager().install())
         self.wait = WebDriverWait(self.driver, 5)
 
     def start(self):
         if self.driver is None:
+            if (self.is_aborted()): return False
             self.__initialize()
         if self.driver is not None:
             return True
@@ -64,10 +66,12 @@ class ChromeWindow:
         print(websites)
         logged_out = []
         if len(websites) > 0 :
+            if (self.is_aborted()): return
             self.start()
             print("Login Check")
             for website in websites:
                 print(website)
+                if (self.is_aborted()): return
                 if (not self.is_logged_in(website)):
                     print("Not Logged in")
                     logged_out.append(website)
@@ -78,6 +82,7 @@ class ChromeWindow:
                 time.sleep(5)
                 self.__initialize(True)
             for website in logged_out:
+                if (self.is_aborted()): return
                 self.manual_login(website)
         if (self.debug_mode == False):
             self.driver.close()
@@ -88,6 +93,7 @@ class ChromeWindow:
         self.driver.switch_to.window(self.driver.current_window_handle)
         print('\a') # prints ASCII bell sound
         self.wait = WebDriverWait(self.driver, 300) #Set wait to 300 seconds
+        if (self.is_aborted()): return
         try:
             if (website == "Newgrounds"):
                 self.driver.get("https://www.newgrounds.com/social")
@@ -109,13 +115,19 @@ class ChromeWindow:
         if website not in self.logged_in:
             try:
                 if (website == "Newgrounds"):
+                    if (self.is_aborted()): return
                     self.driver.get("https://www.newgrounds.com/social")
+                    if (self.is_aborted()): return
                     self.wait.until(EC.title_is("Your Feed"))
                 elif (website == "Pixiv"):
+                    if (self.is_aborted()): return
                     self.driver.get("https://www.pixiv.net/setting_profile.php")
+                    if (self.is_aborted()): return
                     self.wait.until(EC.title_contains("Settings: Profile"))
                 elif (website == "Twitter"):
+                    if (self.is_aborted()): return
                     self.driver.get("https://twitter.com/login")
+                    if (self.is_aborted()): return
                     self.wait.until(EC.title_contains("Home / Twitter"))
                 else:
                     self.log("Unknown website")
@@ -128,19 +140,22 @@ class ChromeWindow:
         else:
             return True
 
-    def close(self, chrome_stopped_signal):
+    def close(self):
         """Closes the headless chrome instance
         """
-        self.driver.close()
+        if self.driver is not None:
+            self.driver.close()
         self.driver = None
-        chrome_stopped_signal.set()
+        self.shell.chrome_stopped_signal.set()
 
     def certcheck(self):
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--window-size=2000x2000")
         chrome_driver = os.path.join(os.getcwd(), "chromedriver")
+        if (self.is_aborted()): return
         self.driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
+        if (self.is_aborted()): return
         self.driver.get("https://cacert.org/")
         if (self.debug_mode): self.log(self.driver.page_source)
         self.driver.close()
@@ -155,7 +170,9 @@ class ChromeWindow:
         delay (int): How many seconds selenium should wait before scraping
         """
         if (self.debug_mode): self.log("Starting scrape")
+        if (self.is_aborted()): return
         if (self.driver == None): self.__initialize()
+        if (self.is_aborted()): return
         self.driver.get(url)
         time.sleep(1)
         height = self.driver.execute_script("return document.body.scrollHeight")
@@ -165,11 +182,21 @@ class ChromeWindow:
             self.driver.execute_script("window.scrollTo(0, " + str(x) +");")
             x = x + 100
         time.sleep(0.05)
+        if (self.is_aborted()): return
         while x > 0:
             time.sleep(0.05)
             self.driver.execute_script("window.scrollTo(0, " + str(x) +");")
             x = x - 100
         time.sleep(1)
+        if (self.is_aborted()): return
         if delay is not None: time.sleep(delay)
+        if (self.is_aborted()): return
         scraped = self.driver.execute_script("return document.documentElement.outerHTML")
         return scraped
+    
+    def is_aborted(self):
+        if (self.shell.stop_signal.is_set()):
+            self.close()
+            return 1
+        else: 
+            return 0

@@ -2,6 +2,8 @@ import datetime
 from time import sleep
 from RSSItem import RSSItem
 from Utils import clean_input, dirty_output
+import os
+import re
 
 Debug = False
 
