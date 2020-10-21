@@ -1,9 +1,9 @@
 import datetime
-import requests
 from time import sleep
 from RSSItem import RSSItem
-from Utils import clean_input, dirty_output, log
-from login_utils import ChromeWindow
+from Utils import clean_input, dirty_output
+import os
+import re
 
 Debug = False
 
@@ -181,9 +181,6 @@ class RSSChannel:
         if data is None:
             if (Debug): self.print()
             return
-
-        if self.chrome_instance is None:
-            self.chrome_instance = ChromeWindow(False)
 
         for line in data:
 
@@ -392,9 +389,10 @@ class RSSChannel:
         f.write(str.encode(output))
         f.close()
 
-    def generate_items(self, text):
+    def generate_items(self, text, test=False):
         """scrapes the page to find any new items
         """
+        if(Debug): print("Item Pattern: '" + self.item_pattern + "'")
         if (self.item_pattern == None):
             return
         if (self.link == "https://www.w3.org/about"):
@@ -407,10 +405,12 @@ class RSSChannel:
             return
         start_pattern = self.item_pattern[:start]
         stop_pattern = self.item_pattern[stop+1:]
-        if(Debug): print(start_pattern)
-        if(Debug): print(stop_pattern)
+        if(Debug): print("Start pattern: '" + start_pattern + "'")
+        if(Debug): print("Stop pattern: '" + stop_pattern + "'")
         data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
         item_info = self.parse_items(data)
+        if test == True:
+            return item_info
         for item in item_info:
             self.items.append(self.create_item(item))
         self.lastBuildDate = datetime.datetime.now()
@@ -425,26 +425,8 @@ class RSSChannel:
 
         text (string): the text to scrape for items
         """
-        try:
-            self.item_pattern = clean_input(pattern)
-            if(Debug): print("Item Pattern: '" + self.item_pattern + "'")
-            first = self.item_pattern.find("{")
-            if (first < 0):
-                return None
-            second = self.item_pattern.rfind("}")
-            if (second < 0):
-                return None
-            start_pattern = self.item_pattern[:first]
-            stop_pattern = self.item_pattern[second+1:]
-            if(Debug): print("Start pattern: '" + start_pattern + "'")
-            if(Debug): print("Stop pattern: '" + stop_pattern + "'")
-            data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
-            #if(Debug): print(data)
-            item_info = self.parse_items(data)
-            return item_info
-        except Exception as e:
-            print(e)
-            return None
+        self.item_pattern = clean_input(pattern)
+        return self.generate_items(text, True)
 
     def test_definition(self, pattern, text, title, link, description):
         if (pattern == None):

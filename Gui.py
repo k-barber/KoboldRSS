@@ -3,29 +3,49 @@ from tkinter import ttk
 from tkinter import messagebox
 import tkinter.scrolledtext as tkst
 import queue
+import time
+
+running = True
 
 class ThreadSafeConsole(Text):
     def __init__(self, master, **options):
         Text.__init__(self, master, **options)
         self.queue = queue.Queue()
+        self.after_id = None
         self.update_me()
     def write(self, line):
         self.queue.put(line)
     def clear(self):
         self.queue.put(None)
     def update_me(self):
+        global running
         try:
-            while 1:
+            while running:
+                if not running:
+                    self.after_cancel(self.after_id)
+                    break
                 line = self.queue.get_nowait()
+                if not running:
+                    self.after_cancel(self.after_id)
+                    break
                 if line is None:
                     self.delete(1.0, END)
                 else:
                     self.insert(END, str(line))
                 self.see(END)
                 self.update_idletasks()
+            if not running:
+                self.after_cancel(self.after_id)
         except queue.Empty:
             pass
-        self.after(100, self.update_me)
+        if running:
+            self.after_id = self.after(100, self.update_me)
+        else:
+            self.after_cancel(self.after_id)
+    
+    def shutdown(self):
+        self.after_cancel(self.after_id)
+
 
 class RSSWindow:
 
@@ -34,6 +54,31 @@ class RSSWindow:
     root = None
     debug_mode = None
     generator_output = None
+
+    def is_running(self):
+        global running
+        return running
+
+    def trigger_shutdown(self):
+        global running
+        running = False
+        self.generator_output.shutdown()
+        self.server_output.shutdown()
+        self.generator_output.insert(END, "Shutting Down")
+        self.generator_output.see(END)
+        self.generator_output.update_idletasks()
+        self.server_output.insert(END, "Shutting Down")
+        self.server_output.see(END)
+        self.server_output.update_idletasks()
+        self.root.config(cursor="wait")
+        self.root.update_idletasks()
+        self.root.update()
+        self.shell.shutdown()
+    
+    def close_window(self):
+        global running
+        running = False
+        self.root.destroy()
 
     def update(self):
         self.root.update_idletasks()
@@ -49,22 +94,23 @@ class RSSWindow:
         self.shell = ShellInstance
         self.root = Tk(screenName="RSS Generator")
         self.root.title("RSS Generator")
+        self.root.protocol("WM_DELETE_WINDOW", self.trigger_shutdown)
 
-        mainframe = ttk.Frame(self.root, width=300, height=300, padding="5 5 5 5")
-        mainframe.grid(row=0, column=0, sticky="news")
+        self.mainframe = ttk.Frame(self.root, width=300, height=300, padding="5 5 5 5")
+        self.mainframe.grid(row=0, column=0, sticky="news")
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
-        mainframe.columnconfigure(1, weight=1)
-        mainframe.columnconfigure(2, weight=1)
-        mainframe.rowconfigure(1, weight=1)
+        self.mainframe.columnconfigure(1, weight=1)
+        self.mainframe.columnconfigure(2, weight=1)
+        self.mainframe.rowconfigure(1, weight=1)
 
-        generator_output_box = ttk.Frame(mainframe, borderwidth=2, relief="sunken", width=400, height=400)
-        server_output_box = ttk.Frame(mainframe, borderwidth=2, relief="sunken", width=400, height=400)
-        options_box = ttk.Frame(mainframe, width=200, height=400)
+        generator_output_box = ttk.Frame(self.mainframe, borderwidth=2, relief="sunken", width=400, height=400)
+        server_output_box = ttk.Frame(self.mainframe, borderwidth=2, relief="sunken", width=400, height=400)
+        options_box = ttk.Frame(self.mainframe, width=200, height=400)
 
-        Label(mainframe, text="Options: ").grid(row=0, column=0, sticky="news", pady=5, padx=5)
-        Label(mainframe, text="Generator Output: ").grid(row=0, column=1, sticky="news", pady=5, padx=5)
-        Label(mainframe, text="Server Output: ").grid(row=0, column=2, sticky="news", pady=5, padx=5)
+        Label(self.mainframe, text="Options: ").grid(row=0, column=0, sticky="news", pady=5, padx=5)
+        Label(self.mainframe, text="Generator Output: ").grid(row=0, column=1, sticky="news", pady=5, padx=5)
+        Label(self.mainframe, text="Server Output: ").grid(row=0, column=2, sticky="news", pady=5, padx=5)
 
         options_box.grid(row=1, column=0, sticky="news", pady=5, padx=5)
         generator_output_box.grid(row=1, column=1, sticky="news", pady=5, padx=5)
