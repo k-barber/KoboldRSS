@@ -37,6 +37,21 @@ class RSSItem:
             cats = self.category.split(",")
             self.category = [cat.strip() for cat in cats]
 
+        #if (self.author is not None and re.search(r"{%\d}", self.author)) or\
+        #    (self.category is not None and re.search(r"{%\d}", self.category)) or\
+        #    (self.comments is not None and re.search(r"{%\d}", self.comments)) or\
+        #    (self.description is not None and re.search(r"{%\d}", self.description)) or\
+        #    (self.enclosure_length is not None and re.search(r"{%\d}", self.enclosure_length)) or\
+        #    (self.enclosure_type is not None and re.search(r"{%\d}", self.enclosure_type)) or\
+        #    (self.enclosure_url is not None and re.search(r"{%\d}", self.enclosure_url)) or\
+        #    (self.guid is not None and re.search(r"{%\d}", self.guid)) or\
+        #    (self.link is not None and re.search(r"{%\d}", self.link)) or\
+        #    (self.pubDate is not None and re.search(r"{%\d}", self.pubDate)) or\
+        #    (self.source is not None and re.search(r"{%\d}", self.source)) or\
+        #    (self.title is not None and re.search(r"{%\d}", self.title)):
+        #        print("Error")
+        
+
     def __init__(self, data, title=None, link=None, description=None, author=None, category=None, comments=None, guid=None, pubDate=None, source=None, enclosure_url=None, enclosure_length=None, enclosure_type=None):
         self.author = author
         self.category = category

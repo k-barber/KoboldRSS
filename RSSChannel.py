@@ -1,13 +1,15 @@
 import datetime
-import requests
 from time import sleep
 from RSSItem import RSSItem
-from Utils import clean_input, dirty_output, log
-import login_utils
+from Utils import clean_input, dirty_output
+import os
+import re
 
 Debug = False
 
 class RSSChannel:
+    chrome_instance = None
+
     category = None
     copyright = None
     description = "Default Description"
@@ -162,7 +164,7 @@ class RSSChannel:
             source=self.item_source
         )
 
-    def __init__(self, data=None):
+    def __init__(self, data=None, chrome_instance=None):
         """generates an RSS Channel
     
         Parameters:
@@ -387,9 +389,10 @@ class RSSChannel:
         f.write(str.encode(output))
         f.close()
 
-    def generate_items(self):
+    def generate_items(self, text, test=False):
         """scrapes the page to find any new items
         """
+        if(Debug): print("Item Pattern: '" + self.item_pattern + "'")
         if (self.item_pattern == None):
             return
         if (self.link == "https://www.w3.org/about"):
@@ -402,55 +405,16 @@ class RSSChannel:
             return
         start_pattern = self.item_pattern[:start]
         stop_pattern = self.item_pattern[stop+1:]
-        if(Debug): print(start_pattern)
-        if(Debug): print(stop_pattern)
-
-        if ((self.website is not None) & (self.username is not None) & (self.password is not None)):
-            if (self.delay is not None):
-                text = login_utils.multi_scrape(self.username, self.password, self.website, self.link, delay=self.delay)
-            else:
-                text = login_utils.multi_scrape(self.username, self.password, self.website, self.link)
-            if (Debug): print(text)
-            data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
-            item_info = self.parse_items(data)
-            for item in item_info:
-                self.items.append(self.create_item(item))
-            self.lastBuildDate = datetime.datetime.now()
-            self.pubDate = datetime.datetime.now()
-        elif ((self.delay is not None) and (self.delay > 0)):
-            text = login_utils.generic_scrape(self.link, self.delay)
-            if (Debug): print(text)
-            data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
-            item_info = self.parse_items(data)
-            for item in item_info:
-                self.items.append(self.create_item(item))
-            self.lastBuildDate = datetime.datetime.now()
-            self.pubDate = datetime.datetime.now()
-        else:
-            response = None
-            timer = 1
-            count = 0
-            while (response is None):
-                try:
-                    response = requests.get(self.link, headers = {'User-agent': 'RSS Generator Bot'})
-                    text = response.text
-                    if(Debug): print(text)
-                    data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
-                    item_info = self.parse_items(data)
-                    for item in item_info:
-                        self.items.append(self.create_item(item))
-                    self.lastBuildDate = datetime.datetime.now()
-                    self.pubDate = datetime.datetime.now()
-                except Exception as err:
-                    log("ERROR:")
-                    log(str(err))
-                    log("Retrying in " + str(timer) + " seconds.")
-                    sleep(timer)
-                    timer = timer * 2
-                    if (count == 6):
-                        break
-                    else:
-                        count += 1
+        if(Debug): print("Start pattern: '" + start_pattern + "'")
+        if(Debug): print("Stop pattern: '" + stop_pattern + "'")
+        data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
+        item_info = self.parse_items(data)
+        if test == True:
+            return item_info
+        for item in item_info:
+            self.items.append(self.create_item(item))
+        self.lastBuildDate = datetime.datetime.now()
+        self.pubDate = datetime.datetime.now()
 
     def test_pattern(self, pattern, text):
         """Creates a list of items from the given text and item pattern
@@ -461,26 +425,8 @@ class RSSChannel:
 
         text (string): the text to scrape for items
         """
-        try:
-            self.item_pattern = clean_input(pattern)
-            if(Debug): print("Item Pattern: '" + self.item_pattern + "'")
-            first = self.item_pattern.find("{")
-            if (first < 0):
-                return None
-            second = self.item_pattern.rfind("}")
-            if (second < 0):
-                return None
-            start_pattern = self.item_pattern[:first]
-            stop_pattern = self.item_pattern[second+1:]
-            if(Debug): print("Start pattern: '" + start_pattern + "'")
-            if(Debug): print("Stop pattern: '" + stop_pattern + "'")
-            data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
-            #if(Debug): print(data)
-            item_info = self.parse_items(data)
-            return item_info
-        except Exception as e:
-            print(e)
-            return None
+        self.item_pattern = clean_input(pattern)
+        return self.generate_items(text, True)
 
     def test_definition(self, pattern, text, title, link, description):
         if (pattern == None):

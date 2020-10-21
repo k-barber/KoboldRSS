@@ -34,7 +34,7 @@ class ServerInstance:
         PORT_NUMBER = int(port_number)
         shell.print_server_output("Server will accessible as localhost:" + str(PORT_NUMBER) + " on this machine or " + IP + ":" + str(PORT_NUMBER) + " for machines on this network")
         self.httpd = HTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)
-        shell.print_server_output(datetime.now().strftime('[%Y/%m/%d %H:%M:%S] ') + IP + ":" + str(PORT_NUMBER) + " Server Start")
+        shell.print_server_output(IP + ":" + str(PORT_NUMBER) + " Server Start")
 
 new_channel = RSSChannel()
 
@@ -155,12 +155,12 @@ urls ={
 class MyHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         global shell
-        output = datetime.now().strftime('[%Y/%m/%d %H:%M:%S] ') + self.client_address[0] + " " + args[0] + " - " + args[1] 
+        output = self.client_address[0] + " " + args[0] + " - " + args[1] 
         shell.print_server_output(output)
 
     def log_error(self, format, *args):
         global shell
-        output = datetime.now().strftime('[%Y/%m/%d %H:%M:%S] ') + self.client_address[0] + " " + args[0] + " - " + args[1] 
+        output = self.client_address[0] + " " + args[0] + " - " + args[1] 
         shell.print_server_output(output)
 
     def do_GET(self):
@@ -253,14 +253,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 url = params["url"]
                 login_required = params["login_required"]
                 delay = int(params["delay"])
-                if (login_required == True):
-                    text = chrome.multi_scrape(
-                        params["username"],
-                        params["password"],
-                        params["website"],
-                        url,
-                        delay=delay)
-                elif (delay > 0):
+                if (delay > 0 or login_required == True):
                     text = chrome.generic_scrape(url, delay)
                 else:
                     response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot'})
