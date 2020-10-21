@@ -145,6 +145,7 @@ class ChromeWindow:
         """
         if self.driver is not None:
             self.driver.close()
+        self.logged_in = []
         self.driver = None
         self.shell.chrome_stopped_signal.set()
 
