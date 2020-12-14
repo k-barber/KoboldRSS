@@ -3,6 +3,7 @@ Pages/Feeds.html
 AddToDist/
 *.xcf
 Img/Cache/*
+cookies/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

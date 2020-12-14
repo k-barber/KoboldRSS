@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from pathlib import Path
+import pickle
 import traceback
 import sys
 import time
@@ -61,7 +62,7 @@ class ChromeWindow:
     def login_check(self, channels):
         websites = []
         for channel in channels:
-            if channel.website is not None and channel.website not in websites:
+            if channel.website is not None and channel.website not in websites and channel.website not in self.logged_in:
                 websites.append(channel.website)
         print(websites)
         logged_out = []
@@ -84,9 +85,10 @@ class ChromeWindow:
             for website in logged_out:
                 if (self.is_aborted()): return
                 self.manual_login(website)
-        if (self.debug_mode == False):
-            self.driver.close()
-            self.driver = None
+            if (self.debug_mode == False):
+                self.driver.close()
+                self.driver = None
+            self.login_check(channels)
         
                     
     def manual_login(self, website):
@@ -98,14 +100,16 @@ class ChromeWindow:
             if (website == "Newgrounds"):
                 self.driver.get("https://www.newgrounds.com/social")
                 self.wait.until(EC.title_is("Your Feed"))
+                pickle.dump(self.driver.get_cookies(), open("cookies/newgrounds.pkl", "wb"))
             elif (website == "Pixiv"):
                 self.driver.get("https://www.pixiv.net/setting_profile.php")
                 self.wait.until(EC.title_contains("Settings: Profile"))
+                pickle.dump(self.driver.get_cookies(), open("cookies/pixiv.pkl", "wb"))
             elif (website == "Twitter"):
                 self.driver.get("https://twitter.com/login")
                 self.wait.until(EC.title_contains("Home / Twitter"))
+                pickle.dump(self.driver.get_cookies(), open("cookies/pixiv.pkl", "wb"))
             self.wait = WebDriverWait(self.driver, 5)
-            self.logged_in.append(website)
         except Exception as err:
             self.log("Failed to log in to " + website)
             self.log("Shutting down generator")
@@ -118,17 +122,30 @@ class ChromeWindow:
                     if (self.is_aborted()): return
                     self.driver.get("https://www.newgrounds.com/social")
                     if (self.is_aborted()): return
+                    if (os.path.isfile("cookies/newgrounds.pkl")):
+                        for cookie in pickle.load(open("cookies/newgrounds.pkl", "rb")):
+                            self.driver.add_cookie(cookie)
+                    self.driver.get("https://www.newgrounds.com/social")
                     self.wait.until(EC.title_is("Your Feed"))
                 elif (website == "Pixiv"):
                     if (self.is_aborted()): return
                     self.driver.get("https://www.pixiv.net/setting_profile.php")
                     if (self.is_aborted()): return
+                    if (os.path.isfile("cookies/pixiv.pkl")):
+                        for cookie in pickle.load(open("cookies/pixiv.pkl", "rb")):
+                            self.driver.add_cookie(cookie)
+                    self.driver.get("https://www.pixiv.net/setting_profile.php")
                     self.wait.until(EC.title_contains("Settings: Profile"))
                 elif (website == "Twitter"):
                     if (self.is_aborted()): return
                     self.driver.get("https://twitter.com/login")
                     if (self.is_aborted()): return
+                    if (os.path.isfile("cookies/twitter.pkl")):
+                        for cookie in pickle.load(open("cookies/twitter.pkl", "rb")):
+                            self.driver.add_cookie(cookie)
+                    self.driver.get("https://twitter.com/login")
                     self.wait.until(EC.title_contains("Home / Twitter"))
+                    pickle.dump(self.driver.get_cookies(), open("cookies/twitter.pkl", "wb"))
                 else:
                     self.log("Unknown website")
                     return False
