@@ -118,11 +118,14 @@ class GeneratorInstance:
 
     def is_aborted(self):
         if (self.shell.stop_signal.is_set()):
-            self.shell.generator_stopped_signal.set()
-            self.shell.generator_running_signal.clear()
+            self.stop()
             return 1
         else: 
             return 0
+
+    def stop(self):
+        self.shell.generator_stopped_signal.set()
+        self.shell.generator_running_signal.clear()
 
     def generate_items(self, channel):
         text = ""

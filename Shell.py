@@ -84,6 +84,8 @@ class ShellInstance:
         if (self.generator_running_signal.is_set()):
             while (not self.generator_stopped_signal.isSet()):
                 pass
+        else:
+            self.generator.stop()
         self.print_generator_output("Generator Stopped")
         self.print_generator_output("Stopping Chrome")
         self.chrome_instance.close()
