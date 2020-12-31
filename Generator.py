@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import os
 import time
 import sys
+import io
 
 top = '''
 <!DOCTYPE html>
@@ -131,27 +132,35 @@ class GeneratorInstance:
         text = ""
         self.log("Updating " + channel.title)
         
-        if ((channel.website is not None) or (channel.delay is not None)):
-            text = self.chrome_instance.generic_scrape(channel.link, channel.delay)
-            #if (self.debug_mode): self.log(text)
-        else:
-            response = None
-            timer = 1
-            count = 0
-            while (response is None):
-                try:
+        timer = 2
+        count = 0
+        while (text == ""):
+            try:
+                if ((channel.website is not None) or (channel.delay is not None)):
+                    text = self.chrome_instance.generic_scrape(channel.link, channel.delay)
+                else:
+                    response = None
                     response = requests.get(channel.link, headers = {'User-agent': 'RSS Generator Bot'})
                     text = response.text
-                    #if(self.debug_mode): self.log(text)
-                except Exception as err:
-                    self.log("ERROR:")
-                    self.log(str(err))
-                    self.log("Retrying in " + str(timer) + " seconds.")
-                    time.sleep(timer)
-                    timer = timer * 2
-                    if (count == 6):
-                        break
-                    else:
-                        count += 1
-        channel.generate_items(text)
-        channel.save_channel()
+            except Exception as err:
+                self.log("Error scraping " + channel.title)
+                self.log("Retrying in " + str(timer) + " seconds.")
+                if(self.is_aborted()): return
+                time.sleep(timer)
+                timer = timer * 2
+                if (count == 4):
+                    f = io.open("error-log.txt", "a", encoding="utf-8")
+                    f.write("-------------" + str(datetime.datetime.now()) + "-------------\n")
+                    f.write(channel.title + "\n")
+                    f.write(str(err) + "\n")
+                    f.close()
+                    break
+                else:
+                    count += 1
+        if (text != ""):
+            result = channel.generate_items(text)
+            if (result != -1):
+                channel.save_channel()
+                return
+        self.log("Scraping " + channel.title + " failed")
+        self.log("Please check 'error-log.txt'")

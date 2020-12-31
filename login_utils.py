@@ -41,6 +41,7 @@ class ChromeWindow:
         chrome_options.add_argument("--disable-infobars")
         chrome_options.add_argument("--window-size=2000,2000")
         chrome_options.add_argument("--enable-file-cookies")
+        chrome_options.add_argument("--log-level=3")
         home = str(Path.home())
         default_profile = "user-data-dir=" + home + "\\AppData\\Local\\Google\\Chrome\\User Data"
         chrome_options.add_argument(default_profile)
@@ -200,15 +201,15 @@ class ChromeWindow:
             self.driver.execute_script("window.scrollTo(0, " + str(x) +");")
             x = x + 100
         time.sleep(0.05)
-        if (self.is_aborted()): return
+        if (self.is_aborted()): return ""
         while x > 0:
             time.sleep(0.05)
             self.driver.execute_script("window.scrollTo(0, " + str(x) +");")
             x = x - 100
         time.sleep(1)
-        if (self.is_aborted()): return
+        if (self.is_aborted()): return ""
         if delay is not None: time.sleep(delay)
-        if (self.is_aborted()): return
+        if (self.is_aborted()): return ""
         scraped = self.driver.execute_script("return document.documentElement.outerHTML")
         return scraped
     

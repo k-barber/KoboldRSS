@@ -3,6 +3,7 @@ from time import sleep
 from RSSItem import RSSItem
 from Utils import clean_input, dirty_output
 import os
+import io
 import re
 
 Debug = False
@@ -392,17 +393,19 @@ class RSSChannel:
     def generate_items(self, text, test=False):
         """scrapes the page to find any new items
         """
+        result = 1
+        if (text is None): return -1
         if(Debug): print("Item Pattern: '" + self.item_pattern + "'")
         if (self.item_pattern == None):
-            return
+            return -1
         if (self.link == "https://www.w3.org/about"):
-            return
+            return -1
         if (len(self.items) > 0):
             self.items = []
         start = self.item_pattern.find("{")
         stop = self.item_pattern.rfind("}")
         if(start == -1 or stop == -1):
-            return
+            return -1
         start_pattern = self.item_pattern[:start]
         stop_pattern = self.item_pattern[stop+1:]
         if(Debug): print("Start pattern: '" + start_pattern + "'")
@@ -412,9 +415,19 @@ class RSSChannel:
         if test == True:
             return item_info
         for item in item_info:
+            if len(item) < 3:
+                f = io.open("error-log.txt", "a", encoding="utf-8")
+                f.write("-------------" + str(datetime.datetime.now()) + "-------------\n")
+                f.write("PARSING FAILURE")
+                f.write(text + "\n")
+                f.write(self.item_pattern + "\n")
+                f.write(str(item) + "\n")
+                f.close()
+                result = -1
             self.items.append(self.create_item(item))
         self.lastBuildDate = datetime.datetime.now()
         self.pubDate = datetime.datetime.now()
+        return result
 
     def test_pattern(self, pattern, text):
         """Creates a list of items from the given text and item pattern
