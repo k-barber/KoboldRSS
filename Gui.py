@@ -31,7 +31,9 @@ class ThreadSafeConsole(Text):
                 if line is None:
                     self.delete(1.0, END)
                 else:
+                    self.configure(state="normal")
                     self.insert(END, str(line))
+                    self.configure(state="disabled")
                 self.see(END)
                 self.update_idletasks()
             if not running:
@@ -128,6 +130,7 @@ class RSSWindow:
         self.generator_output = ThreadSafeConsole(generator_output_box, width=60, wrap="none",
                         xscrollcommand=generator_output_x_scrollbar.set,
                         yscrollcommand=generator_output_y_scrollbar.set,
+                        state="disabled",
                         borderwidth=0, highlightthickness=0, bg="#000000", fg="#FFFFFF", insertbackground="#FFFFFF")
 
         generator_output_y_scrollbar.config(command=self.generator_output.yview)
@@ -145,6 +148,7 @@ class RSSWindow:
         self.server_output = ThreadSafeConsole(server_output_box, width=60, wrap="none",
                         xscrollcommand=server_output_x_scrollbar.set,
                         yscrollcommand=server_output_y_scrollbar.set,
+                        state="disabled",
                         borderwidth=0, highlightthickness=0, bg="#000000", fg="#FFFFFF", insertbackground="#FFFFFF")
 
         server_output_y_scrollbar.config(command=self.server_output.yview)
