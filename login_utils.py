@@ -1,5 +1,6 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+#from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -33,21 +34,28 @@ class ChromeWindow:
         """
         self.driver
         self.wait
-        chrome_options = Options()
-        self.log("Utils Debug mode: " + str(self.debug_mode))
-        if (self.debug_mode): self.log("Initializing Chrome")
-        if (self.debug_mode == False and force_debug == False):
-            chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--disable-infobars")
-        chrome_options.add_argument("--window-size=2000,2000")
-        chrome_options.add_argument("--enable-file-cookies")
-        chrome_options.add_argument("--log-level=3")
-        home = str(Path.home())
-        default_profile = "user-data-dir=" + home + "\\AppData\\Local\\Google\\Chrome\\User Data"
-        chrome_options.add_argument(default_profile)
-        chrome_driver = os.path.join(os.getcwd(), "chromedriver")
-        if (self.is_aborted()): return
-        self.driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
+        driver_options = Options()
+        driver_type = "Firefox"
+
+        if (driver_type == "Chrome"):
+            self.log("Utils Debug mode: " + str(self.debug_mode))
+            if (self.debug_mode): self.log("Initializing Chrome")
+            if (self.debug_mode == False and force_debug == False):
+                driver_options.add_argument("--headless")
+            driver_options.add_argument("--disable-infobars")
+            driver_options.add_argument("--window-size=2000,2000")
+            driver_options.add_argument("--enable-file-cookies")
+            driver_options.add_argument("--log-level=3")
+            home = str(Path.home())
+            default_profile = "user-data-dir=" + home + "\\AppData\\Local\\Google\\Chrome\\User Data"
+            driver_options.add_argument(default_profile)
+            chrome_driver = os.path.join(os.getcwd(), "chromedriver")
+            if (self.is_aborted()): return
+            self.driver = webdriver.Chrome(chrome_options=driver_options, executable_path=chrome_driver,)
+        else:
+            if (self.debug_mode == False and force_debug == False):
+                driver_options.headless = True
+            self.driver = webdriver.Firefox(service_log_path=os.devnull, options = driver_options)
         #driver = webdriver.Chrome(ChromeDriverManager().install())
         self.wait = WebDriverWait(self.driver, 5)
 
