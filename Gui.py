@@ -83,6 +83,7 @@ class RSSWindow:
         self.root.destroy()
 
     def update(self):
+        time.sleep(0.2)
         self.root.update_idletasks()
         self.root.update()
 

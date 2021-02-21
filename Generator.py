@@ -150,7 +150,7 @@ class GeneratorInstance:
                 timer = timer * 2
                 if (count == 4):
                     f = io.open("error-log.txt", "a", encoding="utf-8")
-                    f.write("-------------" + str(datetime.datetime.now()) + "-------------\n")
+                    f.write("-------------" + str(datetime.now()) + "-------------\n")
                     f.write(channel.title + "\n")
                     f.write(str(err) + "\n")
                     f.close()

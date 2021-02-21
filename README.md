@@ -35,7 +35,7 @@ To begin, download the program in one of three ways:
   1. [Direct Download](https://github.com/k-barber/Release/raw/master/RSS-Generator.zip)
   2. [Torrent Download](https://github.com/k-barber/Release/raw/master/RSS-Generator.zip.torrent)
   3. Clone this Git Repository
-  
+
 <p align="center">
   <img src="https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme/download.jpg">
 </p>
@@ -49,11 +49,11 @@ Once you have downloaded the .zip file, unzip it and you should have a folder wi
   - Feed_Definitions.txt
   - Generator.exe
   - Server.exe
-  
+
 <p align="center">
   <img src="https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme/unzip.jpg">
 </p>
-  
+
 If that is correct, you are ready to begin.
 
 
@@ -104,12 +104,11 @@ Creating a new Feed is broken into three parts:
   1.	Defining the feed
   2.	Creating an item pattern
   3.	Defining the items
-  
+
 To explain how to add a feed, I will provide a walkthrough using the YouTube trending page as an example. Ultimately the feed should mimic the trending page and provide us with an update when a new video hits the trending page. 
 
-<p align="center">
-  <img src="https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme/youtube.jpg">
-</p>
+![youtube](/Img/Readme/youtube.jpg)
+
 
 #### Defining the Feed
 
@@ -159,13 +158,13 @@ In the end we come out with a pattern like so:
 <p align="center">
   <img src="https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme/pattern.jpg">
 </p>
- 
+
 Which produces the following result:
- 
+
 <p align="center">
   <img src="https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme/result.jpg">
 </p>
- 
+
 As you can see, our {%} placeholders have been numbered and are storing the following data:
 - {%1}: video ID
 - {%2}: Title
@@ -193,7 +192,7 @@ For the description, we'll include some simple HTML formatting. We'll have the v
 </p>
 
 Any HTML in the description needs to be within the <!CDATA\[ tags. CSS can be inlined, but most readers will drop any <style> or <script> tags. 
-  
+
 If you don't want to use HTML in the description, you can simply delete the <!CDATA\[ tags, or ignore them.
 
 The GUID field is an ID used by feed readers to determine if an item is new to a feed. In our case, {%1} is the youtube video ID, so we can use that.
