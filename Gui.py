@@ -4,6 +4,7 @@ from tkinter import messagebox
 import tkinter.scrolledtext as tkst
 import queue
 import time
+import webbrowser
 
 running = True
 
@@ -186,6 +187,13 @@ class RSSWindow:
             except ValueError:
                 messagebox.showerror("Invalid Port Number", "Port numbers must be whole numbers")
 
+        def open_browser_gui():
+            if self.shell.server is not None:
+                print(self.shell.current_port)
+                webbrowser.open("http://localhost:" + str(self.shell.current_port))
+            else:
+                messagebox.showerror("Server Not Running", "You can't open the web interface because the server isn't running!")
+
         def stop_server():
             self.shell.stop_server()
 
@@ -197,8 +205,9 @@ class RSSWindow:
 
         ttk.Button(options_box, text="Start", command=start_server).grid(row=3, column=0, sticky="news", pady=5, padx=5)
         ttk.Button(options_box, text="Stop", command=stop_server).grid(row=3, column=1, sticky="news", pady=5, padx=5)
+        ttk.Button(options_box, text="Test Server", command=open_browser_gui).grid(row=4, column=0, sticky="news", pady=5, padx=5, columnspan=2)
         
-        Label(options_box, text="Generator Options:").grid(row=4, column=0, sticky="news", pady=5, padx=5, columnspan=2)
+        Label(options_box, text="Generator Options:").grid(row=5, column=0, sticky="news", pady=5, padx=5, columnspan=2)
 
-        ttk.Button(options_box, text="Start", command=start_generator).grid(row=5, column=0, sticky="news", pady=5, padx=5)
-        ttk.Button(options_box, text="Stop", command=stop_generator).grid(row=5, column=1, sticky="news", pady=5, padx=5)
+        ttk.Button(options_box, text="Start", command=start_generator).grid(row=6, column=0, sticky="news", pady=5, padx=5)
+        ttk.Button(options_box, text="Stop", command=stop_generator).grid(row=6, column=1, sticky="news", pady=5, padx=5)

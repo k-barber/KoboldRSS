@@ -14,6 +14,7 @@ class ShellInstance:
     debug_mode = False
     chrome_instance = None
     generator = None
+    current_port = None
 
     stop_signal = None
     generator_stopped_signal = None
@@ -138,6 +139,7 @@ class ShellInstance:
         self.server = ServerInstance(self, port_number, self.debug_mode, self.chrome_instance)
         server_thread = threading.Thread(target=self.run_server)
         server_thread.start()
+        self.current_port = port_number
 
     def __init__(self):
         self.stop_signal = threading.Event()
