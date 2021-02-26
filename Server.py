@@ -11,7 +11,7 @@ from os.path import isfile, join
 from datetime import datetime, timedelta
 
 shell = None
-chrome = None
+browser = None
 
 class ServerInstance:
     
@@ -19,11 +19,11 @@ class ServerInstance:
     running = None
     httpd = None
 
-    def __init__(self, shell_param, port_number, debug, chrome_instance):
+    def __init__(self, shell_param, port_number, debug, browser_instance):
         self.debug_mode = debug
-        global shell, chrome
+        global shell, browser
         shell = shell_param
-        chrome = chrome_instance
+        browser = browser_instance
         clear_cache()
         HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
         IP = get_ip()
@@ -245,7 +245,7 @@ class MyHandler(BaseHTTPRequestHandler):
             return
 
     def do_POST(self):
-        global new_channel, shell, chrome
+        global new_channel, shell, browser
         try:
             self.protocol_version = "HTTP/1.1"
             content_length = int(self.headers['Content-Length'])
@@ -256,7 +256,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 login_required = params["login_required"]
                 delay = int(params["delay"])
                 if (delay > 0 or login_required == True):
-                    text = chrome.generic_scrape(url, delay)
+                    text = browser.generic_scrape(url, delay)
                 else:
                     response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot'})
                     text = response.text

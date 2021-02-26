@@ -1,4 +1,4 @@
-from login_utils import ChromeWindow
+from login_utils import BrowserWindow
 from Generator import GeneratorInstance
 from Server import ServerInstance
 from Gui import RSSWindow
@@ -12,14 +12,14 @@ class ShellInstance:
     server = None
     server_interrupt = None
     debug_mode = False
-    chrome_instance = None
+    browser_instance = None
     generator = None
     current_port = None
 
     stop_signal = None
     generator_stopped_signal = None
     generator_running_signal = None
-    chrome_stopped_signal = None
+    browser_stopped_signal = None
     shutdown_thread = None
 
     running = True
@@ -41,7 +41,7 @@ class ShellInstance:
     def start_generator(self):
         if self.running:
             if self.generator is None:
-                self.generator = GeneratorInstance(self, self.debug_mode, self.chrome_instance)
+                self.generator = GeneratorInstance(self, self.debug_mode, self.browser_instance)
                 generator_thread = threading.Thread(target=self.run_generator)
                 generator_thread.start()
             else:
@@ -88,15 +88,15 @@ class ShellInstance:
         else:
             self.generator.stop()
         self.print_generator_output("Generator Stopped")
-        self.print_generator_output("Stopping Chrome")
-        self.chrome_instance.close()
-        while (not self.chrome_stopped_signal.isSet()):
+        self.print_generator_output("Stopping browser")
+        self.browser_instance.close()
+        while (not self.browser_stopped_signal.isSet()):
             pass
-        self.print_generator_output("Chrome Stopped")
+        self.print_generator_output("browser Stopped")
         self.generator = None
         self.stop_signal.clear()
         self.generator_stopped_signal.clear()
-        self.chrome_stopped_signal.clear()
+        self.browser_stopped_signal.clear()
         self.shutdown_thread = None
         self.print_generator_output("Generator shutdown complete.")
 
@@ -115,8 +115,8 @@ class ShellInstance:
                 self.server.debug_mode = self.debug_mode
             if self.generator is not None:
                 self.generator.debug_mode = self.debug_mode
-            if self.chrome_instance is not None:
-                self.chrome_instance.debug_mode = self.debug_mode
+            if self.browser_instance is not None:
+                self.browser_instance.debug_mode = self.debug_mode
         
     def run_server(self):
         if self.running:
@@ -136,7 +136,7 @@ class ShellInstance:
                 self.print_server_output("Server is already running")
     
     def create_server_instance(self, port_number):
-        self.server = ServerInstance(self, port_number, self.debug_mode, self.chrome_instance)
+        self.server = ServerInstance(self, port_number, self.debug_mode, self.browser_instance)
         server_thread = threading.Thread(target=self.run_server)
         server_thread.start()
         self.current_port = port_number
@@ -145,8 +145,8 @@ class ShellInstance:
         self.stop_signal = threading.Event()
         self.generator_stopped_signal = threading.Event()
         self.generator_running_signal = threading.Event()
-        self.chrome_stopped_signal = threading.Event()
-        self.chrome_instance = ChromeWindow(self.debug_mode, self)
+        self.browser_stopped_signal = threading.Event()
+        self.browser_instance = BrowserWindow(self.debug_mode, self)
         try:
             self.gui = RSSWindow(self)
             while True: #self.running:

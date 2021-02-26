@@ -46,17 +46,17 @@ class GeneratorInstance:
 
     debug_mode = False
     shell = None
-    chrome_instance = None
+    browser_instance = None
     start_time = None
     channels = []
 
     def log(self, text):
         self.shell.print_generator_output(text)
 
-    def __init__(self, shell_param, debug, chrome_instance):
+    def __init__(self, shell_param, debug, browser_instance):
         self.debug_mode = debug
         self.shell = shell_param
-        self.chrome_instance = chrome_instance
+        self.browser_instance = browser_instance
         self.start_time = datetime.now()
         self.log("Generator starts")
         self.create_channels()
@@ -95,11 +95,11 @@ class GeneratorInstance:
             self.create_channels()
 
     def update_channels(self):
-        self.log("Checking Chrome")
+        self.log("Checking browser")
         self.shell.generator_running_signal.set()
-        self.chrome_instance.login_check(self.channels)
+        self.browser_instance.login_check(self.channels)
         if(self.is_aborted()): return
-        if self.chrome_instance.start() == True:
+        if self.browser_instance.start() == True:
             now = datetime.now()
             self.log("Updating Channels")
             for channel in self.channels:
@@ -114,7 +114,7 @@ class GeneratorInstance:
                 self.log("Updating in 5 Minutes")
                 self.shell.generator_running_signal.clear()
         else:
-            self.log("Chrome failed to start, please restart generator")
+            self.log("browser failed to start, please restart generator")
             self.shell.generator_running_signal.clear()
 
     def is_aborted(self):
@@ -137,7 +137,7 @@ class GeneratorInstance:
         while (text == ""):
             try:
                 if ((channel.website is not None) or (channel.delay is not None)):
-                    text = self.chrome_instance.generic_scrape(channel.link, channel.delay)
+                    text = self.browser_instance.generic_scrape(channel.link, channel.delay)
                 else:
                     response = None
                     response = requests.get(channel.link, headers = {'User-agent': 'RSS Generator Bot'})

@@ -9,7 +9,7 @@ import re
 Debug = False
 
 class RSSChannel:
-    chrome_instance = None
+    browser_instance = None
 
     category = None
     copyright = None
@@ -165,7 +165,7 @@ class RSSChannel:
             source=self.item_source
         )
 
-    def __init__(self, data=None, chrome_instance=None):
+    def __init__(self, data=None, browser_instance=None):
         """generates an RSS Channel
     
         Parameters:

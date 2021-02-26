@@ -13,7 +13,7 @@ import sys
 import time
 import os
 
-class ChromeWindow:
+class BrowserWindow:
 
     debug_mode = False
     logged_in = None
@@ -30,7 +30,7 @@ class ChromeWindow:
         self.shell = shell
 
     def __initialize(self, force_debug = False):
-        """Initializes the headless chrome instance
+        """Initializes the headless browser instance
         """
         self.driver
         self.wait
@@ -167,25 +167,13 @@ class ChromeWindow:
             return True
 
     def close(self):
-        """Closes the headless chrome instance
+        """Closes the headless browser instance
         """
         if self.driver is not None:
             self.driver.close()
         self.logged_in = []
         self.driver = None
-        self.shell.chrome_stopped_signal.set()
-
-    def certcheck(self):
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--window-size=2000x2000")
-        chrome_driver = os.path.join(os.getcwd(), "chromedriver")
-        if (self.is_aborted()): return
-        self.driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
-        if (self.is_aborted()): return
-        self.driver.get("https://cacert.org/")
-        if (self.debug_mode): self.log(self.driver.page_source)
-        self.driver.close()
+        self.shell.browser_stopped_signal.set()
 
     def generic_scrape(self, url, delay):
         """Scrapes the html from URL
