@@ -220,6 +220,8 @@ class MyHandler(BaseHTTPRequestHandler):
                 path = path[1:]
                 f = open(path, "rb")
                 st = f.read()
+                if (filetype == "svg"):
+                    filetype = "svg+xml"
                 self.send_response(200)
                 self.send_header("Content-type", "image/" + filetype)
                 self.end_headers()
