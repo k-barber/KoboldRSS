@@ -205,7 +205,9 @@ h4 {
 
 #Feed_Description,
 #Item_Pattern,
-#Item_Description {
+#Item_Description,
+#scrape_start_position,
+#scrape_stop_position {
     padding: 10px;
     height: 200px;
     resize: none;

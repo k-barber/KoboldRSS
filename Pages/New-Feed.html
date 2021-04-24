@@ -26,9 +26,9 @@
                 <div class="padding">
                     <input id="Feed_Title" name="Feed_Title" class="input_box" type="text" required>
                 </div>
-                <p class="Field tooltip"><span class="required">*</span> Feed Description:<span class="tooltiptext">A few sentences describing the Feed & summarizing its contents.</span></p>
+                <p class="Field tooltip">Feed Description:<span class="tooltiptext">A few sentences describing the Feed & summarizing its contents.</span></p>
                 <div class="padding">
-                    <textarea id="Feed_Description" name="Feed_Description" class="input_box" rows="10" cols="100" required></textarea>
+                    <textarea id="Feed_Description" name="Feed_Description" class="input_box" rows="10" cols="100"></textarea>
                 </div>
                 <p class="Field tooltip"><span class="required">*</span> Feed Link:<span class="tooltiptext">The URL of the web site associated with the Feed. Where the Feed will get its content from.</span></p>
                 <div class="padding">
@@ -205,8 +205,12 @@
                     <div class="padding"><textarea readonly id="Page_Source" rows="10" cols="100" class="input_box"></textarea></div>
                     <p>This is where things start to get complicated. Look through the data above and find an example of an item you want in the feed.</p>
                     <p>Copy that item into the box below, and replace any dynamic text with either {*} for data you don't want to keep, or {%} for data you do want to keep</p>
-                    <p class="Field tooltip">Item Patttern:<span class="tooltiptext">The text that the Generator uses to create Feed Items. Dynamic text represented by {%} is saved by the Generator, {*} is discarded.</span></p>
+                    <p class="Field tooltip">Item Pattern:<span class="tooltiptext">The text that the Generator uses to create Feed Items. Dynamic text represented by {%} is saved by the Generator, {*} is discarded.</span></p>
                     <div class="padding"><textarea id="Item_Pattern" rows="10" cols="100" class="input_box" required spellcheck="false"></textarea></div>
+                    <p class="Field tooltip">Scraping Start Position:<span class="tooltiptext">Where in the page source to start scraping for items</span></p>
+                    <div class="padding"><textarea id="scrape_start_position" rows="5" cols="100" class="input_box" required spellcheck="false"></textarea></div>
+                    <p class="Field tooltip">Scraping Stop Position:<span class="tooltiptext">Where in the page source to stop scraping for items</span></p>
+                    <div class="padding"><textarea id="scrape_stop_position" rows="5" cols="100" class="input_box" required spellcheck="false"></textarea></div>
                     <button onclick="test_pattern()" formnovalidate>Test Pattern</button>
                     <div id="Pattern_Results" style="display: none;">
                         <p class="Field">Items Found: <span id="Item_Total"></span></p>
@@ -233,7 +237,7 @@
                         <p>If you want, you can add HTML markup to the Item Description by using <a href="https://www.w3.org/TR/xml/#dt-cdsection">CDATA formatting</a>.</p>
                         <p>Simply add &lt;![CDATA[ at the start of your HTML and ]]&gt; to the end.</p>
                         <div class="padding">
-                            <textarea required id="Item_Description" name="Item_Description" class="input_box" rows="10" cols="100">&lt;![CDATA[&#10;&#10;]]&gt;</textarea>
+                            <textarea id="Item_Description" name="Item_Description" class="input_box" rows="10" cols="100">&lt;![CDATA[&#10;&#10;]]&gt;</textarea>
                         </div>
                         <button onclick="test_definition()" formnovalidate>Test Definition</button>
                         <table id="Item_Preview" style="display:none">
@@ -360,6 +364,8 @@
         function test_pattern() {
             document.body.style.cursor="wait";
             var pattern = document.getElementById("Item_Pattern").value;
+            var scrape_start_position = document.getElementById("scrape_start_position").value;
+            var scrape_stop_position = document.getElementById("scrape_stop_position").value;
             var body = document.getElementById("Page_Source").value;
             if ((pattern != null) & (document.getElementById("Item_Pattern").checkValidity())) {
                 var xhr = new XMLHttpRequest();
@@ -384,7 +390,7 @@
                 };
                 xhr.open('POST', '/Test_Pattern');
                 xhr.setRequestHeader("Content-Type", "application/json");
-                xhr.send(JSON.stringify({pattern: pattern, body: body}));
+                xhr.send(JSON.stringify({pattern: pattern, body: body, scrape_start_position: scrape_start_position, scrape_stop_position: scrape_stop_position }));
             }
         }
 
@@ -458,11 +464,11 @@
             var xhr = new XMLHttpRequest();
             xhr.onload = function () {
                 document.body.style.cursor="default";
-                console.log(xhr.response);
-                if(xhr.response = "Recieved"){
+                console.log(xhr);
+                if(xhr.status == 200){
                     window.location.href = "/Success";
                 }else{
-                    window.alert("Uh oh. Something went wrong. Check the server's ")
+                    window.alert("Uh oh. Something went wrong. Check the server logs")
                 }
             };
             xhr.open('POST', "/Feed_Data");
@@ -515,7 +521,9 @@
                 'language' : lang,
                 'managingEditor' : document.getElementById("Feed_Editor").value,
                 'webMaster' : document.getElementById("Feed_Webmaster").value,
+                'scrape_start_position' : document.getElementById("scrape_start_position").value,
                 'item_pattern' : document.getElementById("Item_Pattern").value,
+                'scrape_stop_position' : document.getElementById("scrape_stop_position").value,
                 'item_title' : document.getElementById("Item_Title").value,
                 'item_link' : document.getElementById("Item_Link").value,
                 'item_description' : document.getElementById("Item_Description").value.replace(/(\r\n|\n|\r)/gm,""),

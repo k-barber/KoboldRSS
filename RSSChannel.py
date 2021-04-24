@@ -33,7 +33,9 @@ class RSSChannel:
     item_description = None
     item_guid = None
     item_link = None
+    scrape_start_position = None
     item_pattern = None
+    scrape_stop_position = None
     item_pubDate = None
     item_source = None
     item_title = None
@@ -125,7 +127,9 @@ class RSSChannel:
         print("Item_description: " + str(self.item_description))
         print("item_guid: " + str(self.item_guid))
         print("Item_link: " + str(self.item_link))
+        print("Start: " + str(self.scrape_start_position))
         print("Item_pattern: " + str(self.item_pattern))
+        print("Stop: " + str(self.scrape_stop_position))
         print("Item_pubDate: " + str(self.item_pubDate))
         print("Item_source: " + str(self.item_source))
         print("Item_title: " + str(self.item_title))
@@ -229,8 +233,12 @@ class RSSChannel:
                 self.item_guid = clean_input(line[semi:])
             elif (prefix =='item_link'):
                 self.item_link = clean_input(line[semi:])
+            elif (prefix =='scrape_start_position'):
+                self.scrape_start_position = clean_input(line[semi:])
             elif (prefix =='item_pattern'):
                 self.item_pattern = clean_input(line[semi:])
+            elif (prefix =='scrape_stop_position'):
+                self.scrape_stop_position = clean_input(line[semi:])
             elif (prefix =='item_pubDate'):
                 self.item_pubDate = clean_input(line[semi:])
             elif (prefix =='item_source'):
@@ -398,8 +406,6 @@ class RSSChannel:
         if(Debug): print("Item Pattern: '" + self.item_pattern + "'")
         if (self.item_pattern == None):
             return -1
-        if (self.link == "https://www.w3.org/about"):
-            return -1
         if (len(self.items) > 0):
             self.items = []
         start = self.item_pattern.find("{")
@@ -410,16 +416,21 @@ class RSSChannel:
         stop_pattern = self.item_pattern[stop+1:]
         if(Debug): print("Start pattern: '" + start_pattern + "'")
         if(Debug): print("Stop pattern: '" + stop_pattern + "'")
-        data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
+        partial_text = clean_input(text)
+        if ((self.scrape_start_position is not None) and (self.scrape_start_position != "") and (partial_text.find(self.scrape_start_position) > -1)):
+            partial_text = partial_text[partial_text.find(self.scrape_start_position) + len(self.scrape_start_position):]
+        if ((self.scrape_stop_position is not None) and (self.scrape_stop_position != "") and (partial_text.find(self.scrape_stop_position) > -1)):
+            partial_text = partial_text[:partial_text.find(self.scrape_stop_position)]
+        data = self.get_item_text(partial_text, start_pattern, stop_pattern)
         item_info = self.parse_items(data)
         if test == True:
             return item_info
         for item in item_info:
-            if len(item) < 3:
+            if len(item) < 1:
                 f = io.open("error-log.txt", "a", encoding="utf-8")
                 f.write("-------------" + str(datetime.datetime.now()) + "-------------\n")
                 f.write("PARSING FAILURE")
-                f.write(text + "\n")
+                f.write(str(data) + "\n")
                 f.write(self.item_pattern + "\n")
                 f.write(str(item) + "\n")
                 f.close()
@@ -429,7 +440,7 @@ class RSSChannel:
         self.pubDate = datetime.datetime.now()
         return result
 
-    def test_pattern(self, pattern, text):
+    def test_pattern(self, pattern, text, scrape_start_position, scrape_stop_position):
         """Creates a list of items from the given text and item pattern
     
         Parameters:
@@ -439,6 +450,10 @@ class RSSChannel:
         text (string): the text to scrape for items
         """
         self.item_pattern = clean_input(pattern)
+        if (scrape_start_position != ""):
+            self.scrape_start_position = clean_input(scrape_start_position)
+        if (scrape_stop_position != ""):
+            self.scrape_stop_position = clean_input(scrape_stop_position)
         return self.generate_items(text, True)
 
     def test_definition(self, pattern, text, title, link, description):
@@ -479,7 +494,7 @@ class RSSChannel:
         """
         self.category = None
         self.copyright = None
-        self.description = "Default Description"
+        self.description = None
         self.docs = "http://www.rssboard.org/rss-draft-1"
 
         self.enclosure_length = None
@@ -499,7 +514,9 @@ class RSSChannel:
         self.item_description = None
         self.item_guid = None
         self.item_link = None
+        self.scrape_start_position = None
         self.item_pattern = None
+        self.scrape_stop_position = None
         self.item_pubDate = None
         self.item_source = None
         self.item_title = None
@@ -559,8 +576,12 @@ class RSSChannel:
             output += "item_guid:" + self.item_guid + "\n"
         if (self.item_link is not None):
             output += "item_link:" + self.item_link + "\n"
+        if (self.scrape_start_position is not None):
+            output += "scrape_start_position:" + self.scrape_start_position + "\n"
         if (self.item_pattern is not None):
             output += "item_pattern:" + self.item_pattern + "\n"
+        if (self.scrape_stop_position is not None):
+            output += "scrape_stop_position:" + self.scrape_stop_position + "\n"
         if (self.item_pubDate is not None):
             output += "item_pubDate:" + self.item_pubDate + "\n"
         if (self.item_source is not None):
@@ -589,7 +610,7 @@ class RSSChannel:
         if (self.password is not None):
             output += "password:" + self.password + "\n"
 
-        if ((self.delay is not None) and (self.delay is not 0)):
+        if ((self.delay is not None) and (self.delay != 0)):
             output += "delay:" + str(self.delay) + "\n"
 
         return output

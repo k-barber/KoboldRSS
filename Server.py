@@ -269,7 +269,9 @@ class MyHandler(BaseHTTPRequestHandler):
                 params = json.loads(str(post_data, encoding="utf-8"))
                 pattern = params["pattern"]
                 text = params["body"]
-                data = new_channel.test_pattern(pattern, text)
+                scrape_stop_position = params["scrape_stop_position"]
+                scrape_start_position = params["scrape_start_position"]
+                data = new_channel.test_pattern(pattern, text, scrape_start_position, scrape_stop_position)
                 response = json.dumps(data)
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
