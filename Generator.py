@@ -61,18 +61,19 @@ class GeneratorInstance:
         self.log("Generator starts")
         self.create_channels()
 
-    def index_channels(self):
-        f = open("Pages/Feeds.html", "wb")
-        output = top
-        for channel in self.channels:
-            title = channel.title.replace(":", "~").replace(" ", "_")
-            output += '''                <li>
-                        <a href="/Feeds/''' + title + '.xml">' + title + '''.xml</a>
-                    </li>
-    '''
-        output += bottom
-        f.write(str.encode(output))
-        f.close()
+    
+    #def index_channels(self):
+    #    f = open("Pages/Feeds.html", "wb")
+    #    output = top
+    #    for channel in self.channels:
+    #        title = channel.title.replace(":", "~").replace(" ", "_")
+    #        output += '''                <li>
+    #                    <a href="/Feeds/''' + title + '.xml">' + title + '''.xml</a>
+    #                </li>
+    #'''
+    #    output += bottom
+    #    f.write(str.encode(output))
+    #    f.close()
 
 
     def create_channels(self):

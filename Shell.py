@@ -51,7 +51,7 @@ class ShellInstance:
         if self.running:
             while not self.stop_signal.is_set():
                 self.generator.check_for_updates()
-                self.generator.index_channels()
+                #self.generator.index_channels()
                 self.generator.update_channels()
                 self.stop_signal.wait(300)
 

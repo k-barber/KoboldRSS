@@ -9,6 +9,7 @@ import os
 from os import path as file_path, listdir
 from os.path import isfile, join
 from datetime import datetime, timedelta
+from urllib import parse
 
 shell = None
 browser = None
@@ -140,7 +141,7 @@ def update_defs():
 urls ={
     "/":["Pages/Main.html", "text/html"],
     "/res/preview.xsl":["Pages/preview.xsl", "text/html"],
-    "/Feeds/" :["Pages/Feeds.html", "text/html"],
+#    "/Feeds/" :["Pages/Feeds.html", "text/html"],
     "/Public/" :["Pages/Public.html", "text/html"],
     "/favicon.ico": ["Img/favicon.ico", "image/x-icon"],
     "/Pages/styles.css": ["Pages/styles.css", "text/css"],
@@ -164,7 +165,9 @@ class MyHandler(BaseHTTPRequestHandler):
         global shell
         try:
             self.protocol_version = "HTTP/1.1"
-            path = self.path
+            print(self.path)
+            path = parse.unquote(self.path)
+            print(path)
             if (path in urls.keys()):
                 if (urls[path][1].startswith("text")):
                     ind = open(urls[path][0], "r", encoding="utf-8")
@@ -204,14 +207,35 @@ class MyHandler(BaseHTTPRequestHandler):
                         self.wfile.write(bytes(response.content))
                 except Exception as err:
                     shell.print_server_output(str(err))
-            elif(path.startswith("/Feeds/")):
+            elif(path.startswith("/Feeds")):
                 path = path[1:]
-                ind = open(path, "r", encoding="utf-8")
-                st = ind.read()
-                self.send_response(200)
-                self.send_header("Content-type", "application/xml")
-                self.end_headers()
-                self.wfile.write(bytes(st, "utf-8"))
+                if (path.endswith(".xml")):
+                    ind = open(path, "r", encoding="utf-8")
+                    st = ind.read()
+                    self.send_response(200)
+                    self.send_header("Content-type", "application/xml")
+                    self.end_headers()
+                    self.wfile.write(bytes(st, "utf-8"))
+                else:
+                    files = os.listdir(path)
+                    items = []
+                    print(files)
+                    for file_item in files:
+                        stats = os.stat(os.path.join(path, file_item))
+                        print(stats)
+                        size = stats.st_size
+                        modified = stats.st_mtime
+                        print(modified)
+                        is_dir = os.path.isdir(os.path.join(path, file_item))
+                        items.append({"name": file_item, "size": size, "modified": modified, "is_dir": is_dir})
+                    print(json.dumps(items))
+                    f = open("Pages/Feeds.html", "r", encoding="utf-8")
+                    st = f.read()
+                    st = st.replace("var items = [];", "var items = " + json.dumps(items) + ";")
+                    self.send_response(200)
+                    self.send_header("Content-type", "text/html")
+                    self.end_headers()
+                    self.wfile.write(bytes(st, "utf-8"))
             elif(path.startswith("/Img/")):
                 filetype = path.split(".")[1]
                 path = path[1:]
@@ -232,6 +256,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.wfile.write(bytes(st, "utf-8"))
             return
         except Exception as err:
+            print(err)
             shell.print_server_output(str(err))
             self.send_response(500)
             self.send_header("Content-type", "text/html")
