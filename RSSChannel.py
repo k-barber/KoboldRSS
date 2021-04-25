@@ -13,7 +13,8 @@ class RSSChannel:
 
     category = None
     copyright = None
-    description = "Default Description"
+    description = None
+    path = None
     docs = "http://www.rssboard.org/rss-draft-1"
 
     enclosure_length = None
@@ -49,9 +50,8 @@ class RSSChannel:
     ttl = 60
     webMaster = None
 
-    username = None
-    password = None
-    website = None
+    logged_title = None
+    logged_URL = None
 
     delay = None
 
@@ -141,10 +141,7 @@ class RSSChannel:
         print("Pub Date: " + str(self.pubDate))
         print("Title: " + str(self.title))
         print("TTL: " + str(self.ttl))
-        print("Web Master: " + str(self.webMaster))
-
-        print("Website: " + str(self.website))
-        print("Username: " + str(self.username))        
+        print("Web Master: " + str(self.webMaster))    
 
     def create_item(self, data):
         """generates an RSS Item
@@ -203,6 +200,8 @@ class RSSChannel:
                 self.copyright = clean_input(line[semi:])
             elif (prefix =='description'):
                 self.description = clean_input(line[semi:])
+            elif (prefix =='path'):
+                self.path = clean_input(line[semi:])
             
 
             elif (prefix =='enclosure_length'):
@@ -259,12 +258,10 @@ class RSSChannel:
             elif (prefix =='webMaster'):
                 self.webMaster = clean_input(line[semi:])
 
-            elif (prefix =='username'):
-                self.username = clean_input(line[semi:])
-            elif (prefix =='website'):
-                self.website = clean_input(line[semi:])
-            elif (prefix =='password'):
-                self.password = clean_input(line[semi:])
+            elif (prefix =='logged_title'):
+                self.logged_title = clean_input(line[semi:])
+            elif (prefix =='logged_URL'):
+                self.logged_URL = clean_input(line[semi:])
 
             elif (prefix =='delay'):
                 self.delay = int(clean_input(line[semi:]))
@@ -394,7 +391,10 @@ class RSSChannel:
 
         output += "</rss>"
 
-        f = open("Feeds/" + self.title.replace(":", "~").replace(" ", "_") + ".xml", "wb")
+        if (self.path is not None):
+            f = open("Feeds/" + self.path + self.title.replace(":", "~").replace(" ", "_") + ".xml", "wb")
+        else :
+            f = open("Feeds/" + self.title.replace(":", "~").replace(" ", "_") + ".xml", "wb")
         f.write(str.encode(output))
         f.close()
 
@@ -495,6 +495,7 @@ class RSSChannel:
         self.category = None
         self.copyright = None
         self.description = None
+        self.path = None
         self.docs = "http://www.rssboard.org/rss-draft-1"
 
         self.enclosure_length = None
@@ -530,9 +531,8 @@ class RSSChannel:
         self.ttl = 60
         self.webMaster = None
 
-        self.username = None
-        self.website = None
-        self.password = None
+        self.logged_title = None
+        self.logged_URL = None
 
     def print_definition(self):
         """Produce a string representation of the channel for use in Feed_Definitions.txt
@@ -549,6 +549,8 @@ class RSSChannel:
             output += "copyright:" + self.copyright + "\n"
         if (self.description is not None):
             output += "description:" + self.description + "\n"
+        if (self.path is not None):
+            output += "path:" + self.path + "\n"
 
 
         if (self.enclosure_length is not None):
@@ -603,12 +605,10 @@ class RSSChannel:
         if (self.webMaster is not None):
             output += "webMaster:" + self.webMaster + "\n"
 
-        if (self.website is not None):
-            output += "website:" + self.website + "\n"
-        if (self.username is not None):
-            output += "username:" + str(self.username) + "\n"
-        if (self.password is not None):
-            output += "password:" + self.password + "\n"
+        if (self.logged_title is not None):
+            output += "logged_title:" + self.logged_title + "\n"
+        if (self.logged_URL is not None):
+            output += "logged_URL:" + str(self.logged_URL) + "\n"
 
         if ((self.delay is not None) and (self.delay != 0)):
             output += "delay:" + str(self.delay) + "\n"

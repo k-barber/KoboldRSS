@@ -36,55 +36,14 @@
                 </div>
                 <p><input type="checkbox" id="Login_Checkbox" name="Login_Required" onclick="show_login_fields()"> The page I'm scraping can only be seen when logged in</p>
                 <div id="Login_Fields" class="padding" style="display: none;">
-                    <p class="Field tooltip"><span class="required">*</span> Website:<span class="tooltiptext">Please select which website you are trying to log in to</span></p>
-                    <div style="border: 1px #0006 solid; overflow:auto; padding: 15px 0px;">
-                        <div class="col-3 site-select">
-                            <input id="Website_Twitter" type="radio" name="Login_Website" value="Twitter"></input>
-                            <label for="Website_Twitter">
-                                <img src="/Img/Icons/twitter.png"> Twitter
-                            </label>
-                        </div>
-                        <div class="col-3 site-select">
-                            <input id="Website_Instagram" type="radio" name="Login_Website" value="Instagram" disabled></input>
-                            <label for="Website_Instagram">
-                                <img src="/Img/Icons/instagram.png"> Instagram
-                            </label>
-                        </div>
-                        <div class="col-3 site-select">
-                            <input type="radio" id="Website_Facebook" name="Login_Website" value="Facebook" disabled></input>
-                            <label for="Website_Facebook">
-                                <img src="/Img/Icons/Facebook.png"> Facebook
-                            </label>
-                        </div>
-                        <div class="col-3 site-select">
-                            <input type="radio" id="Website_Pixiv" name="Login_Website" value="Pixiv"></input>
-                            <label for="Website_Pixiv">
-                                <img src="/Img/Icons/pixiv.png">
-                            </label>
-                        </div>
-                        <div class="col-3 site-select">
-                            <input id="Website_Newgrounds" type="radio" name="Login_Website" value="Newgrounds"></input>
-                            <label for="Website_Newgrounds">
-                                <img src="/Img/Icons/newgrounds.png">
-                            </label>
-                        </div>
-                        <div class="col-3 site-select">
-                            <input id="Website_MFC" type="radio" name="Login_Website" value="MFC" disabled></input>
-                            <label for="Website_MFC">
-                                <img src="/Img/Icons/MFC.png"> MyFigureCollection
-                            </label>
-                        </div>
-                    </div>
-                    <p class="Field tooltip"><span class="required">*</span> Username:<span class="tooltiptext">The username you use for the selected website</span></p>
+                    <p class="Field tooltip"><span class="required">*</span> Logged in URL: <span class="tooltiptext">The URL of a page that can only be accessed when logged in. Used to verify that the generator is logged in.</span></p>
                     <div class="padding">
-                        <input id="Username" name="Username" class="input_box" type="text">
+                        <input id="logged_URL" name="logged_URL" class="input_box" type="url" required>
                     </div>
-                    <p class="Field tooltip"><span class="required">*</span> Password:<span class="tooltiptext">The password you use for the selected website</span></p>
+                    <p class="Field tooltip"><span class="required">*</span> Logged in Title: <span class="tooltiptext">The title of the above page. Used to verify that the generator is logged in.</span></p>
                     <div class="padding">
-                        <input id="Password" name="Password" class="input_box" type="text">
+                        <input id="logged_title" name="logged_title" class="input_box" type="text" required>
                     </div>
-                    <p>Your username and password will <strong>only</strong> be used to log in to the selected website to update your RSS feed.
-                        Connections will be HTTPS encrypted. Username and password will be stored in the "Feed_Definitions.txt" file.</p>
                 </div>
                 <p class="Field tooltip">Scraping Delay:<span class="tooltiptext">The number of seconds the generator should wait to ensure the content has loaded before scraping. Only needed on pages with lazy loading.</span></p>
                 <div class="padding">
@@ -338,22 +297,13 @@
                     document.getElementById("Page_Source").value = xhr.response;
                     document.getElementById("Item_Definition").style.display = "block";
                 };
-                var websites = document.getElementsByName('Login_Website');
-                var website;
-                for (var i = 0, length = websites.length; i < length; i++) {
-                    if (websites[i].checked) {
-                        website = websites[i].value;
-                        break;
-                    }
-                }
                 xhr.open('POST', '/Get_Source');
                 xhr.send(
                     JSON.stringify({
                         url: url,
                         login_required: document.getElementById("Login_Checkbox").checked,
-                        username : document.getElementById("Username").value,
-                        password : document.getElementById("Password").value,
-                        website : website,
+                        logged_title : document.getElementById("logged_title").value,
+                        logged_URL : document.getElementById("logged_URL").value,
                         delay : Number(0 || document.getElementById("Scrape_delay").value),
                         }));
             }else{
@@ -442,20 +392,16 @@
             var text = document.getElementById("Login_Fields");
             if (checkBox.checked == true){
                 text.style.display = "block";
-                document.getElementById("Website_Newgrounds").required = true;
-                document.getElementById("Username").required = true;
-                document.getElementById("Password").required = true;
-                document.getElementById("Website_Newgrounds").formnovalidate = false;
-                document.getElementById("Username").formnovalidate = false;
-                document.getElementById("Password").formnovalidate = false;
+                document.getElementById("logged_URL").required = true;
+                document.getElementById("logged_title").required = true;
+                document.getElementById("logged_URL").formnovalidate = false;
+                document.getElementById("logged_title").formnovalidate = false;
             } else {
                 text.style.display = "none";
-                document.getElementById("Website_Newgrounds").required = false;
-                document.getElementById("Username").required = false;
-                document.getElementById("Password").required = false;
-                document.getElementById("Website_Newgrounds").formnovalidate = true;
-                document.getElementById("Username").formnovalidate = true;
-                document.getElementById("Password").formnovalidate = true;
+                document.getElementById("logged_URL").required = false;
+                document.getElementById("logged_title").required = false;
+                document.getElementById("logged_URL").formnovalidate = true;
+                document.getElementById("logged_title").formnovalidate = true;
             }
         }
 
@@ -493,16 +439,6 @@
                     break;
                 }
             }
-
-            var websites = document.getElementsByName('Login_Website');
-            var website;
-            for (var i = 0, length = websites.length; i < length; i++) {
-                if (websites[i].checked) {
-                    website = websites[i].value;
-                    break;
-                }
-            }
-
             var e = document.getElementById("Feed_Language");
             var lang = e.options[e.selectedIndex].value;
             var a = document.getElementById("Feed_Language");
@@ -539,9 +475,8 @@
                 'item_pubDate' : document.getElementById("Item_PubDate").value,
                 'item_source' : document.getElementById("Item_Source").value,
                 'login_required' : document.getElementById("Login_Checkbox").checked,
-                'website' : website,
-                'username' : document.getElementById("Username").value,
-                'password' : document.getElementById("Password").value,
+                'logged_title' : document.getElementById("logged_title").value,
+                'logged_URL' : document.getElementById("logged_URL").value
             }
             return output;
         }

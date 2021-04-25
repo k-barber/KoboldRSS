@@ -7,6 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from pathlib import Path
+from urllib import parse
 import pickle
 import traceback
 import sys
@@ -69,22 +70,25 @@ class BrowserWindow:
             return False
 
     def login_check(self, channels):
-        websites = []
+        websites = {}
         for channel in channels:
-            if channel.website is not None and channel.website not in websites and channel.website not in self.logged_in:
-                websites.append(channel.website)
-        print(websites)
+            if channel.logged_URL is not None:
+                domain = parse.urlparse(channel.logged_URL).netloc
+                if (domain not in websites.keys() and domain not in self.logged_in):
+                    websites[domain] = (domain, channel.logged_URL, channel.logged_title)
         logged_out = []
         if len(websites) > 0 :
+            print(websites)
             if (self.is_aborted()): return
             self.start()
-            print("Login Check")
-            for website in websites:
-                print(website)
+            self.log("Login Check:")
+            for domain in websites.keys():
+                print(domain)
+                print(websites[domain])
+                self.log(domain)
                 if (self.is_aborted()): return
-                if (not self.is_logged_in(website)):
-                    print("Not Logged in")
-                    logged_out.append(website)
+                if (not self.is_logged_in(websites[domain])):
+                    logged_out.append(websites[domain])
         if len(logged_out) > 0:
             if (self.debug_mode == False):
                 self.driver.close()
@@ -101,67 +105,46 @@ class BrowserWindow:
         
                     
     def manual_login(self, website):
+        domain = website[0]
+        url = website[1]
+        title = website[2]
         self.driver.switch_to.window(self.driver.current_window_handle)
         print('\a') # prints ASCII bell sound
         self.wait = WebDriverWait(self.driver, 300) #Set wait to 300 seconds
         if (self.is_aborted()): return
         try:
-            if (website == "Newgrounds"):
-                self.driver.get("https://www.newgrounds.com/social")
-                self.wait.until(EC.title_is("Your Feed"))
-                pickle.dump(self.driver.get_cookies(), open("cookies/newgrounds.pkl", "wb"))
-            elif (website == "Pixiv"):
-                self.driver.get("https://www.pixiv.net/setting_profile.php")
-                self.wait.until(EC.title_contains("Settings: Profile"))
-                pickle.dump(self.driver.get_cookies(), open("cookies/pixiv.pkl", "wb"))
-            elif (website == "Twitter"):
-                self.driver.get("https://twitter.com/login")
-                self.wait.until(EC.title_contains("Home / Twitter"))
-                pickle.dump(self.driver.get_cookies(), open("cookies/pixiv.pkl", "wb"))
+            self.driver.get(url)
+            self.wait.until(EC.title_is(url))
+            pickle.dump(self.driver.get_cookies(), open("cookies/"+  str(domain) + ".pkl", "wb"))
+            self.wait = WebDriverWait(self.driver, 5)
             self.wait = WebDriverWait(self.driver, 5)
         except Exception as err:
-            self.log("Failed to log in to " + website)
+            print('\a') # prints ASCII bell sound
+            self.log("Failed to log in to " + domain)
             self.log("Shutting down generator")
             self.shell.stop_generator()
         
     def is_logged_in(self, website):
-        if website not in self.logged_in:
+        domain = website[0]
+        url = website[1]
+        title = website[2]
+        if domain not in self.logged_in:
             try:
-                if (website == "Newgrounds"):
-                    if (self.is_aborted()): return
-                    self.driver.get("https://www.newgrounds.com/social")
-                    if (self.is_aborted()): return
-                    if (os.path.isfile("cookies/newgrounds.pkl")):
-                        for cookie in pickle.load(open("cookies/newgrounds.pkl", "rb")):
+                if (self.is_aborted()): return
+                self.driver.get(url)
+                if (self.is_aborted()): return
+                if (os.path.isfile("cookies/" + str(domain) + ".pkl")):
+                        for cookie in pickle.load(open("cookies/" + str(domain) + ".pkl", "rb")):
                             self.driver.add_cookie(cookie)
-                    self.driver.get("https://www.newgrounds.com/social")
-                    self.wait.until(EC.title_is("Your Feed"))
-                elif (website == "Pixiv"):
-                    if (self.is_aborted()): return
-                    self.driver.get("https://www.pixiv.net/setting_profile.php")
-                    if (self.is_aborted()): return
-                    if (os.path.isfile("cookies/pixiv.pkl")):
-                        for cookie in pickle.load(open("cookies/pixiv.pkl", "rb")):
-                            self.driver.add_cookie(cookie)
-                    self.driver.get("https://www.pixiv.net/setting_profile.php")
-                    self.wait.until(EC.title_contains("Settings: Profile"))
-                elif (website == "Twitter"):
-                    if (self.is_aborted()): return
-                    self.driver.get("https://twitter.com/login")
-                    if (self.is_aborted()): return
-                    if (os.path.isfile("cookies/twitter.pkl")):
-                        for cookie in pickle.load(open("cookies/twitter.pkl", "rb")):
-                            self.driver.add_cookie(cookie)
-                    self.driver.get("https://twitter.com/login")
-                    self.wait.until(EC.title_contains("Home / Twitter"))
-                    pickle.dump(self.driver.get_cookies(), open("cookies/twitter.pkl", "wb"))
-                else:
-                    self.log("Unknown website")
-                    return False
-                self.logged_in.append(website)
+                if (self.is_aborted()): return
+                self.driver.get(url)
+                if (self.is_aborted()): return
+                self.wait.until(EC.title_is(title))
+                pickle.dump(self.driver.get_cookies(), open("cookies/"+  str(domain) + ".pkl", "wb"))
+                self.logged_in.append(domain)
                 return True
             except Exception as err:
-                print(self.driver.title)
+                self.log("Not logged in: " + str(domain))
                 return False
         else:
             return True

@@ -136,7 +136,7 @@ class GeneratorInstance:
         count = 0
         while (text == ""):
             try:
-                if ((channel.website is not None) or (channel.delay is not None)):
+                if ((channel.logged_URL is not None) or (channel.delay is not None)):
                     text = self.browser_instance.generic_scrape(channel.link, channel.delay)
                 else:
                     response = None

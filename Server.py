@@ -30,7 +30,6 @@ class ServerInstance:
         if (IP is not None):
             shell.print_server_output("Detected IP address as: " + IP)
             #HOST_NAME = IP
-        ans = ""
         PORT_NUMBER = int(port_number)
         shell.print_server_output("Server will accessible as localhost:" + str(PORT_NUMBER) + " on this machine or " + IP + ":" + str(PORT_NUMBER) + " for machines on this network")
         self.httpd = HTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)
@@ -125,12 +124,10 @@ def channel_from_data(data):
     if(data['webMaster'] != ""):
         new_channel.webMaster = data['webMaster']
     if(data['login_required'] == True):
-        if(data['website'] != ""):
-            new_channel.website = data['website']
-        if(data['username'] != ""):
-            new_channel.username = data['username']
-        if(data['password'] != ""):
-            new_channel.password = data['password']
+        if(data['logged_title'] != ""):
+            new_channel.logged_title = data['logged_title']
+        if(data['logged_URL'] != ""):
+            new_channel.logged_URL = data['logged_URL']
     if(data['delay'] != 0):
         new_channel.delay = data['delay']
 
