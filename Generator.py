@@ -4,7 +4,6 @@ from RSSChannel import RSSChannel
 from datetime import datetime, timedelta
 import os
 import time
-import sys
 import io
 
 top = '''

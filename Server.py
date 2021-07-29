@@ -165,9 +165,7 @@ class MyHandler(BaseHTTPRequestHandler):
         global shell
         try:
             self.protocol_version = "HTTP/1.1"
-            print(self.path)
             path = parse.unquote(self.path)
-            print(path)
             if (path in urls.keys()):
                 if (urls[path][1].startswith("text")):
                     ind = open(urls[path][0], "r", encoding="utf-8")
@@ -219,16 +217,12 @@ class MyHandler(BaseHTTPRequestHandler):
                 else:
                     files = os.listdir(path)
                     items = []
-                    print(files)
                     for file_item in files:
                         stats = os.stat(os.path.join(path, file_item))
-                        print(stats)
                         size = stats.st_size
                         modified = stats.st_mtime
-                        print(modified)
                         is_dir = os.path.isdir(os.path.join(path, file_item))
                         items.append({"name": file_item, "size": size, "modified": modified, "is_dir": is_dir})
-                    print(json.dumps(items))
                     f = open("Pages/Feeds.html", "r", encoding="utf-8")
                     st = f.read()
                     st = st.replace("var items = [];", "var items = " + json.dumps(items) + ";")
