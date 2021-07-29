@@ -153,10 +153,10 @@ def update_defs():
 urls = {
     "/": ["Pages/Main.html", "text/html"],
     "/res/preview.xsl": ["Pages/preview.xsl", "text/html"],
-    #    "/Feeds/" :["Pages/Feeds.html", "text/html"],
     "/Public/": ["Pages/Public.html", "text/html"],
     "/favicon.ico": ["Img/favicon.ico", "image/x-icon"],
     "/Pages/styles.css": ["Pages/styles.css", "text/css"],
+    "/Pages/css/all.css": ["Pages/css/all.css", "text/css"],
     "/New-Feed": ["Pages/New-Feed.html", "text/html"],
     "/Success": ["Pages/Success.html", "text/html"],
     "/Help": ["Pages/Help.html", "text/html"],
@@ -194,6 +194,26 @@ class MyHandler(BaseHTTPRequestHandler):
                     self.send_header("Content-type", urls[path][1])
                     self.end_headers()
                     self.wfile.write(bytes(st))
+            elif (path.startswith("/Pages/")):
+                path = path[1:]
+                if (path.endswith(".css")):
+                    file_type = "text/css"
+                elif path.endswith(".ttf"):
+                    file_type = "font/ttf"
+                elif path.endswith("eot"):
+                    file_type = "application/vnd.ms-fontobject"
+                elif path.endswith("svg"):
+                    file_type = "image/svg+xml"
+                elif path.endswith("woff"):
+                    file_type = "font/woff"
+                elif path.endswith("woff2"):
+                    file_type = "font/woff2"
+                ind = open(path, "rb")
+                st = ind.read()
+                self.send_response(200)
+                self.send_header("Content-type", file_type)
+                self.end_headers()
+                self.wfile.write(bytes(st))
             elif(path.startswith("/Proxy/")):
                 url = path[7:]
                 try:

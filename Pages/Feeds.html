@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="/Pages/styles.css">
+    <link rel="stylesheet" href="/Pages/css/all.css">
     <title>RSS-Generator: Feeds</title>
 </head>
 
@@ -21,9 +22,24 @@
                         <col style="width: 60%;">
                     </colgroup>
                     <tr>
-                        <th>Name</th>
-                        <th>Size</th>
-                        <th>Modified</th>
+                        <th>
+                            <div>
+                                Name
+                                <i class="fas fa-sort sort-arrow" onclick="sort_table(ALPHABETICAL)"></i>
+                            </div>
+                        </th>
+                        <th>
+                            <div>
+                                Size
+                                <i class="fas fa-sort sort-arrow" onclick="sort_table(SIZE)"></i>
+                            </div>
+                        </th>
+                        <th>
+                            <div>
+                                Modified
+                                <i class="fas fa-sort sort-arrow" onclick="sort_table(MODIFIED)"></i>
+                            </div>
+                        </th>
                     </tr>
                 </table>
             </div>
@@ -37,8 +53,61 @@
         const SIZE = 2;
         const MODIFIED = 3;
 
+        var current_mode = null;
+        var current_descending = null;
+
         function refresh() {
             location.reload(true);
+        }
+
+        function sort_table(mode) {
+            var descending
+            if (current_mode == mode) {
+                descending = !current_descending
+            } else {
+                descending = false;
+            }
+
+            current_mode = mode;
+
+            current_descending = descending;
+
+            sort_items(mode, descending);
+
+            clear_table();
+
+            fill_table();
+
+            var arrows = document.getElementsByClassName("sort-arrow")
+
+            var clicked_index = mode - 1
+
+            for (index = 0; index < arrows.length; index++) {
+                arrows[index].style.color = "black";
+                arrows[index].className = "fas fa-sort sort-arrow"
+                if (index == clicked_index) {
+                    arrows[index].style.color = "blue";
+                    if (descending) {
+                        arrows[index].className = "fas fa-sort-down sort-arrow"
+                    } else {
+                        arrows[index].className = "fas fa-sort-up sort-arrow"
+                    }
+                }
+            }
+        }
+
+        function clear_table() {
+            item = document.getElementById("file-table").children[2];
+            while (item) {
+                item.remove();
+                item = document.getElementById("file-table").children[2];
+            }
+        }
+
+        function sort_items(mode, descending = false) {
+            items.sort(function (a, b) {
+                return folder_first_compare(a, b, mode, descending);
+            });
         }
 
         function folder_first_compare(a, b, mode = ALPHABETICAL, descending = false) {
@@ -70,6 +139,8 @@
             return result
         }
 
+
+
         function load() {
             var path = location.pathname.split("/");
             var filtered = path.filter(function (value, index, array) {
@@ -96,23 +167,23 @@
                 } else {
                     items[index].name = items[index].name;
                 }
+
+                items[index].modified = new Date(items[index].modified * 1000)
             }
 
-            items.sort(folder_first_compare);
-
-            fill_table()
+            sort_table(ALPHABETICAL, false);
         }
 
         function fill_table() {
             var previous = location.pathname.substring(0, location.pathname.lastIndexOf("/"))
-            var prev_folder = "<tr><td><a class='list_name' href='" + previous + "'><img class='list_icon' src='/Img/Icons/folder.svg'>..</a></td><td></td><td></td>";
+            var prev_folder = "<tr><td><a class='list_name' href='" + previous + "'><i class='list_icon far fa-folder-open'></i><i class='list_icon fas fa-level-up-alt'></i></a></td><td></td><td></td>";
             document.getElementById("file-table").innerHTML += prev_folder;
             for (index in items) {
                 var html_item = "<tr><td><a class='list_name' href='" + location + "/" + encodeURIComponent(items[index].name) + "'>";
                 if (items[index].is_dir) {
-                    html_item += '<img class="list_icon" src="/Img/Icons/folder.svg">';
+                    html_item += "<i class='list_icon far fa-folder'></i>";
                 } else {
-                    html_item += '<img class="list_icon" src="/Img/Icons/file-richtext.svg">';
+                    html_item += "<i class='list_icon far fa-file-alt'></i>";
                 }
                 html_item += items[index].name + "</a></td>";
                 if (items[index].is_dir) {
@@ -120,7 +191,6 @@
                 } else {
                     html_item += "<td>" + formatBytes(items[index].size) + "</td>";
                 }
-                items[index].modified = new Date(items[index].modified * 1000)
                 html_item += "<td>" + items[index].modified.toLocaleDateString('en-CA') + "</td></tr>";
                 document.getElementById("file-table").innerHTML += html_item;
             }
