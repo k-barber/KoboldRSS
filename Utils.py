@@ -1,5 +1,19 @@
 from datetime import datetime
 import re
+import os
+
+if os.name == 'nt':
+    import win32api
+    import win32con
+
+
+def folder_is_hidden(p):
+    if os.name == 'nt':
+        attribute = win32api.GetFileAttributes(p)
+        return attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
+    else:
+        return p.startswith('.')
+
 
 def log(text):
     """formats the given text with a current timestamp
@@ -8,6 +22,7 @@ def log(text):
     text (str):  The text to print
     """
     return (datetime.now().strftime('[%Y/%m/%d %H:%M:%S] - ') + text)
+
 
 def clean_input(text):
     """Removes any web formatting & replaces it with regular text
@@ -33,6 +48,7 @@ def clean_input(text):
     text = text.replace("&#39;", "'")
     text = text.replace("&#32;", " ")
     return text
+
 
 def dirty_output(text):
     """Replaces problematic characters with web accessible ones

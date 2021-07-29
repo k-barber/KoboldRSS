@@ -2,6 +2,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import socket
 import requests
 from RSSChannel import RSSChannel
+from Utils import *
 import json
 import gc
 from io import BytesIO
@@ -32,7 +33,7 @@ class ServerInstance:
         IP = get_ip()
         if (IP is not None):
             shell.print_server_output("Detected IP address as: " + IP)
-            #HOST_NAME = IP
+            # HOST_NAME = IP
         PORT_NUMBER = int(port_number)
         shell.print_server_output("Server will accessible as localhost:" + str(PORT_NUMBER) +
                                   " on this machine or " + IP + ":" + str(PORT_NUMBER) + " for machines on this network")
@@ -144,10 +145,13 @@ def channel_from_data(data):
 
 
 def update_defs():
+    global new_channel
     output = new_channel.print_definition()
     f = open("Feed_Definitions.txt", "a+")
     f.write("~-~-~-~-\n"+output)
     f.close()
+    self.shell.channels.append(new_channel)
+    new_channel = RSSChannel()
 
 
 urls = {
@@ -253,9 +257,12 @@ class MyHandler(BaseHTTPRequestHandler):
                     files = os.listdir(path)
                     items = []
                     for file_item in files:
-                        stats = os.stat(os.path.join(path, file_item))
-                        is_dir = os.path.isdir(os.path.join(path, file_item))
-                        if (is_dir == True or file_item.endswith(".xml")):
+                        full_file = os.path.join(path, file_item)
+                        stats = os.stat(full_file)
+                        is_dir = os.path.isdir(full_file)
+                        if (folder_is_hidden(full_file)):
+                            continue
+                        if (is_dir == True or full_file.endswith(".xml")):
                             size = stats.st_size
                             modified = stats.st_mtime
                             items.append(
@@ -320,7 +327,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
                 self.wfile.write(bytes(text, "utf-8"))
-            if(self.path == "/Test_Pattern"):
+            elif(self.path == "/Test_Pattern"):
                 params = json.loads(str(post_data, encoding="utf-8"))
                 pattern = params["pattern"]
                 text = params["body"]
@@ -333,7 +340,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
                 self.wfile.write(bytes(response, "utf-8"))
-            if(self.path == "/Feed_Data"):
+            elif(self.path == "/Feed_Data"):
                 data = json.loads(str(post_data, encoding="utf-8"))
                 channel_from_data(data)
                 update_defs()
@@ -342,7 +349,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
                 self.wfile.write(bytes("Received", "utf-8"))
-            if(self.path == "/Test_Description"):
+            elif(self.path == "/Test_Description"):
                 data = json.loads(str(post_data, encoding="utf-8"))
                 response = new_channel.test_definition(
                     data["pattern"],
@@ -355,6 +362,32 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
                 self.wfile.write(bytes(response, "utf-8"))
+            elif(self.path == "/refresh_path"):
+                print("Point 1")
+                data = json.loads(str(post_data, encoding="utf-8"))
+                directory = data['path']
+                directory = directory[1:]
+                files = os.listdir(directory)
+                items = []
+                print("Point 2")
+                for file_item in files:
+                    full_file = os.path.join(directory, file_item)
+                    stats = os.stat(full_file)
+                    is_dir = os.path.isdir(full_file)
+                    if (folder_is_hidden(full_file)):
+                        continue
+                    if (is_dir == True or full_file.endswith(".xml")):
+                        size = stats.st_size
+                        modified = stats.st_mtime
+                        items.append(
+                            {"name": file_item, "size": size, "modified": modified, "is_dir": is_dir})
+                print("Point 3")
+                self.send_response(200)
+                self.send_header("Content-type", "application/json")
+                self.end_headers()
+                print("Point 4")
+                self.wfile.write(bytes(json.dumps(items), "utf-8"))
+                print("Point 5")
             return
         except Exception as err:
             shell.print_server_output(str(err))

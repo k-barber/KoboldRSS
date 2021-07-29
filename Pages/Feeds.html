@@ -47,6 +47,9 @@
         </div>
     </div>
     <script>
+        if (location.href.endsWith("/")) {
+            location.replace(location.href.substring(0, location.href.lastIndexOf("/")))
+        }
         var items = [];
 
         const ALPHABETICAL = 1;
@@ -57,7 +60,29 @@
         var current_descending = null;
 
         function refresh() {
-            location.reload(true);
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                items = JSON.parse(xhr.response);
+                for (index in items) {
+                    items[index].path = items[index].name;
+                    if (items[index].is_dir == false) {
+
+                        items[index].name = items[index].name.slice(0, items[index].name.indexOf("."));
+                    } else {
+                        items[index].name = items[index].name;
+                    }
+
+                    items[index].modified = new Date(items[index].modified * 1000);
+                }
+                current_mode = null;
+
+                sort_table(ALPHABETICAL);
+            };
+            xhr.open('POST', '/refresh_path');
+            xhr.send(
+                JSON.stringify({
+                    path: location.pathname,
+                }));
         }
 
         function sort_table(mode) {
@@ -161,8 +186,9 @@
 
 
             for (index in items) {
-                var name;
+                items[index].path = items[index].name;
                 if (items[index].is_dir == false) {
+
                     items[index].name = items[index].name.slice(0, items[index].name.indexOf("."));
                 } else {
                     items[index].name = items[index].name;
@@ -171,7 +197,7 @@
                 items[index].modified = new Date(items[index].modified * 1000)
             }
 
-            sort_table(ALPHABETICAL, false);
+            sort_table(ALPHABETICAL);
         }
 
         function fill_table() {
@@ -179,7 +205,7 @@
             var prev_folder = "<tr><td><a class='list_name' href='" + previous + "'><i class='list_icon far fa-folder-open'></i><i class='list_icon fas fa-level-up-alt'></i></a></td><td></td><td></td>";
             document.getElementById("file-table").innerHTML += prev_folder;
             for (index in items) {
-                var html_item = "<tr><td><a class='list_name' href='" + location + "/" + encodeURIComponent(items[index].name) + "'>";
+                var html_item = "<tr><td><a class='list_name' href='" + location + "/" + encodeURIComponent(items[index].path) + "'>";
                 if (items[index].is_dir) {
                     html_item += "<i class='list_icon far fa-folder'></i>";
                 } else {

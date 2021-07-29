@@ -48,7 +48,6 @@ class GeneratorInstance:
     shell = None
     browser_instance = None
     start_time = None
-    channels = []
 
     def log(self, text):
         self.shell.print_generator_output(text)
@@ -62,7 +61,7 @@ class GeneratorInstance:
         self.create_channels()
 
     def create_channels(self):
-        self.channels = []
+        self.shell.channels = []
         if self.debug_mode:
             self.log("Feed_Definitions.txt defines the following:")
         if (not os.path.isfile("Feed_Definitions.txt")):
@@ -73,9 +72,10 @@ class GeneratorInstance:
                 if not key:
                     group = list(group)
                     channel = RSSChannel(group)
+                    print(channel)
                     if self.debug_mode:
                         self.log(channel.title)
-                    self.channels.append(channel)
+                    self.shell.channels.append(channel)
 
     def check_for_updates(self):
         now = datetime.now()
@@ -87,7 +87,6 @@ class GeneratorInstance:
             self.create_channels()
 
     def run(self):
-        self.check_for_updates()
         self.update_channels()
         for i in range(0, 300):
             if(self.is_aborted()):
@@ -97,13 +96,13 @@ class GeneratorInstance:
 
     def update_channels(self):
         self.log("Checking browser")
-        self.browser_instance.login_check(self.channels)
+        self.browser_instance.login_check(self.shell.channels)
         if(self.is_aborted()):
             return
         if self.browser_instance.start() == True:
             now = datetime.now()
             self.log("Updating Channels")
-            for channel in self.channels:
+            for channel in self.shell.channels:
                 if(self.is_aborted()):
                     return
                 if (channel.lastBuildDate is not None):

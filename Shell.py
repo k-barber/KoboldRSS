@@ -11,6 +11,7 @@ class ShellInstance:
 
     debug_mode = False
     running = True
+    channels = []
 
     gui = None
 
@@ -124,6 +125,7 @@ class ShellInstance:
         def shutboth():
             self.stop_generator()
             self.stop_server()
+            self.recompile_definitions()
 
         shutdown_thread = threading.Thread(target=shutboth)
         shutdown_thread.start()
@@ -146,6 +148,14 @@ class ShellInstance:
                 self.generator.debug_mode = self.debug_mode
             if self.browser_instance is not None:
                 self.browser_instance.debug_mode = self.debug_mode
+
+    def recompile_definitions(self):
+        if (len(self.channels) > 0):
+            f = open("Feed_Definitions.txt", "w")
+            for channel in self.channels:
+                output = channel.print_definition()
+                f.write(output+"~-~-~-~-\n")
+            f.close()
 
     def __init__(self):
         self.generator_stop_signal = threading.Event()
