@@ -219,7 +219,7 @@ class BrowserWindow:
         return scraped
 
     def is_aborted(self):
-        if (self.shell.stop_signal.is_set()):
+        if (self.shell.generator_stop_signal.is_set()):
             self.close()
             return 1
         else:
