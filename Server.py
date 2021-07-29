@@ -14,8 +14,9 @@ from urllib import parse
 shell = None
 browser = None
 
+
 class ServerInstance:
-    
+
     debug_mode = None
     running = None
     httpd = None
@@ -26,17 +27,22 @@ class ServerInstance:
         shell = shell_param
         browser = browser_instance
         clear_cache()
-        HOST_NAME = '0.0.0.0' # Change this to your IP Address if you are hosting from a different computer on the network
+        # Change this to your IP Address if you are hosting from a different computer on the network
+        HOST_NAME = '0.0.0.0'
         IP = get_ip()
         if (IP is not None):
             shell.print_server_output("Detected IP address as: " + IP)
             #HOST_NAME = IP
         PORT_NUMBER = int(port_number)
-        shell.print_server_output("Server will accessible as localhost:" + str(PORT_NUMBER) + " on this machine or " + IP + ":" + str(PORT_NUMBER) + " for machines on this network")
+        shell.print_server_output("Server will accessible as localhost:" + str(PORT_NUMBER) +
+                                  " on this machine or " + IP + ":" + str(PORT_NUMBER) + " for machines on this network")
         self.httpd = HTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)
-        shell.print_server_output(IP + ":" + str(PORT_NUMBER) + " Server Start")
+        shell.print_server_output(
+            IP + ":" + str(PORT_NUMBER) + " Server Start")
+
 
 new_channel = RSSChannel()
+
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -49,14 +55,17 @@ def get_ip():
         s.close()
     return IP
 
+
 def clear_cache():
     now = datetime.now()
-    onlyfiles = [join("Img/Cache/", f) for f in listdir("Img/Cache/") if isfile(join("Img/Cache/", f))]
+    onlyfiles = [join("Img/Cache/", f)
+                 for f in listdir("Img/Cache/") if isfile(join("Img/Cache/", f))]
     for file_name in onlyfiles:
         modified = datetime.fromtimestamp(file_path.getmtime(file_name))
 
         if (now >= modified + timedelta(days=7)):
             os.remove(file_name)
+
 
 def validate_input(num):
     try:
@@ -67,6 +76,7 @@ def validate_input(num):
             return False
     except ValueError:
         return False
+
 
 def channel_from_data(data):
     global new_channel
@@ -132,17 +142,19 @@ def channel_from_data(data):
     if(data['delay'] != 0):
         new_channel.delay = data['delay']
 
+
 def update_defs():
     output = new_channel.print_definition()
     f = open("Feed_Definitions.txt", "a+")
     f.write("~-~-~-~-\n"+output)
     f.close()
 
-urls ={
-    "/":["Pages/Main.html", "text/html"],
-    "/res/preview.xsl":["Pages/preview.xsl", "text/html"],
-#    "/Feeds/" :["Pages/Feeds.html", "text/html"],
-    "/Public/" :["Pages/Public.html", "text/html"],
+
+urls = {
+    "/": ["Pages/Main.html", "text/html"],
+    "/res/preview.xsl": ["Pages/preview.xsl", "text/html"],
+    #    "/Feeds/" :["Pages/Feeds.html", "text/html"],
+    "/Public/": ["Pages/Public.html", "text/html"],
     "/favicon.ico": ["Img/favicon.ico", "image/x-icon"],
     "/Pages/styles.css": ["Pages/styles.css", "text/css"],
     "/New-Feed": ["Pages/New-Feed.html", "text/html"],
@@ -150,15 +162,16 @@ urls ={
     "/Help": ["Pages/Help.html", "text/html"],
 }
 
+
 class MyHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         global shell
-        output = self.client_address[0] + " " + args[0] + " - " + args[1] 
+        output = self.client_address[0] + " " + args[0] + " - " + args[1]
         shell.print_server_output(output)
 
     def log_error(self, format, *args):
         global shell
-        output = self.client_address[0] + " " + args[0] + " - " + args[1] 
+        output = self.client_address[0] + " " + args[0] + " - " + args[1]
         shell.print_server_output(output)
 
     def do_GET(self):
@@ -184,7 +197,7 @@ class MyHandler(BaseHTTPRequestHandler):
             elif(path.startswith("/Proxy/")):
                 url = path[7:]
                 try:
-                    filename = url[url.find("/")+1:].replace("/","-")
+                    filename = url[url.find("/")+1:].replace("/", "-")
                     if file_path.exists("Img/Cache/" + filename):
                         cached = open("Img/Cache/" + filename, "rb").read()
                         self.send_response(200)
@@ -193,10 +206,12 @@ class MyHandler(BaseHTTPRequestHandler):
                     else:
                         domain = url[:url.find("/")]
                         if (domain.count(".") > 1):
-                            domain = domain[domain.rfind(".", 0, domain.rfind("."))+1:]
+                            domain = domain[domain.rfind(
+                                ".", 0, domain.rfind("."))+1:]
                         referer = "https://" + domain
                         url = "https://" + url
-                        response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot', 'referer': referer})
+                        response = requests.get(
+                            url, headers={'User-agent': 'RSS Generator Bot', 'referer': referer})
                         cached = open("Img/Cache/" + filename, "wb")
                         cached.write(response.content)
                         cached.close()
@@ -219,13 +234,16 @@ class MyHandler(BaseHTTPRequestHandler):
                     items = []
                     for file_item in files:
                         stats = os.stat(os.path.join(path, file_item))
-                        size = stats.st_size
-                        modified = stats.st_mtime
                         is_dir = os.path.isdir(os.path.join(path, file_item))
-                        items.append({"name": file_item, "size": size, "modified": modified, "is_dir": is_dir})
+                        if (is_dir == True or file_item.endswith(".xml")):
+                            size = stats.st_size
+                            modified = stats.st_mtime
+                            items.append(
+                                {"name": file_item, "size": size, "modified": modified, "is_dir": is_dir})
                     f = open("Pages/Feeds.html", "r", encoding="utf-8")
                     st = f.read()
-                    st = st.replace("var items = [];", "var items = " + json.dumps(items) + ";")
+                    st = st.replace("var items = [];",
+                                    "var items = " + json.dumps(items) + ";")
                     self.send_response(200)
                     self.send_header("Content-type", "text/html")
                     self.end_headers()
@@ -274,7 +292,8 @@ class MyHandler(BaseHTTPRequestHandler):
                 if (delay > 0 or login_required == True):
                     text = browser.generic_scrape(url, delay)
                 else:
-                    response = requests.get(url, headers = {'User-agent': 'RSS Generator Bot'})
+                    response = requests.get(
+                        url, headers={'User-agent': 'RSS Generator Bot'})
                     text = response.text
                 new_channel.link = url
                 self.send_response(200)
@@ -287,7 +306,8 @@ class MyHandler(BaseHTTPRequestHandler):
                 text = params["body"]
                 scrape_stop_position = params["scrape_stop_position"]
                 scrape_start_position = params["scrape_start_position"]
-                data = new_channel.test_pattern(pattern, text, scrape_start_position, scrape_stop_position)
+                data = new_channel.test_pattern(
+                    pattern, text, scrape_start_position, scrape_stop_position)
                 response = json.dumps(data)
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
