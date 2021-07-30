@@ -1,10 +1,13 @@
 from login_utils import BrowserWindow
 from Generator import GeneratorInstance
+from RSSChannel import RSSChannel
 from Server import ServerInstance
 from Gui import RSSWindow
 import threading
 from datetime import datetime
+import itertools as it
 import Utils
+import os
 
 
 class ShellInstance:
@@ -151,13 +154,33 @@ class ShellInstance:
 
     def recompile_definitions(self):
         if (len(self.channels) > 0):
+            self.channels.sort(key=lambda a: os.path.join(a.path, a.title))
             f = open("Feed_Definitions.txt", "w")
             for channel in self.channels:
                 output = channel.print_definition()
                 f.write(output+"~-~-~-~-\n")
             f.close()
 
+    def create_channels(self):
+        self.channels = []
+        if self.debug_mode:
+            self.print_generator_output(
+                "Feed_Definitions.txt defines the following:")
+        if (not os.path.isfile("Feed_Definitions.txt")):
+            self.print_generator_output(
+                "Feed_Definitions.txt missing, creating it now")
+            f = open("Feed_Definitions.txt", "x")
+        with open('Feed_Definitions.txt') as fp:
+            for key, group in it.groupby(fp, lambda line: line.startswith('~-~-~-~-')):
+                if not key:
+                    group = list(group)
+                    channel = RSSChannel(group)
+                    if self.debug_mode:
+                        self.print_generator_output(channel.title)
+                    self.channels.append(channel)
+
     def __init__(self):
+        self.create_channels()
         self.generator_stop_signal = threading.Event()
         self.generator_stopped_signal = threading.Event()
         self.browser_stopped_signal = threading.Event()

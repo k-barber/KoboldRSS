@@ -15,7 +15,7 @@ class RSSChannel:
     category = None
     copyright = None
     description = None
-    path = None
+    path = "Feeds/"
     docs = "http://www.rssboard.org/rss-draft-1"
 
     enclosure_length = None
@@ -56,55 +56,67 @@ class RSSChannel:
 
     delay = None
 
-    '''
     def __str__(self):
         """Produces the xml formatted representation of the object
         """
         output = "    <channel>\n"
 
-        # Required 
+        # Required
         if (self.title is not None):
-            output += "        <title>" + dirty_output(self.title) + "</title>\n"
+            output += "        <title>" + \
+                dirty_output(self.title) + "</title>\n"
         if (self.link is not None):
             output += "        <link>" + dirty_output(self.link) + "</link>\n"
         if (self.description is not None):
-            output += "        <description>" + dirty_output(self.description) + "</description>\n"
+            output += "        <description>" + \
+                dirty_output(self.description) + "</description>\n"
 
         # Optional
         if (self.category is not None):
             for cat in self.category:
-                output += "        <category>" + dirty_output(cat) + "</category>\n"
+                output += "        <category>" + \
+                    dirty_output(cat) + "</category>\n"
         if (self.copyright is not None):
-            output += "        <copyright>" + dirty_output(self.copyright) + "</copyright>\n"
+            output += "        <copyright>" + \
+                dirty_output(self.copyright) + "</copyright>\n"
         if (self.docs is not None):
             output += "        <docs>" + dirty_output(self.docs) + "</docs>\n"
         if (self.generator is not None):
-            output += "        <generator>" + dirty_output(self.generator) + "</generator>\n"
+            output += "        <generator>" + \
+                dirty_output(self.generator) + "</generator>\n"
         if (self.image_link is not None and self.image_title is not None and self.image_url is not None):
             output += "        <image>\n"
-            output += "            <link>" + dirty_output(self.image_link) + "</link>\n"
-            output += "            <title>" + dirty_output(self.image_title) + "</title>\n"
-            output += "            <url>" + dirty_output(self.image_url) + "</url>\n"
+            output += "            <link>" + \
+                dirty_output(self.image_link) + "</link>\n"
+            output += "            <title>" + \
+                dirty_output(self.image_title) + "</title>\n"
+            output += "            <url>" + \
+                dirty_output(self.image_url) + "</url>\n"
             output += "        </image>\n"
         if (self.language is not None):
-            output += "        <language>" + dirty_output(self.language) + "</language>\n"
+            output += "        <language>" + \
+                dirty_output(self.language) + "</language>\n"
         if (self.lastBuildDate is not None):
-            output += "        <lastBuildDate>" + dirty_output(str(self.lastBuildDate)) + "</lastBuildDate>\n"
+            output += "        <lastBuildDate>" + \
+                dirty_output(str(self.lastBuildDate)) + "</lastBuildDate>\n"
         if (self.managingEditor is not None):
-            output += "        <managingEditor>" + dirty_output(self.managingEditor) + "</managingEditor>\n"
+            output += "        <managingEditor>" + \
+                dirty_output(self.managingEditor) + "</managingEditor>\n"
         if (self.pubDate is not None):
-            output += "        <pubDate>" + dirty_output(str(self.pubDate)) + "</pubDate>\n"
+            output += "        <pubDate>" + \
+                dirty_output(str(self.pubDate)) + "</pubDate>\n"
         if (self.ttl is not None):
-            output += "        <ttl>" + dirty_output(str(self.ttl)) + "</ttl>\n"
+            output += "        <ttl>" + \
+                dirty_output(str(self.ttl)) + "</ttl>\n"
         if (self.webMaster is not None):
-            output += "        <webMaster>" + dirty_output(self.webMaster) + "</webMaster>\n"
-        
+            output += "        <webMaster>" + \
+                dirty_output(self.webMaster) + "</webMaster>\n"
+
         if (len(self.items) != 0):
             for item in self.items:
                 output += str(item)
-        output +="    </channel>\n"
+        output += "    </channel>\n"
         return output
-    '''
 
     def print(self):
         """Prints information about channel to STDout
@@ -427,12 +439,9 @@ class RSSChannel:
 
         output += "</rss>"
 
-        if (self.path is not None):
-            f = open("Feeds/" + self.path + self.title.replace(":",
-                     "~").replace(" ", "_") + ".xml", "wb")
-        else:
-            f = open("Feeds/" + self.title.replace(":",
-                     "~").replace(" ", "_") + ".xml", "wb")
+        file_name = os.path.join(self.path, self.title.replace(
+            ":", "~").replace(" ", "_") + ".xml")
+        f = open(file_name, "wb")
         f.write(str.encode(output))
         f.close()
 

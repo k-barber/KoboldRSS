@@ -145,12 +145,12 @@ def channel_from_data(data):
 
 
 def update_defs():
-    global new_channel
+    global new_channel, shell
     output = new_channel.print_definition()
     f = open("Feed_Definitions.txt", "a+")
     f.write("~-~-~-~-\n"+output)
     f.close()
-    self.shell.channels.append(new_channel)
+    shell.channels.append(new_channel)
     new_channel = RSSChannel()
 
 
@@ -160,6 +160,7 @@ urls = {
     "/Public/": ["Pages/Public.html", "text/html"],
     "/favicon.ico": ["Img/favicon.ico", "image/x-icon"],
     "/Pages/styles.css": ["Pages/styles.css", "text/css"],
+    "/Pages/dayjs.min.js": ["Pages/dayjs.min.js", "text/javascript"],
     "/Pages/css/all.css": ["Pages/css/all.css", "text/css"],
     "/New-Feed": ["Pages/New-Feed.html", "text/html"],
     "/Success": ["Pages/Success.html", "text/html"],
@@ -212,6 +213,8 @@ class MyHandler(BaseHTTPRequestHandler):
                     file_type = "font/woff"
                 elif path.endswith("woff2"):
                     file_type = "font/woff2"
+                elif path.endswith(".js"):
+                    file_type = "text/javascript"
                 ind = open(path, "rb")
                 st = ind.read()
                 self.send_response(200)
@@ -363,13 +366,11 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(bytes(response, "utf-8"))
             elif(self.path == "/refresh_path"):
-                print("Point 1")
                 data = json.loads(str(post_data, encoding="utf-8"))
                 directory = data['path']
                 directory = directory[1:]
                 files = os.listdir(directory)
                 items = []
-                print("Point 2")
                 for file_item in files:
                     full_file = os.path.join(directory, file_item)
                     stats = os.stat(full_file)
@@ -381,13 +382,34 @@ class MyHandler(BaseHTTPRequestHandler):
                         modified = stats.st_mtime
                         items.append(
                             {"name": file_item, "size": size, "modified": modified, "is_dir": is_dir})
-                print("Point 3")
                 self.send_response(200)
                 self.send_header("Content-type", "application/json")
                 self.end_headers()
-                print("Point 4")
                 self.wfile.write(bytes(json.dumps(items), "utf-8"))
-                print("Point 5")
+            elif(self.path == "/move_channel"):
+                data = json.loads(str(post_data, encoding="utf-8"))
+                print(data)
+                directory = data['directory']
+                directory = directory[1:]
+                file_name = data['file_name']
+                destination = os.path.normpath(
+                    os.path.join(directory, data['destination']))
+                new_file = os.path.normpath(
+                    os.path.join(destination, file_name))
+                full_file = os.path.normpath(
+                    os.path.join(directory, file_name))
+                print(destination)
+                print(full_file)
+                print(new_file)
+                os.replace(full_file, new_file)
+                for channel in shell.channels:
+                    if (os.path.normpath(channel.path) == os.path.normpath(directory) and (channel.title.replace(":", "~").replace(" ", "_") + ".xml") == file_name):
+                        channel.path = destination
+                        break
+                self.send_response(200)
+                self.send_header("Content-type", "text/plain")
+                self.end_headers()
+                self.wfile.write(bytes("OK", "utf-8"))
             return
         except Exception as err:
             shell.print_server_output(str(err))

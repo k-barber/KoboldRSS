@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <link rel="stylesheet" href="/Pages/styles.css">
     <link rel="stylesheet" href="/Pages/css/all.css">
+    <script src="/Pages/dayjs.min.js"></script>
     <title>RSS-Generator: Feeds</title>
 </head>
 
@@ -62,21 +63,23 @@
         function refresh() {
             var xhr = new XMLHttpRequest();
             xhr.onload = function () {
-                items = JSON.parse(xhr.response);
-                for (index in items) {
-                    items[index].path = items[index].name;
-                    if (items[index].is_dir == false) {
+                if (xhr.status === 200) {
+                    items = JSON.parse(xhr.response);
+                    for (index in items) {
+                        items[index].path = items[index].name;
+                        if (items[index].is_dir == false) {
 
-                        items[index].name = items[index].name.slice(0, items[index].name.indexOf("."));
-                    } else {
-                        items[index].name = items[index].name;
+                            items[index].name = items[index].name.slice(0, items[index].name.indexOf("."));
+                        } else {
+                            items[index].name = items[index].name;
+                        }
+
+                        items[index].modified = dayjs(items[index].modified * 1000);
                     }
+                    current_mode = null;
 
-                    items[index].modified = new Date(items[index].modified * 1000);
+                    sort_table(ALPHABETICAL);
                 }
-                current_mode = null;
-
-                sort_table(ALPHABETICAL);
             };
             xhr.open('POST', '/refresh_path');
             xhr.send(
@@ -194,18 +197,86 @@
                     items[index].name = items[index].name;
                 }
 
-                items[index].modified = new Date(items[index].modified * 1000)
+                items[index].modified = dayjs(items[index].modified * 1000)
             }
 
             sort_table(ALPHABETICAL);
         }
 
+
+        document.addEventListener("dragstart", function (event) {
+            // store a ref. on the dragged elem
+            dragged = event.target;
+            // make it half transparent
+            event.target.style.opacity = .5;
+        }, false);
+
+        document.addEventListener("drag", function (event) {
+
+        }, false);
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.style.background = "aliceblue";
+            ev.currentTarget.style.border = "dashed 2px #b1bdc8";
+        }
+
+        document.addEventListener("dragend", function (event) {
+            // reset the transparency
+            event.target.style.opacity = "";
+            event.preventDefault();
+        }, false);
+
+        function drop(ev, destination) {
+            ev.preventDefault();
+            if (event.currentTarget.className == "dropzone") {
+                event.stopPropagation()
+                console.log("MADE IT TO DROPZONE")
+                var data = ev.dataTransfer.getData("text");
+                console.log("Dropped data: " + JSON.stringify(data));
+                move_feed(data, destination);
+                ev.currentTarget.style.background = "";
+                ev.currentTarget.style.border = "";
+            }
+        }
+
+        function dragLeave(ev) {
+            console.log("LEAVE")
+            if (ev.currentTarget.className == "dropzone") {
+                event.stopPropagation()
+                ev.currentTarget.style.background = "";
+                ev.currentTarget.style.border = "";
+            }
+        }
+
+        function move_feed(file, destination) {
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    refresh();
+                }
+            };
+            xhr.open('POST', '/move_channel');
+            xhr.send(
+                JSON.stringify({
+                    directory: location.pathname,
+                    file_name: file,
+                    destination: destination
+                }));
+        }
+
         function fill_table() {
             var previous = location.pathname.substring(0, location.pathname.lastIndexOf("/"))
-            var prev_folder = "<tr><td><a class='list_name' href='" + previous + "'><i class='list_icon far fa-folder-open'></i><i class='list_icon fas fa-level-up-alt'></i></a></td><td></td><td></td>";
+            var prev_folder = "<tr class='dropzone' ondrop='drop(event, \"..\")' ondragover='allowDrop(event)' ondragleave='dragLeave(event)'><td><a class='list_name' href='" + previous + "'><i class='list_icon far fa-folder-open'></i><i class='list_icon fas fa-level-up-alt'></i></a></td><td></td><td></td>";
             document.getElementById("file-table").innerHTML += prev_folder;
             for (index in items) {
-                var html_item = "<tr><td><a class='list_name' href='" + location + "/" + encodeURIComponent(items[index].path) + "'>";
+                var html_item = "<tr "
+                if (items[index].is_dir) {
+                    html_item += 'class="dropzone" ondrop="drop(event, \'' + items[index].path + '\')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"';
+                } else {
+                    html_item += "draggable='true' ondragstart='event.dataTransfer.setData(\"text/plain\", \"" + encodeURIComponent(items[index].path) + "\")'";
+                }
+                html_item += "><td><a class='list_name' href='" + location + "/" + encodeURIComponent(items[index].path) + "'>";
                 if (items[index].is_dir) {
                     html_item += "<i class='list_icon far fa-folder'></i>";
                 } else {
@@ -217,7 +288,8 @@
                 } else {
                     html_item += "<td>" + formatBytes(items[index].size) + "</td>";
                 }
-                html_item += "<td>" + items[index].modified.toLocaleDateString('en-CA') + "</td></tr>";
+                html_item += "<td><span style='float:left'>" + dayjs(items[index].modified).format("YYYY/MM/DD") +
+                    "</span><span style='float:right;'>" + dayjs(items[index].modified).format("hh:mm a") + "</td></tr>";
                 document.getElementById("file-table").innerHTML += html_item;
             }
         }

@@ -1,6 +1,4 @@
 import requests
-import itertools as it
-from RSSChannel import RSSChannel
 from datetime import datetime, timedelta
 import os
 import time
@@ -58,24 +56,6 @@ class GeneratorInstance:
         self.browser_instance = browser_instance
         self.start_time = datetime.now()
         self.log("Generator starts")
-        self.create_channels()
-
-    def create_channels(self):
-        self.shell.channels = []
-        if self.debug_mode:
-            self.log("Feed_Definitions.txt defines the following:")
-        if (not os.path.isfile("Feed_Definitions.txt")):
-            self.log("Feed_Definitions.txt missing, creating it now")
-            f = open("Feed_Definitions.txt", "x")
-        with open('Feed_Definitions.txt') as fp:
-            for key, group in it.groupby(fp, lambda line: line.startswith('~-~-~-~-')):
-                if not key:
-                    group = list(group)
-                    channel = RSSChannel(group)
-                    print(channel)
-                    if self.debug_mode:
-                        self.log(channel.title)
-                    self.shell.channels.append(channel)
 
     def check_for_updates(self):
         now = datetime.now()
@@ -84,7 +64,7 @@ class GeneratorInstance:
         if (modified >= self.start_time):
             self.log("Feed Definitions have been updated, regenerating feed list")
             self.start_time = now
-            self.create_channels()
+            self.shell.create_channels()
 
     def run(self):
         self.update_channels()
