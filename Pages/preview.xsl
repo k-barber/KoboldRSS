@@ -12,7 +12,7 @@
         <div id="container">
             <div>
                 <a href="http://www.rssboard.org/rss-draft-1" target="_blank"><img id="icon" src="/Img/RSS.png"/></a>
-                <p><a href="/">Home</a> &gt; <a href="/Feeds/">My Feeds</a> &gt; <xsl:value-of select="title"/>.xml</p>
+                <p id="bread-crumbs"><a href="/">Home</a> &gt; <a href="/Feeds/">My Feeds</a> &gt; <xsl:value-of select="title"/>.xml</p>
                 <h1>K-Barber's RSS-Manager: Feed Details &amp; Preview</h1>
                 <p>Congratulations! If you can see this page, you are ready to add your custom feed to your feed reader!</p>
                 <p>Simply add this page's url into your feed reader and you're all done.</p>
@@ -62,6 +62,22 @@
                 description.innerHTML = inner;
             });
             ]]>
+        </script>
+        <script>
+        <![CDATA[
+            var bread = document.getElementById("bread-crumbs");
+            var pieces = location.pathname.split("/");
+            for (index = pieces.length - 1; index > 2; index--) {
+                var href = pieces.slice(0, index).join("/");
+                console.log(href)
+                var link = document.createElement("a");
+                link.href = href
+                console.log(link)
+                link.appendChild(document.createTextNode(pieces[index - 1]));
+                bread.childNodes[2].after(link)
+                bread.childNodes[2].after(document.createTextNode(" > "))
+            }
+        ]]>
         </script>
     </body>
   </html>

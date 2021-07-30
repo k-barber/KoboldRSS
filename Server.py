@@ -263,7 +263,7 @@ class MyHandler(BaseHTTPRequestHandler):
                         full_file = os.path.join(path, file_item)
                         stats = os.stat(full_file)
                         is_dir = os.path.isdir(full_file)
-                        if (folder_is_hidden(full_file)):
+                        if (not shell.show_hidden and folder_is_hidden(full_file)):
                             continue
                         if (is_dir == True or full_file.endswith(".xml")):
                             size = stats.st_size
@@ -375,7 +375,7 @@ class MyHandler(BaseHTTPRequestHandler):
                     full_file = os.path.join(directory, file_item)
                     stats = os.stat(full_file)
                     is_dir = os.path.isdir(full_file)
-                    if (folder_is_hidden(full_file)):
+                    if (not shell.show_hidden and folder_is_hidden(full_file)):
                         continue
                     if (is_dir == True or full_file.endswith(".xml")):
                         size = stats.st_size

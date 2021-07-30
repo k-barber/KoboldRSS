@@ -60,6 +60,7 @@ class RSSWindow:
     server_output = None
     root = None
     debug_mode = None
+    show_hidden = None
     generator_output = None
 
     def is_running(self):
@@ -175,6 +176,7 @@ class RSSWindow:
         self.server_output.grid(row=0, column=0, sticky="news")
 
         self.debug_mode = BooleanVar()
+        self.show_hidden = BooleanVar()
 
         ttk.Checkbutton(options_box, text="Debug Mode", variable=self.debug_mode,
                         command=self.shell.toggle_debug, onvalue=True).grid(row=0, column=0, sticky="news", pady=5, padx=5, columnspan=2)
@@ -185,6 +187,8 @@ class RSSWindow:
         port_number = Entry(options_box, width=5, textvariable=port)
         port_number.insert(index=0, string="8000")
         port_number.grid(row=2, column=1, sticky="news", pady=5, padx=5)
+        ttk.Checkbutton(options_box, text="Show hidden folders on web interface", variable=self.show_hidden,
+                        command=self.shell.toggle_hidden, onvalue=True).grid(row=4, column=0, sticky="news", pady=5, padx=5, columnspan=2)
 
         def print_port():
             self.shell.print_server_output(port.get())
@@ -225,13 +229,13 @@ class RSSWindow:
             row=3, column=0, sticky="news", pady=5, padx=5)
         ttk.Button(options_box, text="Stop", command=stop_server).grid(
             row=3, column=1, sticky="news", pady=5, padx=5)
-        ttk.Button(options_box, text="Test Server", command=open_browser_gui).grid(
-            row=4, column=0, sticky="news", pady=5, padx=5, columnspan=2)
-
-        Label(options_box, text="Generator Options:").grid(
+        ttk.Button(options_box, text="Open Web Interface", command=open_browser_gui).grid(
             row=5, column=0, sticky="news", pady=5, padx=5, columnspan=2)
 
+        Label(options_box, text="Generator Options:").grid(
+            row=6, column=0, sticky="news", pady=5, padx=5, columnspan=2)
+
         ttk.Button(options_box, text="Start", command=start_generator).grid(
-            row=6, column=0, sticky="news", pady=5, padx=5)
+            row=7, column=0, sticky="news", pady=5, padx=5)
         ttk.Button(options_box, text="Stop", command=stop_generator).grid(
-            row=6, column=1, sticky="news", pady=5, padx=5)
+            row=7, column=1, sticky="news", pady=5, padx=5)

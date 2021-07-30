@@ -115,10 +115,24 @@
                 arrows[index].className = "fas fa-sort sort-arrow"
                 if (index == clicked_index) {
                     arrows[index].style.color = "blue";
-                    if (descending) {
-                        arrows[index].className = "fas fa-sort-down sort-arrow"
-                    } else {
-                        arrows[index].className = "fas fa-sort-up sort-arrow"
+                    if (mode == ALPHABETICAL) {
+                        if (descending) {
+                            arrows[index].className = "fas sort-arrow fa-sort-alpha-down-alt"
+                        } else {
+                            arrows[index].className = "fas sort-arrow fa-sort-alpha-up"
+                        }
+                    } else if (mode == SIZE) {
+                        if (descending) {
+                            arrows[index].className = "fas sort-arrow fa-sort-amount-down-alt"
+                        } else {
+                            arrows[index].className = "fas sort-arrow fa-sort-amount-up"
+                        }
+                    } else if (mode == MODIFIED) {
+                        if (descending) {
+                            arrows[index].className = "fas sort-arrow fa-sort-numeric-down"
+                        } else {
+                            arrows[index].className = "fas sort-arrow fa-sort-numeric-up-alt"
+                        }
                     }
                 }
             }
@@ -151,11 +165,11 @@
                     result = -1;
                 }
             } else if (mode == SIZE) {
-                if (a.size < b.size) {
+                if (a.size > b.size) {
                     result = -1
                 }
             } else if (mode == MODIFIED) {
-                if (a.modified < b.modified) {
+                if (a.modified > b.modified) {
                     result = -1;
                 }
             }

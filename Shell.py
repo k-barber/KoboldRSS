@@ -15,6 +15,7 @@ class ShellInstance:
     debug_mode = False
     running = True
     channels = []
+    show_hidden = False
 
     gui = None
 
@@ -151,6 +152,10 @@ class ShellInstance:
                 self.generator.debug_mode = self.debug_mode
             if self.browser_instance is not None:
                 self.browser_instance.debug_mode = self.debug_mode
+
+    def toggle_hidden(self):
+        if self.running:
+            self.show_hidden = self.gui.show_hidden.get()
 
     def recompile_definitions(self):
         if (len(self.channels) > 0):
