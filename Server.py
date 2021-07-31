@@ -148,9 +148,10 @@ def update_defs():
     global new_channel, shell
     output = new_channel.print_definition()
     f = open("Feed_Definitions.txt", "a+")
-    f.write("~-~-~-~-\n"+output)
+    f.write(output + "~-~-~-~-\n")
     f.close()
     shell.channels.append(new_channel)
+    shell.generator.generate_items(new_channel)
     new_channel = RSSChannel()
 
 
