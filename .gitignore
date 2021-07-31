@@ -2,6 +2,7 @@ Feeds/
 AddToDist/
 *.xcf
 Img/Cache/*
+Img/Uploads/*
 cookies/*
 error-log.txt
 

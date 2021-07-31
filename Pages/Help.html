@@ -2,316 +2,325 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8" />
-  <link rel="stylesheet" href="/Pages/styles.css">
-  <link rel="stylesheet" href="/Pages/css/all.css">
-  <title>RSS-Generator</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/Pages/css/styles.css">
+    <link rel="stylesheet" href="/Pages/css/all.css">
+    <link rel="stylesheet" href="/Pages/css/noty.css">
+    <script src="/Pages/js/dayjs.min.js"></script>
+    <script src="/Pages/js/noty.min.js"></script>
+    <script>
+        Noty.overrideDefaults({
+            layout: 'topLeft'
+        });
+    </script>
+    <title>RSS-Generator</title>
 </head>
 
 <body>
-  <style>
-    p img {
-      max-width: 100%;
-      margin: 20px;
-    }
-  </style>
-  <a href="/"><img src="/Img/Bocchi.png" id="bocchi" /></a>
-  <div id="container">
-    <div>
-      <a href="http://www.rssboard.org/rss-draft-1" target="_blank"><img id="icon" src="/Img/RSS.png"></a>
-      <p><a href="/">Home</a> &gt; Read Me</p>
-      <h1>K-Barber's RSS-Generator: Read Me</h1>
-      <hr>
-      <h2 id="table-of-contents">Table of Contents</h2>
-      <ol>
-        <li><a href="#table-of-contents">Table of Contents</a></li>
-        <li><a href="#guide">Guide</a>
-          <ol>
-            <li><a href="#starting-the-server">Starting the Server</a></li>
-            <li><a href="#starting-the-generator">Starting the Generator</a></li>
-            <li><a href="#creating-a-new-feed">Creating a New Feed</a>
-              <ol>
-                <li><a href="#defining-the-feed">Defining the Feed</a></li>
-                <li><a href="#creating-an-item-pattern">Creating an Item Pattern</a></li>
-                <li><a href="#defining-the-items">Defining the Items</a></li>
-              </ol>
-            </li>
-            <li><a href="#adding-a-feed-to-your-feed-reader">Adding a Feed to Your Feed Reader</a></li>
-            <li><a href="#deleting-a-feed">Deleting a Feed</a></li>
-          </ol>
-        </li>
-        <li><a href="#compatible-feed-readers">Compatible Feed Readers</a></li>
-        <li><a href="#support-the-developer">Support the Developer</a></li>
-      </ol>
-      <hr>
-      <h2 id="guide">Guide</h2>
-
-      <p>Hello, and thank you for showing interest in my RSS generator!</p>
-
-      <p>This generator is a standalone package that provides you with everything you need to create an RSS feed from a webpage that does not have one.</p>
-
-      <p>To do this it does two things:
-        <ol>
-          <li>
-            Periodically scans the webpage for updates &amp; produces an xml file
-          </li>
-          <li>
-            Hosts that xml file on a small, locally accessible server so that it can be read by an RSS feed reader
-          </li>
-        </ol>
-      </p>
-
-      <p>It should be noted that this means the generator will only work with Feed readers that are run from your machine and can access localhost. i.e. your feed reader has to be a standalone program or a browser add-on. Online feed readers are not compatible as they cannot read the xml file (unless you make a hole in your firewall and give the internet access to your computer).</p>
-
-      <p>A full list of compatible and incompatible readers can be found <a href="#compatible-feed-readers">here</a>.</p>
-
-      <hr>
-      <h3 id="starting-the-server">Starting the Server</h3>
-
-      <p>The first step is to start up the server.</p>
-
-      <p align="center">
-        <img src="/Img/Readme/server.jpg">
-      </p>
-
-      <p>In addition to serving the .xml file to your feed reader, the server provides a user-friendly web interface for the generator. </p>
-
-      <p>To start the server, simply open the server.exe file.</p>
-
-      <p>The program will tell you your local IP address and will ask you if you want to use the default port number (in this case port 8000). If you choose not to use port 8000 it will ask you to choose a new port be 1 and 65535.</p>
-
-      <p>The server will then start up. It will be accessible to your machine at <a href="localhost:8000">localhost:8000</a> and will be accessible to other computers on your LAN network. </p>
-
-      <p>If you open a web browser and go to <a href="localhost:8000">localhost:8000</a> you should see something like the image below. </p>
-
-      <p>If that is the case, you have correctly set up the server. </p>
+    <style>
+        p img {
+            max-width: 100%;
+            margin: 20px;
+        }
+    </style>
+    <a href="/"><img src="/Img/Bocchi.png" id="bocchi" /></a>
+    <div id="container">
+        <div>
+            <a href="http://www.rssboard.org/rss-draft-1" target="_blank"><img id="icon" src="/Img/RSS.png"></a>
+            <p><a href="/">Home</a> &gt; Read Me</p>
+            <h1>K-Barber's RSS-Generator: Read Me</h1>
+            <hr>
+            <h2 id="table-of-contents">Table of Contents</h2>
+            <ol>
+                <li><a href="#table-of-contents">Table of Contents</a></li>
+                <li><a href="#guide">Guide</a>
+                    <ol>
+                        <li><a href="#starting-the-server">Starting the Server</a></li>
+                        <li><a href="#starting-the-generator">Starting the Generator</a></li>
+                        <li><a href="#creating-a-new-feed">Creating a New Feed</a>
+                            <ol>
+                                <li><a href="#defining-the-feed">Defining the Feed</a></li>
+                                <li><a href="#creating-an-item-pattern">Creating an Item Pattern</a></li>
+                                <li><a href="#defining-the-items">Defining the Items</a></li>
+                            </ol>
+                        </li>
+                        <li><a href="#adding-a-feed-to-your-feed-reader">Adding a Feed to Your Feed Reader</a></li>
+                        <li><a href="#deleting-a-feed">Deleting a Feed</a></li>
+                    </ol>
+                </li>
+                <li><a href="#compatible-feed-readers">Compatible Feed Readers</a></li>
+                <li><a href="#support-the-developer">Support the Developer</a></li>
+            </ol>
+            <hr>
+            <h2 id="guide">Guide</h2>
+
+            <p>Hello, and thank you for showing interest in my RSS generator!</p>
+
+            <p>This generator is a standalone package that provides you with everything you need to create an RSS feed from a webpage that does not have one.</p>
+
+            <p>To do this it does two things:
+            <ol>
+                <li>
+                    Periodically scans the webpage for updates &amp; produces an xml file
+                </li>
+                <li>
+                    Hosts that xml file on a small, locally accessible server so that it can be read by an RSS feed reader
+                </li>
+            </ol>
+            </p>
+
+            <p>It should be noted that this means the generator will only work with Feed readers that are run from your machine and can access localhost. i.e. your feed reader has to be a standalone program or a browser add-on. Online feed readers are not compatible as they cannot read the xml file (unless you make a hole in your firewall and give the internet access to your computer).</p>
+
+            <p>A full list of compatible and incompatible readers can be found <a href="#compatible-feed-readers">here</a>.</p>
+
+            <hr>
+            <h3 id="starting-the-server">Starting the Server</h3>
+
+            <p>The first step is to start up the server.</p>
+
+            <p align="center">
+                <img src="/Img/Readme/server.jpg">
+            </p>
+
+            <p>In addition to serving the .xml file to your feed reader, the server provides a user-friendly web interface for the generator. </p>
+
+            <p>To start the server, simply open the server.exe file.</p>
+
+            <p>The program will tell you your local IP address and will ask you if you want to use the default port number (in this case port 8000). If you choose not to use port 8000 it will ask you to choose a new port be 1 and 65535.</p>
+
+            <p>The server will then start up. It will be accessible to your machine at <a href="localhost:8000">localhost:8000</a> and will be accessible to other computers on your LAN network. </p>
+
+            <p>If you open a web browser and go to <a href="localhost:8000">localhost:8000</a> you should see something like the image below. </p>
+
+            <p>If that is the case, you have correctly set up the server. </p>
 
-      <p align="center">
-        <img src="/Img/Readme/home.jpg">
-      </p>
+            <p align="center">
+                <img src="/Img/Readme/home.jpg">
+            </p>
 
-      <hr />
-
-      <h3 id="starting-the-generator">Starting the Generator</h3>
-
-      <p>To start the generator, simply open generator.exe. It should look like this: </p>
-
-      <p align="center">
-        <img src="/Img/Readme/generator.jpg">
-      </p>
-
-      <hr />
-
-      <h3 id="creating-a-new-feed">Creating a New Feed</h3>
-
-      <p>To create a feed, simply go to the "New Feed" page and follow the instructions to fill out the form. Creating a new feed is the most difficult part of using the program, so if you have any questions you can refer to this document, mouse over a field for an explanation, or visit the RSS official documentation.</p>
-
-      <p>Creating a new Feed is broken into three parts:
-        1. Defining the feed
-        2. Creating an item pattern
-        3. Defining the items</p>
-
-      <p>To explain how to add a feed, I will provide a walkthrough using the YouTube trending page as an example. Ultimately the feed should mimic the trending page and provide us with an update when a new video hits the trending page. </p>
-
-      <p align="center">
-        <img src="/Img/Readme/youtube.jpg">
-      </p>
-
-      <h4 id="defining-the-feed">Defining the Feed</h4>
-
-      <p>Defining the feed is simply giving some basic information about the feed such as a name, and a description. We'll also add a link, which is where the feed will pull the data from. In this case, our link is the youtube trending page: https://www.youtube.com/feed/trending.</p>
-
-      <p>The feed TTL is how long the feed reader should wait before checking for updates from the feed. It is essentially how often the feed updates. The default setting is 60 minutes. </p>
-
-      <p align="center">
-        <img src="/Img/Readme/basic.jpg">
-      </p>
-
-      <h4 id="creating-an-item-pattern">Creating an Item Pattern</h4>
-
-      <p>For the purpose of our feed we need the generator to convert videos on the trending page, into items in our feed. We do this by making an "Item Pattern".</p>
-
-      <p>If you look at the videos, they all have common traits:
-        <ul>
-          <li>
-            Title
-          </li>
-          <li>
-            Length
-          </li>
-          <li>
-            Creator
-          </li>
-          <li>
-            Description
-          </li>
-          <li>
-            View Count
-          </li>
-          <li>
-            URL
-          </li>
-          <li>
-            Upload Time
-          </li>
-        </ul>
-      </p>
+            <hr />
+
+            <h3 id="starting-the-generator">Starting the Generator</h3>
+
+            <p>To start the generator, simply open generator.exe. It should look like this: </p>
+
+            <p align="center">
+                <img src="/Img/Readme/generator.jpg">
+            </p>
+
+            <hr />
+
+            <h3 id="creating-a-new-feed">Creating a New Feed</h3>
+
+            <p>To create a feed, simply go to the "New Feed" page and follow the instructions to fill out the form. Creating a new feed is the most difficult part of using the program, so if you have any questions you can refer to this document, mouse over a field for an explanation, or visit the RSS official documentation.</p>
+
+            <p>Creating a new Feed is broken into three parts:
+                1. Defining the feed
+                2. Creating an item pattern
+                3. Defining the items</p>
+
+            <p>To explain how to add a feed, I will provide a walkthrough using the YouTube trending page as an example. Ultimately the feed should mimic the trending page and provide us with an update when a new video hits the trending page. </p>
+
+            <p align="center">
+                <img src="/Img/Readme/youtube.jpg">
+            </p>
+
+            <h4 id="defining-the-feed">Defining the Feed</h4>
+
+            <p>Defining the feed is simply giving some basic information about the feed such as a name, and a description. We'll also add a link, which is where the feed will pull the data from. In this case, our link is the youtube trending page: https://www.youtube.com/feed/trending.</p>
+
+            <p>The feed TTL is how long the feed reader should wait before checking for updates from the feed. It is essentially how often the feed updates. The default setting is 60 minutes. </p>
+
+            <p align="center">
+                <img src="/Img/Readme/basic.jpg">
+            </p>
+
+            <h4 id="creating-an-item-pattern">Creating an Item Pattern</h4>
+
+            <p>For the purpose of our feed we need the generator to convert videos on the trending page, into items in our feed. We do this by making an "Item Pattern".</p>
+
+            <p>If you look at the videos, they all have common traits:
+            <ul>
+                <li>
+                    Title
+                </li>
+                <li>
+                    Length
+                </li>
+                <li>
+                    Creator
+                </li>
+                <li>
+                    Description
+                </li>
+                <li>
+                    View Count
+                </li>
+                <li>
+                    URL
+                </li>
+                <li>
+                    Upload Time
+                </li>
+            </ul>
+            </p>
 
-      <p>Each video will have these traits defined in the page's HTML data. Our Item Pattern is just a text pattern that will tell the generator where in the HTML these traits are defined. </p>
+            <p>Each video will have these traits defined in the page's HTML data. Our Item Pattern is just a text pattern that will tell the generator where in the HTML these traits are defined. </p>
 
-      <p>Producing a pattern is simple, we just need to take an item and replace all of its item-unique text with placeholders that the generator can match to every item (video) in the feed. The easiest way to do this is to compare it with another item.</p>
+            <p>Producing a pattern is simple, we just need to take an item and replace all of its item-unique text with placeholders that the generator can match to every item (video) in the feed. The easiest way to do this is to compare it with another item.</p>
 
-      <p>To start, click the "Scrape URL" button, and watch as the "Scraped Page Source Data" box fills up. This box contains the raw HTML for the webpage we gave earlier in the "Feed Link" field.</p>
-
-      <p align="center">
-        <img src="/Img/Readme/first.jpg">
-      </p>
-
-      <p>If we look at the YouTube trending page, we'll see that the first video is entitled "Sooubway 4: The Final Sandwich". We'll scroll through the source data, looking for HTML that mentions this item.</p>
-
-      <p>Once we find it, we will copy and paste it into a text-comparison software like https://text-compare.com/. We only want to copy the text for one item, but we want to make sure we get all the data we need: title, length, description, etc.</p>
-
-      <p align="center">
-        <img src="/Img/Readme/compare.jpg">
-      </p>
-
-      <p>Then we find another item and compare the two texts. The highlighted areas are text that needs to be a placeholder in our pattern, either as {%} for data we want, or {*} for data we don't. The highlighted areas will likely be in quotation marks, and in that case the entire content in the quotes probably has to be replaced with a placeholder. </p>
-
-      <p>In the end we come out with a pattern like so:</p>
-
-      <p align="center">
-        <img src="/Img/Readme/pattern.jpg">
-      </p>
+            <p>To start, click the "Scrape URL" button, and watch as the "Scraped Page Source Data" box fills up. This box contains the raw HTML for the webpage we gave earlier in the "Feed Link" field.</p>
 
-      <p>Which produces the following result:</p>
+            <p align="center">
+                <img src="/Img/Readme/first.jpg">
+            </p>
 
-      <p align="center">
-        <img src="/Img/Readme/result.jpg">
-      </p>
+            <p>If we look at the YouTube trending page, we'll see that the first video is entitled "Sooubway 4: The Final Sandwich". We'll scroll through the source data, looking for HTML that mentions this item.</p>
 
-      <p>As you can see, our {%} placeholders have been numbered and are storing the following data:
-        <ul>
-          <li>
-              {%1}: video ID
-          </li>
-          <li>
-              {%2}: Title
-          </li>
-          <li>
-              {%3}: Video Duration
-          </li>
-          <li>
-              {%4}: Channel URL
-          </li>
-          <li>
-              {%5}: Channel Name
-          </li>
-          <li>
-              {%6}: Publish Time
-          </li>
-          <li>
-              {%7}: View Count
-          </li>
-          <li>
-              {%8}: Description
-          </li>
-        </ul>
-      </p>
-
-      <p>With this, we can move on to defining the items.</p>
-
-      <h4 id="defining-the-items">Defining the Items</h4>
-
-      <p>In this step we use the numbered placeholders we found above to define our items. When the generator sees the numbered placeholders it will replace it with the correct data for that item, so {%2} will be replaced with "Sooubway 4: The Final Sandwich" for item 1, "Last To Take Hand Off Boat, Keeps It" for item 2 and so on.</p>
-
-      <p>So when defining our item, the item title will be {%2}.</p>
-
-      <p>Likewise, the link will be "https://youtube.com/watch?v={%1}".</p>
-
-      <p>For the description, we'll include some simple HTML formatting. We'll have the video's title and duration on one line followed by the channel name, view count and upload time on the next, and the video description last.</p> 
-
-      <p align="center">
-        <img src="/Img/Readme/item.jpg">
-      </p>
-
-      <p>Any HTML in the description needs to be within the &lt;!CDATA[ tags. CSS can be inlined, but most readers will drop any &lt;style> or &lt;script> tags. </p>
-
-      <p>If you don't want to use HTML in the description, you can simply delete the &lt;!CDATA[ tags, or ignore them.</p>
-
-      <p>The GUID field is an ID used by feed readers to determine if an item is new to a feed. In our case, {%1} is the youtube video ID, so we can use that.</p>
-
-      <p>When you are done, simply click the "Submit" button, and you should be taken to a page that looks like this:</p>
-
-      <p align="center">
-        <img src="/Img/Readme/success.jpg">
-      </p>
-
-      <p align="center">
-        <strong>Congratulations! You've made your first custom feed!</strong>
-        </br>
-        <img src="/Img/Bocchi.png" width=500 height=500>
-      </p>
-
-      <hr />
-
-      <h3 id="adding-a-feed-to-your-feed-reader">Adding a Feed to Your Feed Reader</h3>
-
-      <ol>
-        <li>Go to "My Feeds"</li>
-        <li>Click on the feed you want to add</li>
-        <li>You should see a Feed Details &amp; Preview page like the one on the below</li>
-      </ol>
-      
-      <p align="center">
-        <img src="/Img/Readme/preview.jpg">
-      </p>
-
-      <ol start="4">
-        <li >Copy this page's URL (Should be something like Localhost:8000/Feeds/Feed_Name.xml)</li>
-        <li>Paste the URL into wherever your feed reader asks for the Feed URL</li>
-      </ol>
-
-      <p align="center">
-        <img src="/Img/Readme/save.jpg">
-      </p>
-
-      <hr/>
-
-      <h3 id="deleting-a-feed">Deleting a Feed</h3>
-
-      <p>Currently the only way to delete a feed is remove the feed from the Feed_Definitions.txt file and delete the feed's .xml file in the Feeds folder.</p>
-
-      <hr />
-
-      <h2 id="compatible-feed-readers">Compatible Feed Readers</h2>
-
-      <table>
-        <tr>
-          <th>
-            Compatible
-          </th>
-          <th>
-            Incompatible
-          </th>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://nodetics.com/feedbro/">Feedbro</a></br>
-            <a href="https://quiterss.org/">QuiteRSS</a></br>
-            <a href=""></a></br>
-          </td>
-          <td>
-            <a href="https://feedly.com/">Feedly</a></br>
-            <a href=""></a></br>
-          </td>
-        </tr>
-      </table>
-
-    </br>
-      <hr />
-
-      <h2 id="support-the-developer">Support the Developer</h2>
+            <p>Once we find it, we will copy and paste it into a text-comparison software like https://text-compare.com/. We only want to copy the text for one item, but we want to make sure we get all the data we need: title, length, description, etc.</p>
+
+            <p align="center">
+                <img src="/Img/Readme/compare.jpg">
+            </p>
+
+            <p>Then we find another item and compare the two texts. The highlighted areas are text that needs to be a placeholder in our pattern, either as {%} for data we want, or {*} for data we don't. The highlighted areas will likely be in quotation marks, and in that case the entire content in the quotes probably has to be replaced with a placeholder. </p>
+
+            <p>In the end we come out with a pattern like so:</p>
+
+            <p align="center">
+                <img src="/Img/Readme/pattern.jpg">
+            </p>
+
+            <p>Which produces the following result:</p>
+
+            <p align="center">
+                <img src="/Img/Readme/result.jpg">
+            </p>
+
+            <p>As you can see, our {%} placeholders have been numbered and are storing the following data:
+            <ul>
+                <li>
+                    {%1}: video ID
+                </li>
+                <li>
+                    {%2}: Title
+                </li>
+                <li>
+                    {%3}: Video Duration
+                </li>
+                <li>
+                    {%4}: Channel URL
+                </li>
+                <li>
+                    {%5}: Channel Name
+                </li>
+                <li>
+                    {%6}: Publish Time
+                </li>
+                <li>
+                    {%7}: View Count
+                </li>
+                <li>
+                    {%8}: Description
+                </li>
+            </ul>
+            </p>
+
+            <p>With this, we can move on to defining the items.</p>
+
+            <h4 id="defining-the-items">Defining the Items</h4>
+
+            <p>In this step we use the numbered placeholders we found above to define our items. When the generator sees the numbered placeholders it will replace it with the correct data for that item, so {%2} will be replaced with "Sooubway 4: The Final Sandwich" for item 1, "Last To Take Hand Off Boat, Keeps It" for item 2 and so on.</p>
+
+            <p>So when defining our item, the item title will be {%2}.</p>
+
+            <p>Likewise, the link will be "https://youtube.com/watch?v={%1}".</p>
+
+            <p>For the description, we'll include some simple HTML formatting. We'll have the video's title and duration on one line followed by the channel name, view count and upload time on the next, and the video description last.</p>
+
+            <p align="center">
+                <img src="/Img/Readme/item.jpg">
+            </p>
+
+            <p>Any HTML in the description needs to be within the &lt;!CDATA[ tags. CSS can be inlined, but most readers will drop any &lt;style> or &lt;script> tags. </p>
+
+            <p>If you don't want to use HTML in the description, you can simply delete the &lt;!CDATA[ tags, or ignore them.</p>
+
+            <p>The GUID field is an ID used by feed readers to determine if an item is new to a feed. In our case, {%1} is the youtube video ID, so we can use that.</p>
+
+            <p>When you are done, simply click the "Submit" button, and you should be taken to a page that looks like this:</p>
+
+            <p align="center">
+                <img src="/Img/Readme/success.jpg">
+            </p>
+
+            <p align="center">
+                <strong>Congratulations! You've made your first custom feed!</strong>
+                </br>
+                <img src="/Img/Bocchi.png" width=500 height=500>
+            </p>
+
+            <hr />
+
+            <h3 id="adding-a-feed-to-your-feed-reader">Adding a Feed to Your Feed Reader</h3>
+
+            <ol>
+                <li>Go to "My Feeds"</li>
+                <li>Click on the feed you want to add</li>
+                <li>You should see a Feed Details &amp; Preview page like the one on the below</li>
+            </ol>
+
+            <p align="center">
+                <img src="/Img/Readme/preview.jpg">
+            </p>
+
+            <ol start="4">
+                <li>Copy this page's URL (Should be something like Localhost:8000/Feeds/Feed_Name.xml)</li>
+                <li>Paste the URL into wherever your feed reader asks for the Feed URL</li>
+            </ol>
+
+            <p align="center">
+                <img src="/Img/Readme/save.jpg">
+            </p>
+
+            <hr />
+
+            <h3 id="deleting-a-feed">Deleting a Feed</h3>
+
+            <p>Currently the only way to delete a feed is remove the feed from the Feed_Definitions.txt file and delete the feed's .xml file in the Feeds folder.</p>
+
+            <hr />
+
+            <h2 id="compatible-feed-readers">Compatible Feed Readers</h2>
+
+            <table>
+                <tr>
+                    <th>
+                        Compatible
+                    </th>
+                    <th>
+                        Incompatible
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="https://nodetics.com/feedbro/">Feedbro</a></br>
+                        <a href="https://quiterss.org/">QuiteRSS</a></br>
+                        <a href=""></a></br>
+                    </td>
+                    <td>
+                        <a href="https://feedly.com/">Feedly</a></br>
+                        <a href=""></a></br>
+                    </td>
+                </tr>
+            </table>
+
+            </br>
+            <hr />
+
+            <h2 id="support-the-developer">Support the Developer</h2>
+        </div>
     </div>
-  </div>
 </body>
+
 </html>

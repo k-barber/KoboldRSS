@@ -3,13 +3,21 @@
 
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="/Pages/styles.css">
+    <link rel="stylesheet" href="/Pages/css/styles.css">
     <link rel="stylesheet" href="/Pages/css/all.css">
+    <link rel="stylesheet" href="/Pages/css/noty.css">
+    <script src="/Pages/js/dayjs.min.js"></script>
+    <script src="/Pages/js/noty.min.js"></script>
+    <script>
+        Noty.overrideDefaults({
+            layout: 'topLeft'
+        });
+    </script>
     <title>Success</title>
 </head>
 
 <body>
-    <a href="/"><img src="/Img/Bocchi.png" id="bocchi"/></a>
+    <a href="/"><img src="/Img/Bocchi.png" id="bocchi" /></a>
     <div id="container">
         <div>
             <a href="http://www.rssboard.org/rss-draft-1" target="_blank"><img id="icon" src="/Img/RSS.png"></a>

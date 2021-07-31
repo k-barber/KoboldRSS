@@ -3,8 +3,16 @@
 
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="/Pages/styles.css">
+    <link rel="stylesheet" href="/Pages/css/styles.css">
     <link rel="stylesheet" href="/Pages/css/all.css">
+    <link rel="stylesheet" href="/Pages/css/noty.css">
+    <script src="/Pages/js/dayjs.min.js"></script>
+    <script src="/Pages/js/noty.min.js"></script>
+    <script>
+        Noty.overrideDefaults({
+            layout: 'topLeft'
+        });
+    </script>
     <title>RSS-Generator: New Feed</title>
 </head>
 
@@ -38,6 +46,10 @@
                 <div class="padding">
                     <button class="collapsible Field" formnovalidate><i class="fas fa-angle-down" style="margin: 0px 10px;"></i>Advanced Options</button>
                     <div class="content">
+                        <p class="Field tooltip">Path:<span class="tooltiptext">Where the feed will be saved and hosted. Defaults to the "Feeds/" folder. Must end in a "/".</span></p>
+                        <div class="padding">
+                            <input id="Feed_Path" name="Feed_Path" pattern="([a-zA-Z0-9\s_@\-^!#$%&+={}\[\]]+(\\|\/))+" class="input_box" type="text" value="Feeds/" placeholder="Feeds/">
+                        </div>
                         <p class="Field" style="margin-top: 25px;">Login Settings:</p>
                         <div class="padding">
                             <p style="margin:0px;">
@@ -54,15 +66,15 @@
                         </div>
                         <p class="Field tooltip">Scraping Delay:<span class="tooltiptext">The number of seconds the generator should wait to ensure the content has loaded before scraping. Only needed on pages with lazy loading.</span></p>
                         <div class="padding" style="display: flex;">
-                            <div id="left_button" onclick="plus_minus_button_press('Scrape_delay', -1)">-</div>
+                            <div class="left_button" onclick="plus_minus_button_press('Scrape_delay', -1)"><i class="fas fa-minus"></i></div>
                             <input id="Scrape_delay" name="Scrape_delay" class="input_box" type="number" min="0" value="0" step="1" />
-                            <div id="right_button" onclick="plus_minus_button_press('Scrape_delay', 1)">+</div>
+                            <div class="right_button" onclick="plus_minus_button_press('Scrape_delay', 1)"><i class="fas fa-plus"></i></div>
                         </div>
                         <p class="Field tooltip">Time To Life:<span class="tooltiptext">The number of minutes the Feed can be cached before refreshing. Effectively how often the feed updates. Rounds to the nearest 5.</span></p>
                         <div class="padding" style="display: flex;">
-                            <div id="left_button" onclick="plus_minus_button_press('Feed_TTL', -1)">-</div>
+                            <div class="left_button" onclick="plus_minus_button_press('Feed_TTL', -1)"><i class="fas fa-minus"></i></div>
                             <input id="Feed_TTL" name="Feed_TTL" class="input_box" type="number" min="5" value="60" step="5" />
-                            <div id="right_button" onclick="plus_minus_button_press('Feed_TTL', 1)">+</div>
+                            <div class="right_button" onclick="plus_minus_button_press('Feed_TTL', 1)"><i class="fas fa-plus"></i></div>
                         </div>
                         <p class="Field tooltip">Categories:<span class="tooltiptext">Identifies a category or tag to which the Feed belongs. Separate values with a comma.</span></p>
                         <div class="padding">
@@ -87,9 +99,10 @@
                             <input id="Image_Title" name="Image_Title" class="input_box" type="text" disabled>
                         </div>
                         <p class="Field tooltip" id="Image_URL_header"><span class="required" style="display: none;">*</span>Image URL:<span class="tooltiptext">Direct URL pointing to the image file. Must be a .gif .jpg or .png</span></p>
-                        <p>You can host an Image file on this server by adding it to the "Img" folder.</p>
                         <div class="padding">
-                            <input id="Image_URL" name="Image_URL" class="input_box" type="url" disabled>
+                            <input id="Image_URL" name="Image_URL" class="input_box" type="text" disabled>
+                            <p>You can also upload an image file to this server. It will be stored in the "Img/Uploads/" folder.</p>
+                            <input id="Image_file" accept="image/png, image/jpeg, image/gif" name="Image_file" type="file" style="margin-left: 20px;" disabled>
                         </div>
                         <p class="Field">Language:</p>
                         <div class="padding">
@@ -332,8 +345,6 @@
                     }
                 });
             }
-        </script>
-        <script>
 
             const items = { ...localStorage };
 
@@ -352,6 +363,9 @@
                     }
                 } else if (element.type == "select-one") {
                     document.querySelector('[name=' + key + '] option[value=' + items[key] + ']').selected = true;
+                } else if (element.type == "file") {
+                    document.querySelector('[name="Image_URL"]').value = "";
+                    new Noty({ text: "<strong>Warning!</strong><br>Browsers don't cache user uploaded images, so you'll need to reupload", type: "error" }).show();
                 } else {
                     element.value = items[key];
                 }
@@ -377,14 +391,26 @@
                         localStorage.setItem(input.name, input.checked);
                     } else if (input.type == "select-one") {
                         localStorage.setItem(input.name, input.options[input.selectedIndex].value);
+                    } else if (input.type == "file") {
+                        localStorage.setItem(input.name, "can't store images as strings");
                     } else {
                         localStorage.setItem(input.name, input.value);
                     }
                 });
             });
 
+            const inputElement = document.getElementById("Image_file");
+            inputElement.addEventListener("change", handleFiles, false);
+            function handleFiles() {
+                document.getElementById("Image_URL").value = "Img/Uploads/" + this.files[0].name;
+            }
+
             function validateForm() {
-                return document.getElementById("Feed_Data").reportValidity();
+                var validity = document.getElementById("Feed_Data").reportValidity();
+                if (validity == false) {
+                    new Noty({ text: "The form is not filled out properly", type: "error" }).show();
+                }
+                return validity;
             }
 
             function submit_form() {
@@ -474,18 +500,12 @@
                         });
                         document.getElementById("Item_Preview").style.display = "table";
                         console.log(array);
-                        document.getElementById("row-1-title").innerText = array[0]["title"];
-                        document.getElementById("row-1-link").innerText = array[0]["link"];
-                        document.getElementById("row-1-link").href = array[0]["link"];
-                        document.getElementById("row-1-desc").insertAdjacentHTML("beforeend", array[0]["description"]);
-                        document.getElementById("row-2-title").innerText = array[1]["title"];
-                        document.getElementById("row-2-link").innerText = array[1]["link"];
-                        document.getElementById("row-2-link").href = array[1]["link"];
-                        document.getElementById("row-2-desc").insertAdjacentHTML("beforeend", array[1]["description"]);
-                        document.getElementById("row-3-title").innerText = array[2]["title"];
-                        document.getElementById("row-3-link").innerText = array[2]["link"];
-                        document.getElementById("row-3-link").href = array[2]["link"];
-                        document.getElementById("row-3-desc").insertAdjacentHTML("beforeend", array[2]["description"]);
+                        for (var index = 0; index < Math.min(3, array.length); index++) {
+                            document.getElementById("row-" + parseInt(index + 1) + "-title").innerText = array[index]["title"];
+                            document.getElementById("row-" + parseInt(index + 1) + "-link").innerText = array[index]["link"];
+                            document.getElementById("row-" + parseInt(index + 1) + "-link").href = array[index]["link"];
+                            document.getElementById("row-" + parseInt(index + 1) + "-desc").insertAdjacentHTML("beforeend", array[index]["description"]);
+                        }
                     };
                     xhr.open('POST', '/Test_Description');
                     xhr.setRequestHeader("Content-Type", "application/json");
@@ -564,6 +584,7 @@
                     document.getElementById("Image_Link").disabled = false;
                     document.getElementById("Image_Title").disabled = false;
                     document.getElementById("Image_URL").disabled = false;
+                    document.getElementById("Image_file").disabled = false;
                     document.getElementById("Image_Link_header").children[0].style.display = "unset";
                     document.getElementById("Image_Title_header").children[0].style.display = "unset";
                     document.getElementById("Image_URL_header").children[0].style.display = "unset";
@@ -577,6 +598,7 @@
                     document.getElementById("Image_Link").disabled = true;
                     document.getElementById("Image_Title").disabled = true;
                     document.getElementById("Image_URL").disabled = true;
+                    document.getElementById("Image_file").disabled = true;
                     document.getElementById("Image_Link").classList.remove("error");
                     document.getElementById("Image_Title").classList.remove("error");
                     document.getElementById("Image_URL").classList.remove("error");
@@ -588,20 +610,58 @@
             }
 
             function post_data() {
+
+                var form_data = JSON.stringify(get_form_data());
                 document.body.style.cursor = "wait";
-                var xhr = new XMLHttpRequest();
-                xhr.onload = function () {
-                    document.body.style.cursor = "default";
-                    console.log(xhr);
-                    if (xhr.status == 200) {
-                        localStorage.clear();
-                        window.location.href = "/Success";
-                    } else {
-                        window.alert("Uh oh. Something went wrong. Check the server logs")
-                    }
-                };
-                xhr.open('POST', "/Feed_Data");
-                xhr.send(JSON.stringify(get_form_data()));
+
+                var file = document.getElementById("Image_file").files[0];
+                if (file) {
+                    const uri = "/Image_Upload";
+                    const xhr = new XMLHttpRequest();
+                    const fd = new FormData();
+
+                    xhr.open("POST", uri, true);
+                    xhr.setRequestHeader("FEED_IMAGE_FILENAME", file.name);
+                    xhr.onload = function () {
+                        if (xhr.status == 200) {
+                            new Noty({ text: "Image uploaded", type: "success" }).show();
+                            var send = new XMLHttpRequest();
+                            send.onload = function () {
+                                document.body.style.cursor = "default";
+                                console.log(send);
+                                if (send.status == 200) {
+                                    localStorage.clear();
+                                    new Noty({ text: "Feed created successfully", type: "success" }).show();
+                                    window.location.href = "/Success";
+                                } else {
+                                    new Noty({ text: "Uh oh. Something went wrong. Check the server logs", type: "error" }).show();
+                                }
+                            };
+                            send.open('POST', "/Feed_Data");
+                            send.send(form_data);
+                        } else {
+                            new Noty({ text: "Error uploading file", type: "error" }).show();
+                        }
+                    };
+                    fd.append('myFile', file);
+                    xhr.send(fd);
+                } else {
+                    var xhr = new XMLHttpRequest();
+                    xhr.onload = function () {
+                        document.body.style.cursor = "default";
+                        console.log(xhr);
+                        if (xhr.status == 200) {
+                            localStorage.clear();
+                            window.location.href = "/Success";
+                        } else {
+                            new Noty({
+                                text: "Uh oh. Something went wrong. Check the server logs", type: "error"
+                            }).show();
+                        }
+                    };
+                    xhr.open('POST', "/Feed_Data");
+                    xhr.send(form_data);
+                }
             }
 
             function get_form_data() {
@@ -634,6 +694,7 @@
                     'logged_title': document.getElementById("logged_title").value,
                     'login_required': document.getElementById("Login_Checkbox").checked,
                     'managingEditor': document.getElementById("Feed_Editor").value,
+                    'path': document.getElementById("Feed_Path").value,
                     'scrape_start_position': document.getElementById("scrape_start_position").value,
                     'scrape_stop_position': document.getElementById("scrape_stop_position").value,
                     'title': document.getElementById("Feed_Title").value,

@@ -1,18 +1,30 @@
 from datetime import datetime
 import re
 import os
+import errno
 
-if os.name == 'nt':
+if os.name == "nt":
     import win32api
     import win32con
 
 
+def create_folders_to_file(file_name):
+    if not os.path.exists(os.path.dirname(file_name)):
+        try:
+            os.makedirs(os.path.dirname(file_name))
+        except OSError as exc:  # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
+
+
 def folder_is_hidden(p):
-    if os.name == 'nt':
+    if os.name == "nt":
         attribute = win32api.GetFileAttributes(p)
-        return attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
+        return attribute & (
+            win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM
+        )
     else:
-        return p.startswith('.')
+        return p.startswith(".")
 
 
 def log(text):
@@ -21,7 +33,7 @@ def log(text):
     Parameters:
     text (str):  The text to print
     """
-    return (datetime.now().strftime('[%Y/%m/%d %H:%M:%S] - ') + text)
+    return datetime.now().strftime("[%Y/%m/%d %H:%M:%S] - ") + text
 
 
 def clean_input(text):

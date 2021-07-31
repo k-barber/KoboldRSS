@@ -3,8 +3,16 @@
 
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="/Pages/styles.css">
+    <link rel="stylesheet" href="/Pages/css/styles.css">
     <link rel="stylesheet" href="/Pages/css/all.css">
+    <link rel="stylesheet" href="/Pages/css/noty.css">
+    <script src="/Pages/js/dayjs.min.js"></script>
+    <script src="/Pages/js/noty.min.js"></script>
+    <script>
+        Noty.overrideDefaults({
+            layout: 'topLeft'
+        });
+    </script>
     <title>RSS-Generator</title>
 </head>
 
@@ -22,9 +30,9 @@
                 <a href="/Help"><img src="/Img/Icons/file-richtext.svg"> Read Me</a>
                 <a href="https://github.com/k-barber/RSS-Generator" target="_blank"><img src="/Img/Icons/code-slash.svg"> Code Base</a>
                 <a href="http://www.rssboard.org/rss-draft-1" target="_blank"><img src="/Img/Icons/rss.svg"> RSS Docs</a>
-            </ul>
+                </ul>
+            </div>
         </div>
-    </div>
 </body>
 
 </html>

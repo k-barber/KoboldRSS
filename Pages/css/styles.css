@@ -1,14 +1,6 @@
-p,
-a,
-span,
-table,
-td,
-label,
-input,
-ol,
-ul,
-li {
+body {
     font-family: Arial, Helvetica, sans-serif;
+    font-size: 12pt;
 }
 
 #main-menu {
@@ -74,30 +66,6 @@ td {
     overflow: hidden;
 }
 
-.site-select {
-    display: flex;
-    height: 50px;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
-        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
-    font-size: 13pt;
-    margin-top: 15px;
-    margin-bottom: 15px;
-}
-
-.site-select img {
-    max-height: 50px;
-    margin: 0px 10px;
-    vertical-align: middle;
-}
-
-.site-select label {
-    cursor: pointer;
-    max-height: 50px;
-}
-
 body {
     background-color: ghostwhite;
 }
@@ -124,16 +92,7 @@ td {
     border-color: rgba(0, 0, 0, 0.12);
 }
 
-h3 {
-    font-weight: normal;
-    font-size: 12pt;
-}
 
-h4 {
-    font-weight: normal;
-    font-size: 12pt;
-    font-style: oblique;
-}
 
 #container {
     max-width: 1000px;
@@ -169,8 +128,7 @@ h4 {
     transform: rotate(-30deg);
 }
 
-input[type='checkbox'],
-input[type='radio'] {
+input[type='checkbox'] {
     filter: grayscale(1)
 }
 
@@ -282,9 +240,8 @@ textarea:focus-visible {
     border-style: solid;
     width: 100%;
     height: 2em;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12pt;
     margin: 0px;
+    font-size: 12pt;
     box-sizing: border-box;
     padding: 0px 10px;
 }
@@ -312,12 +269,6 @@ input[type="number"]::-webkit-outer-spin-button {
     box-shadow: none;
 }
 
-input[type="radio"] {
-    -webkit-appearance: radio;
-    display: inline-block;
-    cursor: pointer;
-}
-
 .sort-arrow {
     font-size: 20px;
     margin: 5px;
@@ -331,7 +282,6 @@ button {
     background: white;
     border-radius: 6px;
     cursor: pointer;
-    font-family: Arial, Helvetica, sans-serif;
     margin: 20px;
     border: 1px solid rgba(0, 0, 0, 0.12);
     box-shadow: 1px 1px 16px 0 rgba(0, 0, 0, 0.12);
@@ -349,9 +299,7 @@ hr {
     border-color: #0006;
 }
 
-#right_button {
-    display: inline-block;
-    text-align: center;
+.right_button {
     border-width: 1px;
     border-style: solid;
     border-color: #0006;
@@ -360,11 +308,13 @@ hr {
     border-bottom-right-radius: 7px;
     border-left: none;
     width: 20px;
+    font-size: 11px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-#left_button {
-    display: inline-block;
-    text-align: center;
+.left_button {
     border-width: 1px;
     border-style: solid;
     border-color: #0006;
@@ -373,14 +323,18 @@ hr {
     border-bottom-left-radius: 7px;
     border-right: none;
     width: 20px;
+    font-size: 11px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-#left_button:hover {
+.left_button:hover {
     background-color: rgba(0, 0, 0, 0.05);
     cursor: pointer;
 }
 
-#right_button:hover {
+.right_button:hover {
     background-color: rgba(0, 0, 0, 0.05);
     cursor: pointer;
 }
@@ -425,6 +379,16 @@ h4 {
     margin-top: 0px;
     font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
         "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+}
+
+h3,
+h4 {
+    font-weight: normal;
+    font-weight: normal;
+}
+
+h4 {
+    font-style: oblique;
 }
 
 #bocchi {

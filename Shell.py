@@ -34,12 +34,12 @@ class ShellInstance:
     """
 
     def print_server_output(self, value):
-        if (self.gui.is_running()):
+        if self.gui.is_running():
             self.gui.print_to_server_output(Utils.log(value))
             print("Server Output: " + Utils.log(value))
 
     def print_generator_output(self, value):
-        if (self.gui.is_running()):
+        if self.gui.is_running():
             self.gui.print_to_generator_output(Utils.log(value))
             print("Generator Output: " + Utils.log(value))
 
@@ -51,22 +51,23 @@ class ShellInstance:
         if self.running:
             if self.generator is None:
                 self.generator = GeneratorInstance(
-                    self, self.debug_mode, self.browser_instance)
+                    self, self.debug_mode, self.browser_instance
+                )
                 generator_thread = threading.Thread(target=self.generator.run)
                 generator_thread.start()
             else:
                 self.print_generator_output("Generator is already running")
 
     def stop_generator(self):
-        if (self.generator is not None):
+        if self.generator is not None:
             self.print_generator_output("Stopping Generator")
             self.generator_stop_signal.set()
-            while (not self.generator_stopped_signal.isSet()):
+            while not self.generator_stopped_signal.isSet():
                 pass
             self.print_generator_output("Generator Stopped")
             self.print_generator_output("Stopping browser")
             self.browser_instance.close()
-            while (not self.browser_stopped_signal.isSet()):
+            while not self.browser_stopped_signal.isSet():
                 pass
             self.print_generator_output("browser Stopped")
             self.generator = None
@@ -105,14 +106,18 @@ class ShellInstance:
     def start_server(self, port_number):
         if self.running:
             if self.server is None:
+
                 def create_server_instance(self, port_number):
                     self.server = ServerInstance(
-                        self, port_number, self.debug_mode, self.browser_instance)
+                        self, port_number, self.debug_mode, self.browser_instance
+                    )
                     server_thread = threading.Thread(target=self.run_server)
                     server_thread.start()
                     self.current_port = port_number
+
                 creation_thread = threading.Thread(
-                    target=create_server_instance, args=[self, port_number])
+                    target=create_server_instance, args=[self, port_number]
+                )
                 creation_thread.start()
             else:
                 self.print_server_output("Server is already running")
@@ -158,25 +163,23 @@ class ShellInstance:
             self.show_hidden = self.gui.show_hidden.get()
 
     def recompile_definitions(self):
-        if (len(self.channels) > 0):
+        if len(self.channels) > 0:
             self.channels.sort(key=lambda a: os.path.join(a.path, a.title))
             f = open("Feed_Definitions.txt", "w")
             for channel in self.channels:
                 output = channel.print_definition()
-                f.write(output+"~-~-~-~-\n")
+                f.write(output + "~-~-~-~-\n")
             f.close()
 
     def create_channels(self):
         self.channels = []
         if self.debug_mode:
-            self.print_generator_output(
-                "Feed_Definitions.txt defines the following:")
-        if (not os.path.isfile("Feed_Definitions.txt")):
-            self.print_generator_output(
-                "Feed_Definitions.txt missing, creating it now")
+            self.print_generator_output("Feed_Definitions.txt defines the following:")
+        if not os.path.isfile("Feed_Definitions.txt"):
+            self.print_generator_output("Feed_Definitions.txt missing, creating it now")
             f = open("Feed_Definitions.txt", "x")
-        with open('Feed_Definitions.txt') as fp:
-            for key, group in it.groupby(fp, lambda line: line.startswith('~-~-~-~-')):
+        with open("Feed_Definitions.txt") as fp:
+            for key, group in it.groupby(fp, lambda line: line.startswith("~-~-~-~-")):
                 if not key:
                     group = list(group)
                     channel = RSSChannel(group)

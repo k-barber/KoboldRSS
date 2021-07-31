@@ -4,7 +4,7 @@
 <xsl:template match="/rss/channel">
   <html>
     <head>
-        <link rel="stylesheet" href="/Pages/styles.css"></link>
+        <link rel="stylesheet" href="/Pages/css/styles.css"></link>
         <title>RSS-Manager:<xsl:value-of select="title"/></title>
     </head>
     <body>

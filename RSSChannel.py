@@ -1,7 +1,6 @@
-import datetime
-from time import sleep
+from datetime import datetime
 from RSSItem import RSSItem
-from Utils import clean_input, dirty_output
+from Utils import clean_input, create_folders_to_file, dirty_output
 import os
 import io
 import re
@@ -57,70 +56,82 @@ class RSSChannel:
     delay = None
 
     def __str__(self):
-        """Produces the xml formatted representation of the object
-        """
+        """Produces the xml formatted representation of the object"""
         output = "    <channel>\n"
 
         # Required
-        if (self.title is not None):
-            output += "        <title>" + \
-                dirty_output(self.title) + "</title>\n"
-        if (self.link is not None):
+        if self.title is not None:
+            output += "        <title>" + dirty_output(self.title) + "</title>\n"
+        if self.link is not None:
             output += "        <link>" + dirty_output(self.link) + "</link>\n"
-        if (self.description is not None):
-            output += "        <description>" + \
-                dirty_output(self.description) + "</description>\n"
+        if self.description is not None:
+            output += (
+                "        <description>"
+                + dirty_output(self.description)
+                + "</description>\n"
+            )
 
         # Optional
-        if (self.category is not None):
+        if self.category is not None:
             for cat in self.category:
-                output += "        <category>" + \
-                    dirty_output(cat) + "</category>\n"
-        if (self.copyright is not None):
-            output += "        <copyright>" + \
-                dirty_output(self.copyright) + "</copyright>\n"
-        if (self.docs is not None):
+                output += "        <category>" + dirty_output(cat) + "</category>\n"
+        if self.copyright is not None:
+            output += (
+                "        <copyright>" + dirty_output(self.copyright) + "</copyright>\n"
+            )
+        if self.docs is not None:
             output += "        <docs>" + dirty_output(self.docs) + "</docs>\n"
-        if (self.generator is not None):
-            output += "        <generator>" + \
-                dirty_output(self.generator) + "</generator>\n"
-        if (self.image_link is not None and self.image_title is not None and self.image_url is not None):
+        if self.generator is not None:
+            output += (
+                "        <generator>" + dirty_output(self.generator) + "</generator>\n"
+            )
+        if (
+            self.image_link is not None
+            and self.image_title is not None
+            and self.image_url is not None
+        ):
             output += "        <image>\n"
-            output += "            <link>" + \
-                dirty_output(self.image_link) + "</link>\n"
-            output += "            <title>" + \
-                dirty_output(self.image_title) + "</title>\n"
-            output += "            <url>" + \
-                dirty_output(self.image_url) + "</url>\n"
+            output += "            <link>" + dirty_output(self.image_link) + "</link>\n"
+            output += (
+                "            <title>" + dirty_output(self.image_title) + "</title>\n"
+            )
+            output += "            <url>" + dirty_output(self.image_url) + "</url>\n"
             output += "        </image>\n"
-        if (self.language is not None):
-            output += "        <language>" + \
-                dirty_output(self.language) + "</language>\n"
-        if (self.lastBuildDate is not None):
-            output += "        <lastBuildDate>" + \
-                dirty_output(str(self.lastBuildDate)) + "</lastBuildDate>\n"
-        if (self.managingEditor is not None):
-            output += "        <managingEditor>" + \
-                dirty_output(self.managingEditor) + "</managingEditor>\n"
-        if (self.pubDate is not None):
-            output += "        <pubDate>" + \
-                dirty_output(str(self.pubDate)) + "</pubDate>\n"
-        if (self.ttl is not None):
-            output += "        <ttl>" + \
-                dirty_output(str(self.ttl)) + "</ttl>\n"
-        if (self.webMaster is not None):
-            output += "        <webMaster>" + \
-                dirty_output(self.webMaster) + "</webMaster>\n"
+        if self.language is not None:
+            output += (
+                "        <language>" + dirty_output(self.language) + "</language>\n"
+            )
+        if self.lastBuildDate is not None:
+            output += (
+                "        <lastBuildDate>"
+                + dirty_output(str(self.lastBuildDate))
+                + "</lastBuildDate>\n"
+            )
+        if self.managingEditor is not None:
+            output += (
+                "        <managingEditor>"
+                + dirty_output(self.managingEditor)
+                + "</managingEditor>\n"
+            )
+        if self.pubDate is not None:
+            output += (
+                "        <pubDate>" + dirty_output(str(self.pubDate)) + "</pubDate>\n"
+            )
+        if self.ttl is not None:
+            output += "        <ttl>" + dirty_output(str(self.ttl)) + "</ttl>\n"
+        if self.webMaster is not None:
+            output += (
+                "        <webMaster>" + dirty_output(self.webMaster) + "</webMaster>\n"
+            )
 
-        if (len(self.items) != 0):
+        if len(self.items) != 0:
             for item in self.items:
                 output += str(item)
         output += "    </channel>\n"
         return output
 
     def print(self):
-        """Prints information about channel to STDout
-        """
+        """Prints information about channel to STDout"""
         print("Category: " + str(self.category))
         print("Copyright: " + str(self.copyright))
         print("Description: " + str(self.description))
@@ -163,7 +174,7 @@ class RSSChannel:
 
         Parameters:
 
-        data (list): the fields of an item in the form [{%1}, {%2}, ...]  
+        data (list): the fields of an item in the form [{%1}, {%2}, ...]
         """
         return RSSItem(
             data,
@@ -178,7 +189,7 @@ class RSSChannel:
             enclosure_url=self.enclosure_url,
             guid=self.item_guid,
             pubDate=self.item_pubDate,
-            source=self.item_source
+            source=self.item_source,
         )
 
     def __init__(self, data=None, browser_instance=None):
@@ -191,12 +202,12 @@ class RSSChannel:
             language:en-ca
             link:https://google.com
             title:Google.com Feed
-            ttl:30  
+            ttl:30
         """
         self.items = []
 
         if data is None:
-            if (Debug):
+            if Debug:
                 self.print()
             return
 
@@ -209,77 +220,82 @@ class RSSChannel:
 
             # Unfortunately, Python does not include Switch
 
-            if (prefix == 'category'):
+            if prefix == "category":
                 cats = clean_input(line[semi:]).split(",")
                 self.category = [cat.strip() for cat in cats]
-            elif (prefix == 'copyright'):
+            elif prefix == "copyright":
                 self.copyright = clean_input(line[semi:])
-            elif (prefix == 'description'):
+            elif prefix == "description":
                 self.description = clean_input(line[semi:])
-            elif (prefix == 'path'):
+            elif prefix == "path":
                 self.path = clean_input(line[semi:])
 
-            elif (prefix == 'enclosure_length'):
+            elif prefix == "enclosure_length":
                 self.enclosure_length = clean_input(line[semi:])
-            elif (prefix == 'enclosure_type'):
+            elif prefix == "enclosure_type":
                 self.enclosure_type = clean_input(line[semi:])
-            elif (prefix == 'enclosure_url'):
+            elif prefix == "enclosure_url":
                 self.enclosure_url = clean_input(line[semi:])
 
-            elif (prefix == 'image_link'):
+            elif prefix == "image_link":
                 self.image_link = clean_input(line[semi:])
-            elif (prefix == 'image_title'):
+            elif prefix == "image_title":
                 self.image_title = clean_input(line[semi:])
-            elif (prefix == 'image_url'):
+            elif prefix == "image_url":
                 self.image_url = clean_input(line[semi:])
 
-            elif (prefix == 'item_author'):
+            elif prefix == "item_author":
                 self.item_author = clean_input(line[semi:])
-            elif (prefix == 'item_category'):
+            elif prefix == "item_category":
                 self.item_category = clean_input(line[semi:])
-            elif (prefix == 'item_comments'):
+            elif prefix == "item_comments":
                 self.item_comments = clean_input(line[semi:])
-            elif (prefix == 'item_description'):
+            elif prefix == "item_description":
                 self.item_description = clean_input(line[semi:])
-            elif (prefix == 'item_guid'):
+            elif prefix == "item_guid":
                 self.item_guid = clean_input(line[semi:])
-            elif (prefix == 'item_link'):
+            elif prefix == "item_link":
                 self.item_link = clean_input(line[semi:])
-            elif (prefix == 'scrape_start_position'):
+            elif prefix == "scrape_start_position":
                 self.scrape_start_position = clean_input(line[semi:])
-            elif (prefix == 'item_pattern'):
+            elif prefix == "item_pattern":
                 self.item_pattern = clean_input(line[semi:])
-            elif (prefix == 'scrape_stop_position'):
+            elif prefix == "scrape_stop_position":
                 self.scrape_stop_position = clean_input(line[semi:])
-            elif (prefix == 'item_pubDate'):
+            elif prefix == "item_pubDate":
                 self.item_pubDate = clean_input(line[semi:])
-            elif (prefix == 'item_source'):
+            elif prefix == "item_source":
                 self.item_source = clean_input(line[semi:])
-            elif (prefix == 'item_title'):
+            elif prefix == "item_title":
                 self.item_title = clean_input(line[semi:])
 
-            elif (prefix == 'language'):
+            elif prefix == "language":
                 self.language = clean_input(line[semi:])
-            elif (prefix == 'link'):
+            elif prefix == "link":
                 self.link = clean_input(line[semi:])
-            elif (prefix == 'managingEditor'):
+            elif prefix == "managingEditor":
                 self.managingEditor = clean_input(line[semi:])
-            elif (prefix == 'title'):
+            elif prefix == "title":
                 self.title = clean_input(line[semi:])
-            elif (prefix == 'ttl'):
+            elif prefix == "ttl":
                 self.ttl = clean_input(line[semi:])
-            elif (prefix == 'webMaster'):
+            elif prefix == "webMaster":
                 self.webMaster = clean_input(line[semi:])
 
-            elif (prefix == 'logged_title'):
+            elif prefix == "logged_title":
                 self.logged_title = clean_input(line[semi:])
-            elif (prefix == 'logged_URL'):
+            elif prefix == "logged_URL":
                 self.logged_URL = clean_input(line[semi:])
 
-            elif (prefix == 'delay'):
+            elif prefix == "delay":
                 self.delay = int(clean_input(line[semi:]))
 
-        if (Debug):
+            elif prefix == "last_build_date":
+                self.lastBuildDate = datetime.fromtimestamp(
+                    float(clean_input(line[semi:]))
+                )
+
+        if Debug:
             self.print()
 
     def get_item_text(self, text, start_pattern, stop_pattern):
@@ -297,11 +313,11 @@ class RSSChannel:
         if Debug:
             print("Getting Image Data")
         item_data = []
-        while(start >= 0):
+        while start >= 0:
             start = text.find(start_pattern, start)
             stop = text.find(stop_pattern, start)
-            if (start > 0):
-                item_data.append(text[start:stop+len(stop_pattern)])
+            if start > 0:
+                item_data.append(text[start : stop + len(stop_pattern)])
                 start += 1
         return item_data
 
@@ -314,10 +330,10 @@ class RSSChannel:
 
         pattern (string): An item pattern
         """
-        if (Debug):
+        if Debug:
             print("Parsing Item Text")
-        if (pattern is None):
-            if (self.item_pattern is None):
+        if pattern is None:
+            if self.item_pattern is None:
                 return
             item_pattern = self.item_pattern
         else:
@@ -328,89 +344,118 @@ class RSSChannel:
 
         num_fields_total = item_pattern.count("{%}")
         num_fields_captured = 0
-        if (Debug):
+        if Debug:
             print("Total Fields: '" + str(num_fields_total) + "'")
-        if (Debug):
+        if Debug:
             print("Item Text: '" + item_text + "'")
-        if (Debug):
+        if Debug:
             print("Item Pattern: '" + item_pattern + "'")
-        while(capture_search_start_index >= 0):
-            if (Debug):
+        while capture_search_start_index >= 0:
+            if Debug:
                 print("==========================================")
-            if (Debug):
-                print("Left Capture Pattern Start Index: '" +
-                      str(Left_capture_pattern_start_index) + "'")
+            if Debug:
+                print(
+                    "Left Capture Pattern Start Index: '"
+                    + str(Left_capture_pattern_start_index)
+                    + "'"
+                )
             Left_capture_pattern_stop_index = item_pattern.find(
-                "{", Left_capture_pattern_start_index)
-            if (Debug):
-                print("Left Capture Pattern Stop Index: '" +
-                      str(Left_capture_pattern_stop_index) + "'")
-            Left_capture_pattern = item_pattern[Left_capture_pattern_start_index:Left_capture_pattern_stop_index]
-            if (Debug):
+                "{", Left_capture_pattern_start_index
+            )
+            if Debug:
+                print(
+                    "Left Capture Pattern Stop Index: '"
+                    + str(Left_capture_pattern_stop_index)
+                    + "'"
+                )
+            Left_capture_pattern = item_pattern[
+                Left_capture_pattern_start_index:Left_capture_pattern_stop_index
+            ]
+            if Debug:
                 print("Left Capture Pattern: '" + Left_capture_pattern + "'")
 
-            right_capture_pattern_start_index = item_pattern.find(
-                "}", Left_capture_pattern_stop_index)+1
-            if (Debug):
-                print("Right Capture Pattern Start Index: '" +
-                      str(right_capture_pattern_start_index) + "'")
+            right_capture_pattern_start_index = (
+                item_pattern.find("}", Left_capture_pattern_stop_index) + 1
+            )
+            if Debug:
+                print(
+                    "Right Capture Pattern Start Index: '"
+                    + str(right_capture_pattern_start_index)
+                    + "'"
+                )
             right_capture_pattern_stop_index = item_pattern.find(
-                "{", right_capture_pattern_start_index)
-            if (Debug):
-                print("Right Capture Pattern Stop Index: : '" +
-                      str(right_capture_pattern_stop_index) + "'")
+                "{", right_capture_pattern_start_index
+            )
+            if Debug:
+                print(
+                    "Right Capture Pattern Stop Index: : '"
+                    + str(right_capture_pattern_stop_index)
+                    + "'"
+                )
 
-            if (right_capture_pattern_stop_index > 0):
-                right_capture_pattern = item_pattern[right_capture_pattern_start_index:right_capture_pattern_stop_index]
+            if right_capture_pattern_stop_index > 0:
+                right_capture_pattern = item_pattern[
+                    right_capture_pattern_start_index:right_capture_pattern_stop_index
+                ]
             else:
                 right_capture_pattern = item_pattern[right_capture_pattern_start_index:]
 
-            if (Debug):
+            if Debug:
                 print("Right Capture Pattern: '" + right_capture_pattern + "'")
 
-            capture_character = item_pattern[Left_capture_pattern_stop_index+1]
-            if (Debug):
+            capture_character = item_pattern[Left_capture_pattern_stop_index + 1]
+            if Debug:
                 print("Capture Character: '" + capture_character + "'")
 
-            if (Debug):
-                print("Capture Search Start Index: '" +
-                      str(capture_search_start_index) + "'")
+            if Debug:
+                print(
+                    "Capture Search Start Index: '"
+                    + str(capture_search_start_index)
+                    + "'"
+                )
 
             left_capture_pattern_found = item_text.find(
-                Left_capture_pattern, capture_search_start_index)
-            if (left_capture_pattern_found >= 0):
-                capture_start_index = left_capture_pattern_found + \
-                    len(Left_capture_pattern)
+                Left_capture_pattern, capture_search_start_index
+            )
+            if left_capture_pattern_found >= 0:
+                capture_start_index = left_capture_pattern_found + len(
+                    Left_capture_pattern
+                )
             else:
                 capture_start_index = -1
-            if (Debug):
-                print("Capture Start Index: '" +
-                      str(capture_start_index) + "'")
+            if Debug:
+                print("Capture Start Index: '" + str(capture_start_index) + "'")
 
             capture_end_index = item_text.find(
-                right_capture_pattern, capture_start_index)
-            if (Debug):
+                right_capture_pattern, capture_start_index
+            )
+            if Debug:
                 print("Capture End Index: '" + str(capture_end_index) + "'")
 
-            if (left_capture_pattern_found >= 0 & capture_end_index >= 0):
+            if left_capture_pattern_found >= 0 & capture_end_index >= 0:
                 capture_search_start_index = capture_end_index
-            if (capture_character == "%"):
-                if (left_capture_pattern_found >= 0):
+            if capture_character == "%":
+                if left_capture_pattern_found >= 0:
                     captured = clean_input(
-                        item_text[capture_start_index:capture_end_index])
-                    if (Debug):
+                        item_text[capture_start_index:capture_end_index]
+                    )
+                    if Debug:
                         print("Captured: '" + captured + "'")
                     output.append(captured)
                 else:
                     output.append("")
                 num_fields_captured += 1
-            if (Debug):
-                print(str(num_fields_captured) + " of " +
-                      str(num_fields_total) + " fields captured")
-            if (num_fields_captured == num_fields_total):
+            if Debug:
+                print(
+                    str(num_fields_captured)
+                    + " of "
+                    + str(num_fields_total)
+                    + " fields captured"
+                )
+            if num_fields_captured == num_fields_total:
                 capture_search_start_index = -1
             Left_capture_pattern_start_index = right_capture_pattern_start_index
-            if (Debug):
+            if Debug:
                 print("==========================================")
         return output
 
@@ -423,7 +468,7 @@ class RSSChannel:
 
         pattern (string): an item pattern
         """
-        if (Debug):
+        if Debug:
             print("Parsing Items")
         output = []
         for text in data:
@@ -431,49 +476,60 @@ class RSSChannel:
         return output
 
     def save_channel(self):
-        """Creates the xml file of the channel
-        """
+        """Creates the xml file of the channel"""
 
-        output = '''<?xml version="1.0" encoding="utf-8"?>\n<?xml-stylesheet type="text/xsl" href="/res/preview.xsl"?>\n<rss version="2.0">'''
+        output = """<?xml version="1.0" encoding="utf-8"?>\n<?xml-stylesheet type="text/xsl" href="/res/preview.xsl"?>\n<rss version="2.0">"""
         output += "\n" + str(self)
 
         output += "</rss>"
 
-        file_name = os.path.join(self.path, self.title.replace(
-            ":", "~").replace(" ", "_") + ".xml")
+        file_name = os.path.join(
+            self.path, self.title.replace(":", "~").replace(" ", "_") + ".xml"
+        )
+
+        create_folders_to_file(file_name)
+
         f = open(file_name, "wb")
         f.write(str.encode(output))
         f.close()
 
     def generate_items(self, text, test=False):
-        """scrapes the page to find any new items
-        """
+        """scrapes the page to find any new items"""
         result = 1
-        if (text is None):
+        if text is None:
             return -1
-        if(Debug):
+        if Debug:
             print("Item Pattern: '" + self.item_pattern + "'")
-        if (self.item_pattern == None):
+        if self.item_pattern == None:
             return -1
-        if (len(self.items) > 0):
+        if len(self.items) > 0:
             self.items = []
         start = self.item_pattern.find("{")
         stop = self.item_pattern.rfind("}")
-        if(start == -1 or stop == -1):
+        if start == -1 or stop == -1:
             return -1
         start_pattern = self.item_pattern[:start]
-        stop_pattern = self.item_pattern[stop+1:]
-        if(Debug):
+        stop_pattern = self.item_pattern[stop + 1 :]
+        if Debug:
             print("Start pattern: '" + start_pattern + "'")
-        if(Debug):
+        if Debug:
             print("Stop pattern: '" + stop_pattern + "'")
         partial_text = clean_input(text)
-        if ((self.scrape_start_position is not None) and (self.scrape_start_position != "") and (partial_text.find(self.scrape_start_position) > -1)):
-            partial_text = partial_text[partial_text.find(
-                self.scrape_start_position) + len(self.scrape_start_position):]
-        if ((self.scrape_stop_position is not None) and (self.scrape_stop_position != "") and (partial_text.find(self.scrape_stop_position) > -1)):
-            partial_text = partial_text[:partial_text.find(
-                self.scrape_stop_position)]
+        if (
+            (self.scrape_start_position is not None)
+            and (self.scrape_start_position != "")
+            and (partial_text.find(self.scrape_start_position) > -1)
+        ):
+            partial_text = partial_text[
+                partial_text.find(self.scrape_start_position)
+                + len(self.scrape_start_position) :
+            ]
+        if (
+            (self.scrape_stop_position is not None)
+            and (self.scrape_stop_position != "")
+            and (partial_text.find(self.scrape_stop_position) > -1)
+        ):
+            partial_text = partial_text[: partial_text.find(self.scrape_stop_position)]
         data = self.get_item_text(partial_text, start_pattern, stop_pattern)
         item_info = self.parse_items(data)
         if test == True:
@@ -481,8 +537,7 @@ class RSSChannel:
         for item in item_info:
             if len(item) < 1:
                 f = io.open("error-log.txt", "a", encoding="utf-8")
-                f.write("-------------" +
-                        str(datetime.datetime.now()) + "-------------\n")
+                f.write("-------------" + str(datetime.now()) + "-------------\n")
                 f.write("PARSING FAILURE")
                 f.write(str(data) + "\n")
                 f.write(self.item_pattern + "\n")
@@ -490,8 +545,8 @@ class RSSChannel:
                 f.close()
                 result = -1
             self.items.append(self.create_item(item))
-        self.lastBuildDate = datetime.datetime.now()
-        self.pubDate = datetime.datetime.now()
+        self.lastBuildDate = datetime.now()
+        self.pubDate = datetime.now()
         return result
 
     def test_pattern(self, pattern, text, scrape_start_position, scrape_stop_position):
@@ -504,56 +559,51 @@ class RSSChannel:
         text (string): the text to scrape for items
         """
         self.item_pattern = clean_input(pattern)
-        if (scrape_start_position != ""):
+        if scrape_start_position != "":
             self.scrape_start_position = clean_input(scrape_start_position)
-        if (scrape_stop_position != ""):
+        if scrape_stop_position != "":
             self.scrape_stop_position = clean_input(scrape_stop_position)
         return self.generate_items(text, True)
 
     def test_definition(self, pattern, text, title, link, description):
-        if (pattern == None):
+        if pattern == None:
             return
-        if (link == "https://www.w3.org/about"):
+        if link == "https://www.w3.org/about":
             return
         self.item_pattern = clean_input(pattern)
-        if(Debug):
+        if Debug:
             print("Item Pattern: '" + self.item_pattern + "'")
         first = self.item_pattern.find("{")
-        if (first < 0):
+        if first < 0:
             return None
         second = self.item_pattern.rfind("}")
-        if (second < 0):
+        if second < 0:
             return None
         start_pattern = self.item_pattern[:first]
-        stop_pattern = self.item_pattern[second+1:]
-        if(Debug):
+        stop_pattern = self.item_pattern[second + 1 :]
+        if Debug:
             print("Start pattern: '" + start_pattern + "'")
-        if(Debug):
+        if Debug:
             print("Stop pattern: '" + stop_pattern + "'")
-        data = self.get_item_text(clean_input(
-            text), start_pattern, stop_pattern)
-        if(Debug):
+        data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
+        if Debug:
             print(data[0])
         item_info = self.parse_items(data[:3])
-        if(Debug):
+        if Debug:
             print(item_info)
-        iterator = 0
         items = []
         for item in item_info:
-            items.append(RSSItem(
-                item,
-                title=title,
-                link=link,
-                description=description).toJSON())
-        if(Debug):
+            items.append(
+                RSSItem(item, title=title, link=link, description=description).toJSON()
+            )
+        if Debug:
             print(items)
-        if (Debug):
+        if Debug:
             print("Test complete")
         return items
 
     def clear(self):
-        """clear all the variables
-        """
+        """clear all the variables"""
         self.category = None
         self.copyright = None
         self.description = None
@@ -597,79 +647,87 @@ class RSSChannel:
         self.logged_URL = None
 
     def print_definition(self):
-        """Produce a string representation of the channel for use in Feed_Definitions.txt
-        """
+        """Produce a string representation of the channel for use in Feed_Definitions.txt"""
         output = ""
 
-        if (self.category is not None):
+        if self.category is not None:
             output += "category:"
             for cat in self.category:
                 output += cat + ","
             output = output[:-1]
             output += "\n"
-        if (self.copyright is not None):
+        if self.copyright is not None:
             output += "copyright:" + self.copyright + "\n"
-        if (self.description is not None):
+        if self.description is not None:
             output += "description:" + self.description + "\n"
-        if (self.path is not None):
+        if self.path is not None:
             output += "path:" + self.path + "\n"
 
-        if (self.enclosure_length is not None):
+        if self.enclosure_length is not None:
             output += "enclosure_length:" + self.enclosure_length + "\n"
-        if (self.enclosure_type is not None):
+        if self.enclosure_type is not None:
             output += "enclosure_type:" + self.enclosure_type + "\n"
-        if (self.enclosure_url is not None):
+        if self.enclosure_url is not None:
             output += "enclosure_url:" + self.enclosure_url + "\n"
 
-        if (self.image_link is not None and self.image_title is not None and self.image_url is not None):
+        if (
+            self.image_link is not None
+            and self.image_title is not None
+            and self.image_url is not None
+        ):
             output += "image_link:" + self.image_link + "\n"
             output += "image_title:" + self.image_title + "\n"
             output += "image_url:" + self.image_url + "\n"
 
-        if (self.item_author is not None):
+        if self.item_author is not None:
             output += "item_author:" + self.item_author + "\n"
-        if (self.item_category is not None):
+        if self.item_category is not None:
             output += "item_category:" + self.item_category + "\n"
-        if (self.item_comments is not None):
+        if self.item_comments is not None:
             output += "item_comments:" + self.item_comments + "\n"
-        if (self.item_description is not None):
+        if self.item_description is not None:
             output += "item_description:" + self.item_description + "\n"
-        if (self.item_guid is not None):
+        if self.item_guid is not None:
             output += "item_guid:" + self.item_guid + "\n"
-        if (self.item_link is not None):
+        if self.item_link is not None:
             output += "item_link:" + self.item_link + "\n"
-        if (self.scrape_start_position is not None):
+        if self.scrape_start_position is not None:
             output += "scrape_start_position:" + self.scrape_start_position + "\n"
-        if (self.item_pattern is not None):
+        if self.item_pattern is not None:
             output += "item_pattern:" + self.item_pattern + "\n"
-        if (self.scrape_stop_position is not None):
+        if self.scrape_stop_position is not None:
             output += "scrape_stop_position:" + self.scrape_stop_position + "\n"
-        if (self.item_pubDate is not None):
+        if self.item_pubDate is not None:
             output += "item_pubDate:" + self.item_pubDate + "\n"
-        if (self.item_source is not None):
+        if self.item_source is not None:
             output += "item_source:" + self.item_source + "\n"
-        if (self.item_title is not None):
+        if self.item_title is not None:
             output += "item_title:" + self.item_title + "\n"
 
-        if (self.language is not None):
+        if self.language is not None:
             output += "language:" + self.language + "\n"
-        if (self.link is not None):
+        if self.link is not None:
             output += "link:" + self.link + "\n"
-        if (self.managingEditor is not None):
+        if self.managingEditor is not None:
             output += "managingEditor:" + self.managingEditor + "\n"
-        if (self.title is not None):
+        if self.title is not None:
             output += "title:" + self.title + "\n"
-        if (self.ttl is not None):
+        if self.ttl is not None:
             output += "ttl:" + str(self.ttl) + "\n"
-        if (self.webMaster is not None):
+        if self.webMaster is not None:
             output += "webMaster:" + self.webMaster + "\n"
 
-        if (self.logged_title is not None):
+        if self.logged_title is not None:
             output += "logged_title:" + self.logged_title + "\n"
-        if (self.logged_URL is not None):
+        if self.logged_URL is not None:
             output += "logged_URL:" + str(self.logged_URL) + "\n"
 
-        if ((self.delay is not None) and (self.delay != 0)):
+        if (self.delay is not None) and (self.delay != 0):
             output += "delay:" + str(self.delay) + "\n"
+
+        if self.lastBuildDate is not None:
+            output += (
+                "last_build_date:" + str(datetime.timestamp(self.lastBuildDate)) + "\n"
+            )
 
         return output

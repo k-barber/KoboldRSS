@@ -4,7 +4,7 @@ import os
 import time
 import io
 
-top = '''
+top = """
 <!DOCTYPE html>
 <html lang="en">
 
@@ -23,9 +23,9 @@ top = '''
             <h1>K-Barber's RSS-Generator: My Feeds</h1>
             <p>A list of your feeds:</p>
             <ul>
-'''
+"""
 
-bottom = '''
+bottom = """
             </ul>
             <button onclick="refresh()">Refresh</button>
         </div>
@@ -37,7 +37,7 @@ bottom = '''
     </script>
 </body>
 </html>
-'''
+"""
 
 
 class GeneratorInstance:
@@ -59,38 +59,43 @@ class GeneratorInstance:
 
     def check_for_updates(self):
         now = datetime.now()
-        modified = datetime.fromtimestamp(
-            os.path.getmtime('Feed_Definitions.txt'))
-        if (modified >= self.start_time):
+        modified = datetime.fromtimestamp(os.path.getmtime("Feed_Definitions.txt"))
+        if modified >= self.start_time:
             self.log("Feed Definitions have been updated, regenerating feed list")
             self.start_time = now
             self.shell.create_channels()
 
     def run(self):
         self.update_channels()
-        for i in range(0, 300):
-            if(self.is_aborted()):
+        for _ in range(0, 60):
+            if self.is_aborted():
                 return
-            time.sleep(1)
+            time.sleep(5)
+            if self.is_aborted():
+                return
+            self.check_for_updates()
         self.run()
 
     def update_channels(self):
         self.log("Checking browser")
         self.browser_instance.login_check(self.shell.channels)
-        if(self.is_aborted()):
+        if self.is_aborted():
             return
         if self.browser_instance.start() == True:
             now = datetime.now()
             self.log("Updating Channels")
             for channel in self.shell.channels:
-                if(self.is_aborted()):
+                if self.is_aborted():
                     return
-                if (channel.lastBuildDate is not None):
-                    if (now >= channel.lastBuildDate + timedelta(minutes=int(channel.ttl))):
+
+                if channel.lastBuildDate is not None:
+                    if now >= channel.lastBuildDate + timedelta(
+                        minutes=int(channel.ttl)
+                    ):
                         self.generate_items(channel)
                 else:
                     self.generate_items(channel)
-            if(self.is_aborted()):
+            if self.is_aborted():
                 return
             else:
                 self.log("Updating in 5 Minutes")
@@ -98,7 +103,7 @@ class GeneratorInstance:
             self.log("browser failed to start, please restart generator")
 
     def is_aborted(self):
-        if (self.shell.generator_stop_signal.is_set()):
+        if self.shell.generator_stop_signal.is_set():
             self.stop()
             return 1
         else:
@@ -113,36 +118,37 @@ class GeneratorInstance:
 
         timer = 2
         count = 0
-        while (text == ""):
+        while text == "":
             try:
-                if ((channel.logged_URL is not None) or (channel.delay is not None)):
+                if (channel.logged_URL is not None) or (channel.delay is not None):
                     text = self.browser_instance.generic_scrape(
-                        channel.link, channel.delay)
+                        channel.link, channel.delay
+                    )
                 else:
                     response = None
-                    response = requests.get(channel.link, headers={
-                                            'User-agent': 'RSS Generator Bot'})
+                    response = requests.get(
+                        channel.link, headers={"User-agent": "RSS Generator Bot"}
+                    )
                     text = response.text
             except Exception as err:
                 self.log("Error scraping " + channel.title)
                 self.log("Retrying in " + str(timer) + " seconds.")
-                if(self.is_aborted()):
+                if self.is_aborted():
                     return
                 time.sleep(timer)
                 timer = timer * 2
-                if (count == 4):
+                if count == 4:
                     f = io.open("error-log.txt", "a", encoding="utf-8")
-                    f.write("-------------" +
-                            str(datetime.now()) + "-------------\n")
+                    f.write("-------------" + str(datetime.now()) + "-------------\n")
                     f.write(channel.title + "\n")
                     f.write(str(err) + "\n")
                     f.close()
                     break
                 else:
                     count += 1
-        if (text != ""):
+        if text != "":
             result = channel.generate_items(text)
-            if (result != -1):
+            if result != -1:
                 channel.save_channel()
                 return
         self.log("Scraping " + channel.title + " failed")
