@@ -196,6 +196,7 @@ class ShellInstance:
                 output = channel.print_definition()
                 f.write(output + "~-~-~-~-\n")
             f.close()
+        return datetime.now()
 
     def create_channels(self):
         self.channels = []
@@ -212,6 +213,7 @@ class ShellInstance:
                     if self.debug_mode:
                         self.print_generator_output(channel.title)
                     self.channels.append(channel)
+        return datetime.now()
 
     def __init__(self):
         self.create_channels()

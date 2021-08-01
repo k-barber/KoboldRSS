@@ -59,12 +59,10 @@ class GeneratorInstance:
         self.log("Generator starts")
 
     def check_for_updates(self):
-        now = datetime.now()
         modified = datetime.fromtimestamp(os.path.getmtime("Feed_Definitions.txt"))
         if modified >= self.start_time:
             self.log("Feed Definitions have been updated, regenerating feed list")
-            self.start_time = now
-            self.shell.create_channels()
+            self.start_time = self.shell.create_channels() + timedelta(minutes=1)
             return True
         return False
 
@@ -103,7 +101,9 @@ class GeneratorInstance:
                 return
             else:
                 self.log("Updating in 5 Minutes")
-                self.shell.recompile_definitions()
+                self.start_time = self.shell.recompile_definitions() + timedelta(
+                    minutes=1
+                )
         else:
             self.log("browser failed to start, please restart generator")
 
