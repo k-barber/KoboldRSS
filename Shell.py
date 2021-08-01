@@ -4,9 +4,10 @@ from RSSChannel import RSSChannel
 from Server import ServerInstance
 from Gui import RSSWindow
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
+from shutil import copyfile
 import itertools as it
-import Utils
+from Utils import *
 import os
 
 
@@ -35,13 +36,13 @@ class ShellInstance:
 
     def print_server_output(self, value):
         if self.gui.is_running():
-            self.gui.print_to_server_output(Utils.log(value))
-            print("Server Output: " + Utils.log(value))
+            self.gui.print_to_server_output(log(value))
+            print("Server Output: " + log(value))
 
     def print_generator_output(self, value):
         if self.gui.is_running():
-            self.gui.print_to_generator_output(Utils.log(value))
-            print("Generator Output: " + Utils.log(value))
+            self.gui.print_to_generator_output(log(value))
+            print("Generator Output: " + log(value))
 
     """
     GENERATOR FUNCTIONS
@@ -162,7 +163,32 @@ class ShellInstance:
         if self.running:
             self.show_hidden = self.gui.show_hidden.get()
 
+    def back_up_definitions(self):
+        now = datetime.now()
+        now = now.replace(microsecond=0)
+        date = now.isoformat("_")
+        date = date.replace(":", "_")
+        file_name = "FD_Backup_" + date + ".txt"
+        file_name = os.path.join("FD_Backup", file_name)
+        create_folders_to_file(file_name)
+        copyfile("Feed_Definitions.txt", file_name)
+        self.clear_backups()
+
+    def clear_backups(self):
+        now = datetime.now()
+        onlyfiles = [
+            os.path.join("FD_Backup/", f)
+            for f in os.listdir("FD_Backup/")
+            if os.path.isfile(os.path.join("FD_Backup/", f))
+        ]
+        for file_name in onlyfiles:
+            modified = datetime.fromtimestamp(os.path.getmtime(file_name))
+
+            if now >= modified + timedelta(days=7):
+                os.remove(file_name)
+
     def recompile_definitions(self):
+        self.back_up_definitions()
         if len(self.channels) > 0:
             self.channels.sort(key=lambda a: os.path.join(a.path, a.title))
             f = open("Feed_Definitions.txt", "w")
@@ -193,6 +219,7 @@ class ShellInstance:
         self.generator_stopped_signal = threading.Event()
         self.browser_stopped_signal = threading.Event()
         self.browser_instance = BrowserWindow(self.debug_mode, self)
+        self.back_up_definitions()
         try:
             self.gui = RSSWindow(self)
             while True:  # self.running:

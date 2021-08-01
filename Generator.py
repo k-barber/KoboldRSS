@@ -65,6 +65,8 @@ class GeneratorInstance:
             self.log("Feed Definitions have been updated, regenerating feed list")
             self.start_time = now
             self.shell.create_channels()
+            return True
+        return False
 
     def run(self):
         self.update_channels()
@@ -74,7 +76,8 @@ class GeneratorInstance:
             time.sleep(5)
             if self.is_aborted():
                 return
-            self.check_for_updates()
+            if self.check_for_updates():
+                break
         self.run()
 
     def update_channels(self):
@@ -100,6 +103,7 @@ class GeneratorInstance:
                 return
             else:
                 self.log("Updating in 5 Minutes")
+                self.shell.recompile_definitions()
         else:
             self.log("browser failed to start, please restart generator")
 
