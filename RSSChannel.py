@@ -298,182 +298,83 @@ class RSSChannel:
         if Debug:
             self.print()
 
-    def get_item_text(self, text, start_pattern, stop_pattern):
-        """Creates a list of text snippets that match start_pattern{*}stop_pattern
+    def generate_items(self, text, test=False):
+        """Creates a list of items from the given text and item pattern
 
         Parameters:
 
-        text (string): the raw source of the page
-
-        start_pattern (string): the item pattern up to the first {
-
-        stop_pattern (string): the item pattern after the last }
+        text (string): the text to scrape for items
         """
-        start = 0
-        if Debug:
-            print("Getting Image Data")
-        item_data = []
-        while start >= 0:
-            start = text.find(start_pattern, start)
-            stop = text.find(stop_pattern, start)
-            if start > 0:
-                item_data.append(text[start : stop + len(stop_pattern)])
-                start += 1
-        return item_data
 
-    def parse_item_text(self, item_text, pattern=None):
-        """generates a list of item fields from the item pattern and a snippet of text from get_item_text
-
-        Parameters:
-
-        item_text (string): A snippet of text from the source code that matches the item pattern
-
-        pattern (string): An item pattern
-        """
-        if Debug:
-            print("Parsing Item Text")
-        if pattern is None:
-            if self.item_pattern is None:
-                return
-            item_pattern = self.item_pattern
-        else:
-            item_pattern = pattern
-        output = []
-        Left_capture_pattern_start_index = 0  # The position in the pattern
-        capture_search_start_index = 0  # The position in the text
-
-        num_fields_total = item_pattern.count("{%}")
-        num_fields_captured = 0
-        if Debug:
-            print("Total Fields: '" + str(num_fields_total) + "'")
-        if Debug:
-            print("Item Text: '" + item_text + "'")
-        if Debug:
-            print("Item Pattern: '" + item_pattern + "'")
-        while capture_search_start_index >= 0:
-            if Debug:
-                print("==========================================")
-            if Debug:
-                print(
-                    "Left Capture Pattern Start Index: '"
-                    + str(Left_capture_pattern_start_index)
-                    + "'"
-                )
-            Left_capture_pattern_stop_index = item_pattern.find(
-                "{", Left_capture_pattern_start_index
-            )
-            if Debug:
-                print(
-                    "Left Capture Pattern Stop Index: '"
-                    + str(Left_capture_pattern_stop_index)
-                    + "'"
-                )
-            Left_capture_pattern = item_pattern[
-                Left_capture_pattern_start_index:Left_capture_pattern_stop_index
+        partial_text = clean_input(text)
+        
+        if (
+            (self.scrape_start_position is not None)
+            and (self.scrape_start_position != "")
+            and (partial_text.find(self.scrape_start_position) > -1)
+        ):
+            partial_text = partial_text[
+                partial_text.find(self.scrape_start_position)
+                + len(self.scrape_start_position) :
             ]
-            if Debug:
-                print("Left Capture Pattern: '" + Left_capture_pattern + "'")
 
-            right_capture_pattern_start_index = (
-                item_pattern.find("}", Left_capture_pattern_stop_index) + 1
-            )
-            if Debug:
-                print(
-                    "Right Capture Pattern Start Index: '"
-                    + str(right_capture_pattern_start_index)
-                    + "'"
-                )
-            right_capture_pattern_stop_index = item_pattern.find(
-                "{", right_capture_pattern_start_index
-            )
-            if Debug:
-                print(
-                    "Right Capture Pattern Stop Index: : '"
-                    + str(right_capture_pattern_stop_index)
-                    + "'"
-                )
+        if (
+            (self.scrape_stop_position is not None)
+            and (self.scrape_stop_position != "")
+            and (partial_text.find(self.scrape_stop_position) > -1)
+        ):
+            partial_text = partial_text[: partial_text.find(self.scrape_stop_position)]
+        
+        try:
+            re.compile(self.item_pattern)
+        except re.error:
+            return "ERROR"
 
-            if right_capture_pattern_stop_index > 0:
-                right_capture_pattern = item_pattern[
-                    right_capture_pattern_start_index:right_capture_pattern_stop_index
-                ]
+        try:
+            result = re.findall(self.item_pattern, partial_text, re.DOTALL)
+        except Exception as err:
+            exception_type = type(err).__name__
+            print(exception_type)
+
+
+        # Remove leading and trailing whitespace from matches
+        stripped = []
+        for match in result:
+            if type(match) is tuple:
+                stripped.append(tuple(group.strip() for group in match))
             else:
-                right_capture_pattern = item_pattern[right_capture_pattern_start_index:]
+                stripped.append(tuple([match]))
 
-            if Debug:
-                print("Right Capture Pattern: '" + right_capture_pattern + "'")
+        if test == True:
+            return stripped
 
-            capture_character = item_pattern[Left_capture_pattern_stop_index + 1]
-            if Debug:
-                print("Capture Character: '" + capture_character + "'")
-
-            if Debug:
-                print(
-                    "Capture Search Start Index: '"
-                    + str(capture_search_start_index)
-                    + "'"
-                )
-
-            left_capture_pattern_found = item_text.find(
-                Left_capture_pattern, capture_search_start_index
-            )
-            if left_capture_pattern_found >= 0:
-                capture_start_index = left_capture_pattern_found + len(
-                    Left_capture_pattern
-                )
-            else:
-                capture_start_index = -1
-            if Debug:
-                print("Capture Start Index: '" + str(capture_start_index) + "'")
-
-            capture_end_index = item_text.find(
-                right_capture_pattern, capture_start_index
-            )
-            if Debug:
-                print("Capture End Index: '" + str(capture_end_index) + "'")
-
-            if left_capture_pattern_found >= 0 & capture_end_index >= 0:
-                capture_search_start_index = capture_end_index
-            if capture_character == "%":
-                if left_capture_pattern_found >= 0:
-                    captured = clean_input(
-                        item_text[capture_start_index:capture_end_index]
-                    )
-                    if Debug:
-                        print("Captured: '" + captured + "'")
-                    output.append(captured)
-                else:
-                    output.append("")
-                num_fields_captured += 1
-            if Debug:
-                print(
-                    str(num_fields_captured)
-                    + " of "
-                    + str(num_fields_total)
-                    + " fields captured"
-                )
-            if num_fields_captured == num_fields_total:
-                capture_search_start_index = -1
-            Left_capture_pattern_start_index = right_capture_pattern_start_index
-            if Debug:
-                print("==========================================")
-        return output
-
-    def parse_items(self, data, pattern=None):
-        """Creates a list of items field lists
-
-        Parameters:
-
-        data (string): a list of item text snippets from get_item_text()
-
-        pattern (string): an item pattern
-        """
-        if Debug:
-            print("Parsing Items")
+        self.items = []
         output = []
-        for text in data:
-            output.append(self.parse_item_text(text, pattern))
+
+        for item_data in stripped:
+            rss_item = self.create_item(item_data)
+            self.items.append(rss_item)
+            output.append(rss_item.toJSON())
+
+        self.lastBuildDate = datetime.now()
+        self.pubDate = datetime.now()
+
         return output
+
+    def test_definition(self, pattern, text, title, link, description):
+        if pattern == None:
+            return
+        if link == "https://www.w3.org/about":
+            return
+        self.item_pattern = pattern
+        if Debug:
+            print("Item Pattern: '" + self.item_pattern + "'")
+
+        self.item_title = title
+        self.item_link = link
+        self.item_description = description
+        items = self.generate_items(clean_input(text))
+        return items[:3]
 
     def save_channel(self):
         """Creates the xml file of the channel"""
@@ -492,115 +393,6 @@ class RSSChannel:
         f = open(file_name, "wb")
         f.write(str.encode(output))
         f.close()
-
-    def generate_items(self, text, test=False):
-        """scrapes the page to find any new items"""
-        result = 1
-        if text is None:
-            return -1
-        if Debug:
-            print("Item Pattern: '" + self.item_pattern + "'")
-        if self.item_pattern == None:
-            return -1
-        if len(self.items) > 0:
-            self.items = []
-        start = self.item_pattern.find("{")
-        stop = self.item_pattern.rfind("}")
-        if start == -1 or stop == -1:
-            return -1
-        start_pattern = self.item_pattern[:start]
-        stop_pattern = self.item_pattern[stop + 1 :]
-        if Debug:
-            print("Start pattern: '" + start_pattern + "'")
-        if Debug:
-            print("Stop pattern: '" + stop_pattern + "'")
-        partial_text = clean_input(text)
-        if (
-            (self.scrape_start_position is not None)
-            and (self.scrape_start_position != "")
-            and (partial_text.find(self.scrape_start_position) > -1)
-        ):
-            partial_text = partial_text[
-                partial_text.find(self.scrape_start_position)
-                + len(self.scrape_start_position) :
-            ]
-        if (
-            (self.scrape_stop_position is not None)
-            and (self.scrape_stop_position != "")
-            and (partial_text.find(self.scrape_stop_position) > -1)
-        ):
-            partial_text = partial_text[: partial_text.find(self.scrape_stop_position)]
-        data = self.get_item_text(partial_text, start_pattern, stop_pattern)
-        item_info = self.parse_items(data)
-        if test == True:
-            return item_info
-        for item in item_info:
-            if len(item) < 1:
-                f = io.open("error-log.txt", "a", encoding="utf-8")
-                f.write("-------------" + str(datetime.now()) + "-------------\n")
-                f.write("PARSING FAILURE")
-                f.write(str(data) + "\n")
-                f.write(self.item_pattern + "\n")
-                f.write(str(item) + "\n")
-                f.close()
-                result = -1
-            self.items.append(self.create_item(item))
-        self.lastBuildDate = datetime.now()
-        self.pubDate = datetime.now()
-        return result
-
-    def test_pattern(self, pattern, text, scrape_start_position, scrape_stop_position):
-        """Creates a list of items from the given text and item pattern
-
-        Parameters:
-
-        pattern (string): an item pattern
-
-        text (string): the text to scrape for items
-        """
-        self.item_pattern = clean_input(pattern)
-        if scrape_start_position != "":
-            self.scrape_start_position = clean_input(scrape_start_position)
-        if scrape_stop_position != "":
-            self.scrape_stop_position = clean_input(scrape_stop_position)
-        return self.generate_items(text, True)
-
-    def test_definition(self, pattern, text, title, link, description):
-        if pattern == None:
-            return
-        if link == "https://www.w3.org/about":
-            return
-        self.item_pattern = clean_input(pattern)
-        if Debug:
-            print("Item Pattern: '" + self.item_pattern + "'")
-        first = self.item_pattern.find("{")
-        if first < 0:
-            return None
-        second = self.item_pattern.rfind("}")
-        if second < 0:
-            return None
-        start_pattern = self.item_pattern[:first]
-        stop_pattern = self.item_pattern[second + 1 :]
-        if Debug:
-            print("Start pattern: '" + start_pattern + "'")
-        if Debug:
-            print("Stop pattern: '" + stop_pattern + "'")
-        data = self.get_item_text(clean_input(text), start_pattern, stop_pattern)
-        if Debug:
-            print(data[0])
-        item_info = self.parse_items(data[:3])
-        if Debug:
-            print(item_info)
-        items = []
-        for item in item_info:
-            items.append(
-                RSSItem(item, title=title, link=link, description=description).toJSON()
-            )
-        if Debug:
-            print(items)
-        if Debug:
-            print("Test complete")
-        return items
 
     def clear(self):
         """clear all the variables"""

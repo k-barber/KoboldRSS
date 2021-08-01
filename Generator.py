@@ -1,3 +1,4 @@
+from RSSChannel import RSSChannel
 import requests
 from datetime import datetime, timedelta
 import os
@@ -112,7 +113,7 @@ class GeneratorInstance:
     def stop(self):
         self.shell.generator_stopped_signal.set()
 
-    def generate_items(self, channel):
+    def generate_items(self, channel: RSSChannel):
         text = ""
         self.log("Updating " + channel.title)
 

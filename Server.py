@@ -3,15 +3,15 @@ import email.parser
 import socket
 import requests
 from RSSChannel import RSSChannel
-from Utils import folder_is_hidden
+from Utils import clean_input, folder_is_hidden
 import json
-import gc
 from io import BytesIO
 import os
 from os import path as file_path, listdir
 from os.path import isfile, join
 from datetime import datetime, timedelta
 from urllib import parse
+import re
 
 shell = None
 browser = None
@@ -362,13 +362,21 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.wfile.write(bytes(text, "utf-8"))
             elif self.path == "/Test_Pattern":
                 params = json.loads(str(post_data, encoding="utf-8"))
-                pattern = params["pattern"]
                 text = params["body"]
-                scrape_stop_position = params["scrape_stop_position"]
-                scrape_start_position = params["scrape_start_position"]
-                data = new_channel.test_pattern(
-                    pattern, text, scrape_start_position, scrape_stop_position
+                new_channel.scrape_start_position = clean_input(
+                    params["scrape_stop_position"]
                 )
+                new_channel.scrape_stop_position = clean_input(
+                    params["scrape_start_position"]
+                )
+                new_channel.item_pattern = params["pattern"]
+                data = new_channel.generate_items(text, True)
+                if data == "ERROR":
+                    self.send_response(401)
+                    self.send_header("Content-type", "text/html")
+                    self.end_headers()
+                    self.wfile.write(bytes("Invalid RegEx provided", "utf-8"))
+                    return
                 response = json.dumps(data)
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")

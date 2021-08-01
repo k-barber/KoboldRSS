@@ -186,9 +186,10 @@
                 <button onclick="scrape_URL()" formnovalidate>Scrape URL</button>
                 <p class="Field">Scraped Page Source Data: </p>
                 <div class="padding"><textarea readonly id="Page_Source" name="Page_Source" rows="10" cols="100" class="input_box"></textarea></div>
-                <p>This is where things start to get complicated. Look through the data above and find an example of an item you want in the feed.</p>
-                <p>Copy that item into the box below, and replace any dynamic text with either {*} for data you don't want to keep, or {%} for data you do want to keep</p>
-                <p class="Field tooltip">Item Pattern:<span class="tooltiptext">The text that the Generator uses to create Feed Items. Dynamic text represented by {%} is saved by the Generator, {*} is discarded.</span></p>
+                <p>The Item Pattern is a Regular Expression that is used to extract information for the feed items.</p>
+                <p>If you've never used a Regular Expression before, I recommend <a href="/Help">following the tutorial</a> and using a <a href="https://regex101.com/">RegEx tester</a>.</p>
+                <p>The generator will find all matches on a page and return a list of matches, each of which is a list of capture groups.</p>
+                <p class="Field tooltip">Item Pattern:<span class="tooltiptext">The RegEx that the Generator uses to create Feed Items. If you are lost, <a href="/Help">try the tutorial</a></span></p>
                 <div class="padding"><textarea id="Item_Pattern" name="Item_Pattern" rows="10" cols="100" class="input_box" required spellcheck="false"></textarea></div>
                 <p class="Field tooltip">Scraping Start Position:<span class="tooltiptext">Where in the page source to start scraping for items</span></p>
                 <div class="padding"><textarea id="scrape_start_position" name="scrape_start_position" rows="5" cols="100" class="input_box" spellcheck="false"></textarea></div>
@@ -453,23 +454,32 @@
                 if ((pattern != null) & (document.getElementById("Item_Pattern").checkValidity())) {
                     var xhr = new XMLHttpRequest();
                     xhr.onload = function () {
-                        document.body.style.cursor = "default";
-                        var array = JSON.parse(xhr.response);
-                        var output = "";
-                        var i = 1;
-                        array.forEach(function (item) {
-                            output += "-----------------\n";
-                            output += "Item: " + String(i) + "\n";
-                            f = 1;
-                            item.forEach(function (field) {
-                                output += "{%" + String(f) + "}: " + field + "\n";
-                                f += 1;
+                        if (xhr.status == 200) {
+                            document.body.style.cursor = "default";
+                            var array = JSON.parse(xhr.response);
+                            var output = "";
+                            var i = 1;
+                            array.forEach(function (item) {
+                                output += "-----------------\n";
+                                output += "Item: " + String(i) + "\n";
+                                f = 1;
+                                if (typeof (item) == "object") {
+                                    item.forEach(function (field) {
+                                        output += "{%" + String(f) + "}: " + field + "\n";
+                                        f += 1;
+                                    });
+                                } else {
+
+                                }
+                                i += 1;
                             });
-                            i += 1;
-                        });
-                        document.getElementById("Item_List").value = output;
-                        document.getElementById("Item_Total").innerText = String(array.length);
-                        localStorage.setItem("Item_List", output);
+                            document.getElementById("Item_List").value = output;
+                            document.getElementById("Item_Total").innerText = String(array.length);
+                            new Noty({ text: String(array.length) + " items found", type: "info" }).show();
+                            localStorage.setItem("Item_List", output);
+                        } else {
+                            new Noty({ text: "Error", type: "error" }).show();
+                        }
                     };
                     xhr.open('POST', '/Test_Pattern');
                     xhr.setRequestHeader("Content-Type", "application/json");

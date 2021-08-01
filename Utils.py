@@ -36,7 +36,7 @@ def log(text):
     return datetime.now().strftime("[%Y/%m/%d %H:%M:%S] - ") + text
 
 
-def clean_input(text):
+def clean_input(text: str):
     """Removes any web formatting & replaces it with regular text
 
     Parameters:
