@@ -126,6 +126,15 @@ td {
     -webkit-transform: rotate(-30deg);
     /* Safari prior 9.0 */
     transform: rotate(-30deg);
+    animation-name: spin;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    animation-play-state: paused;
+}
+
+#icon:hover {
+    animation-play-state: running;
 }
 
 input[type='checkbox'] {
@@ -150,6 +159,10 @@ textarea:focus-visible {
     /* If you want dots under the hoverable text */
     cursor: help;
     width: 100%;
+}
+
+.floatingchat-container {
+    width: max-content !important;
 }
 
 .tooltip .tooltiptext {
@@ -354,12 +367,6 @@ a:visited {
 
 a:hover {
     color: red;
-}
-
-#icon:hover {
-    animation-name: spin;
-    animation-duration: 3s;
-    animation-iteration-count: infinite;
 }
 
 @keyframes spin {

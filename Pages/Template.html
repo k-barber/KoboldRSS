@@ -10,21 +10,28 @@
     <script src="/Pages/js/noty.min.js"></script>
     <script>
         Noty.overrideDefaults({
-            layout: 'topLeft'
+            layout: 'topLeft',
+            sounds: {
+                sources: ["/Pages/sounds/ding.mp3"],
+                volume: 1,
+                conditions: ["docVisible"]
+            },
         });
     </script>
-    <title>RSS-Generator</title>
 </head>
 
 <body>
     <a href="/"><img src="/Img/Bocchi.png" id="bocchi" /></a>
-    <div id="container">
-        <div>
-            <a href="http://www.rssboard.org/rss-draft-1" target="_blank"><img id="icon" src="/Img/RSS.png"></a>
-            <p><a href="/">Home</a></p>
-            <h1>K-Barber's RSS-Generator</h1>
-        </div>
-    </div>
+    <div id="container"></div>
 </body>
+<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+<script>
+    kofiWidgetOverlay.draw('k_barber', {
+        'type': 'floating-chat',
+        'floating-chat.donateButton.text': 'Support the developer',
+        'floating-chat.donateButton.background-color': '#ff5f5f',
+        'floating-chat.donateButton.text-color': '#fff'
+    });
+</script>
 
 </html>

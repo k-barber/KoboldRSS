@@ -1,735 +1,714 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="/Pages/css/styles.css">
-    <link rel="stylesheet" href="/Pages/css/all.css">
-    <link rel="stylesheet" href="/Pages/css/noty.css">
-    <script src="/Pages/js/dayjs.min.js"></script>
-    <script src="/Pages/js/noty.min.js"></script>
-    <script>
-        Noty.overrideDefaults({
-            layout: 'topLeft'
-        });
-    </script>
+<div id="container">
     <title>RSS-Generator: New Feed</title>
-</head>
-
-<body>
-    <a href="/"><img src="/Img/Bocchi.png" id="bocchi" /></a>
-    <div id="container">
-        <div>
-            <a href="http://www.rssboard.org/rss-draft-1" target="_blank"><img id="icon" src="/Img/RSS.png"></a>
-            <p><a href="/">Home</a> > New Feed</p>
-            <h1>K-Barber's RSS-Generator: New Feed</h1>
-            <p>Creating a new RSS feed is easy. The Generator just follow the instructions and fill in the form below.</p>
-            <p>If you are unsure about what the field is asking for, mouse over it or check out the <a href="/Help">Read Me Documentation</a></p>
+    <div>
+        <a href="https://www.rssboard.org/rss-specification" target=" _blank"><img id="icon" src="/Img/RSS.png"></a>
+        <p><a href="/">Home</a> > New Feed</p>
+        <h1>K-Barber's RSS-Generator: New Feed</h1>
+        <p>Creating a new RSS feed is easy. The Generator just follow the instructions and fill in the form below.</p>
+        <p>If you are unsure about what the field is asking for, mouse over it or check out the <a href="/Help">Read Me Documentation</a></p>
+        <br>
+        <hr>
+        <br>
+        <h2>Defining the Feed</h2>
+        <p>We'll start by defining some features of the RSS Feed. Fields marked with a <span style="color:red;">*</span> are mandatory.</p>
+        <form id="Feed_Data" action="javascript:void(0);" autocomplete="off" novalidate>
+            <p class="Field tooltip"><span class="required">*</span>Title:<span class="tooltiptext">The name of the Feed. It's how people refer to your feed.</span></p>
+            <div class="padding">
+                <input id="Feed_Title" name="Feed_Title" class="input_box" type="text" required>
+            </div>
+            <p class="Field tooltip"><span class="required">*</span>Link:<span class="tooltiptext">The URL of the web site associated with the Feed. Where the Feed will get its content from.</span></p>
+            <div class="padding">
+                <input id="Feed_Link" name="Feed_Link" class="input_box" type="url" required>
+            </div>
+            <p class="Field tooltip">Description:<span class="tooltiptext">A few sentences describing the Feed & summarizing its contents.</span></p>
+            <div class="padding">
+                <textarea id="Feed_Description" name="Feed_Description" class="input_box" rows="5" cols="100"></textarea>
+            </div>
+            <div class="padding">
+                <button class="collapsible Field" formnovalidate><i class="fas fa-angle-down" style="margin: 0px 10px;"></i>Advanced Options</button>
+                <div class="content">
+                    <p class="Field tooltip">Path:<span class="tooltiptext">Where the feed will be saved and hosted. Defaults to the "Feeds/" folder. Must end in a "/".</span></p>
+                    <div class="padding">
+                        <input id="Feed_Path" name="Feed_Path" pattern="([a-zA-Z0-9\s_@\-^!#$%&+={}\[\]]+(\\|\/))+" class="input_box" type="text" value="Feeds/" placeholder="Feeds/">
+                    </div>
+                    <p class="Field" style="margin-top: 25px;">Login Settings:</p>
+                    <div class="padding">
+                        <p style="margin:0px;">
+                            <input type="checkbox" id="Login_Checkbox" name="Login_Required" onclick="toggle_login_fields()"> The page I'm scraping can only be seen when logged in
+                        </p>
+                    </div>
+                    <p id="logged_url_heading" class="Field tooltip"><span class="required" style="display: none;">*</span>Logged in URL: <span class="tooltiptext">The URL of a page that can only be accessed when logged in. Used to verify that the generator is logged in.</span></p>
+                    <div class="padding">
+                        <input id="logged_URL" name="logged_URL" class="input_box" type="url" disabled>
+                    </div>
+                    <p id="logged_title_heading" class="Field tooltip"><span class="required" style="display: none;">*</span>Logged in Title: <span class="tooltiptext">The title of the above page. Used to verify that the generator is logged in.</span></p>
+                    <div class="padding">
+                        <input id="logged_title" name="logged_title" class="input_box" type="text" disabled>
+                    </div>
+                    <p class="Field tooltip">Scraping Delay:<span class="tooltiptext">The number of seconds the generator should wait to ensure the content has loaded before scraping. Only needed on pages with lazy loading.</span></p>
+                    <div class="padding" style="display: flex;">
+                        <div class="left_button" onclick="plus_minus_button_press('Scrape_delay', -1)"><i class="fas fa-minus"></i></div>
+                        <input id="Scrape_delay" name="Scrape_delay" class="input_box" type="number" min="0" value="0" step="1" />
+                        <div class="right_button" onclick="plus_minus_button_press('Scrape_delay', 1)"><i class="fas fa-plus"></i></div>
+                    </div>
+                    <p class="Field tooltip">Time To Life:<span class="tooltiptext">The number of minutes the Feed can be cached before refreshing. Effectively how often the feed updates. Rounds to the nearest 5.</span></p>
+                    <div class="padding" style="display: flex;">
+                        <div class="left_button" onclick="plus_minus_button_press('Feed_TTL', -1)"><i class="fas fa-minus"></i></div>
+                        <input id="Feed_TTL" name="Feed_TTL" class="input_box" type="number" min="5" value="60" step="5" />
+                        <div class="right_button" onclick="plus_minus_button_press('Feed_TTL', 1)"><i class="fas fa-plus"></i></div>
+                    </div>
+                    <p class="Field tooltip">Categories:<span class="tooltiptext">Identifies a category or tag to which the Feed belongs. Separate values with a comma.</span></p>
+                    <div class="padding">
+                        <input id="Feed_Categories" name="Feed_Categories" class="input_box" type="text">
+                    </div>
+                    <p class="Field tooltip">Copyright:<span class="tooltiptext">The copyright statement that applies to the feed.</span></p>
+                    <div class="padding">
+                        <input id="Feed_Copyright" name="Feed_Copyright" class="input_box" type="text">
+                    </div>
+                    <p class="Field tooltip">Image Settings<span class="tooltiptext">An image to graphically represent the Feed.</span></p>
+                    <div class="padding">
+                        <p style="margin:0px;">
+                            <input type="checkbox" id="Image_Checkbox" name="Feed_Image" onclick="toggle_image_fields()">Use a custom image
+                        </p>
+                    </div>
+                    <p class="Field tooltip" id="Image_Link_header"><span class="required" style="display: none;">*</span>Image Link:<span class="tooltiptext">Identifies the URL of the web site represented by the image. Usually the same as the Feed Link.</span></p>
+                    <div class="padding">
+                        <input id="Image_Link" name="Image_Link" class="input_box" type="url" disabled>
+                    </div>
+                    <p class="Field tooltip" id="Image_Title_header"><span class="required" style="display: none;">*</span>Image Title:<span class="tooltiptext">Description of the image. Usually the same as the Feed Title. Appears as Alt-text when rendered in HTML</span></p>
+                    <div class="padding">
+                        <input id="Image_Title" name="Image_Title" class="input_box" type="text" disabled>
+                    </div>
+                    <p class="Field tooltip" id="Image_URL_header"><span class="required" style="display: none;">*</span>Image URL:<span class="tooltiptext">Direct URL pointing to the image file. Must be a .gif .jpg or .png</span></p>
+                    <div class="padding">
+                        <input id="Image_URL" name="Image_URL" class="input_box" type="text" disabled>
+                        <p>You can also upload an image file to this server. It will be stored in the "Img/Uploads/" folder.</p>
+                        <input id="Image_file" accept="image/png, image/jpeg, image/gif" name="Image_file" type="file" style="margin-left: 20px;" disabled>
+                    </div>
+                    <p class="Field">Language:</p>
+                    <div class="padding">
+                        <select id="Feed_Language" name="Feed_Language" class="input_box">
+                            <option value="af">Afrikaans</option>
+                            <option value="sq">Albanian</option>
+                            <option value="eu">Basque</option>
+                            <option value="be">Belarusian</option>
+                            <option value="bg">Bulgarian</option>
+                            <option value="ca">Catalan</option>
+                            <option value="zh-cn">Chinese (Simplified)</option>
+                            <option value="zh-tw">Chinese (Traditional)</option>
+                            <option value="hr">Croatian</option>
+                            <option value="cs">Czech</option>
+                            <option value="da">Danish</option>
+                            <option value="nl">Dutch</option>
+                            <option value="en" selected>English</option>
+                            <option value="en-au">English (Australia)</option>
+                            <option value="en-ca">English (Canada)</option>
+                            <option value="en-uk">English (United Kingdom)</option>
+                            <option value="en-us">English (United States)</option>
+                            <option value="et">Estonian</option>
+                            <option value="fo">Faeroese</option>
+                            <option value="fi">Finnish</option>
+                            <option value="fr">French</option>
+                            <option value="fr-ca">French (Canada)</option>
+                            <option value="fr-fr">French (France)</option>
+                            <option value="fr-ch">French (Switzerland)</option>
+                            <option value="gl">Galician</option>
+                            <option value="gd">Gaelic</option>
+                            <option value="de">German</option>
+                            <option value="de-de">German (Germany)</option>
+                            <option value="de-cg">German (Switzerland)</option>
+                            <option value="el">Greek</option>
+                            <option value="haw">Hawaiian</option>
+                            <option value="hu">Hungarian</option>
+                            <option value="is">Icelandic</option>
+                            <option value="in">Indonesian</option>
+                            <option value="ga">Irish</option>
+                            <option value="it">Italian</option>
+                            <option value="ja">Japanese</option>
+                            <option value="ko">Korean</option>
+                            <option value="mk">Macedonian</option>
+                            <option value="no">Norwegian</option>
+                            <option value="pl">Polish</option>
+                            <option value="pt">Portuguese</option>
+                            <option value="pt-br">Portuguese (Brazil)</option>
+                            <option value="pt-pt">Portuguese (Portugal)</option>
+                            <option value="ro">Romanian</option>
+                            <option value="ru">Russian</option>
+                            <option value="sr">Serbian</option>
+                            <option value="sk">Slovak</option>
+                            <option value="sl">Slovenian</option>
+                            <option value="es">Spanish</option>
+                            <option value="es-mx">Spanish (Mexico)</option>
+                            <option value="es-pr">Spanish (Puerto Rico)</option>
+                            <option value="es-es">Spanish (Spain)</option>
+                            <option value="sv">Swedish</option>
+                            <option value="tr">Turkish</option>
+                            <option value="uk">Ukranian</option>
+                        </select>
+                    </div>
+                    <p class="Field tooltip">Managing Editor:<span class="tooltiptext">The e-mail address of the person to contact regarding the editorial content of the Feed.</span></p>
+                    <div class="padding">
+                        <input id="Feed_Editor" name="Feed_Editor" class="input_box" type="email">
+                    </div>
+                    <p class="Field tooltip">Web Master:<span class="tooltiptext">The e-mail address of the person to contact about technical issues regarding the Feed.</span></p>
+                    <div class="padding" style="margin-bottom: 15px;">
+                        <input id="Feed_Webmaster" name="Feed_Webmaster" class="input_box" type="email">
+                    </div>
+                </div>
+            </div>
             <br>
             <hr>
             <br>
-            <h2>Defining the Feed</h2>
-            <p>We'll start by defining some features of the RSS Feed. Fields marked with a <span style="color:red;">*</span> are mandatory.</p>
-            <form id="Feed_Data" action="javascript:void(0);" autocomplete="off" novalidate>
-                <p class="Field tooltip"><span class="required">*</span>Title:<span class="tooltiptext">The name of the Feed. It's how people refer to your feed.</span></p>
+            <h2>Creating An Item Pattern</h2>
+            <p>Next up, we'll create an Item Pattern.</p>
+            <p>The Generator will load the page from the Feed Link, then scan it for the Item Pattern, turning anything that matches into an Item in the RSS Feed.</p>
+            <p>Items are pieces of content published to the Feed</p>
+            <p>Click the button below to get the data from the Feed Link.</p>
+            <button onclick="scrape_URL()" formnovalidate>Scrape URL</button>
+            <p class="Field">Scraped Page Source Data: </p>
+            <div class="padding"><textarea readonly id="Page_Source" name="Page_Source" rows="10" cols="100" class="input_box"></textarea></div>
+            <p>The Item Pattern is a Regular Expression that is used to extract information for the feed items.</p>
+            <p>If you've never used a Regular Expression before, I recommend <a href="/Help">following the tutorial</a> and using a <a href="https://regex101.com/">RegEx tester</a>.</p>
+            <p>The generator will find all matches on a page and return a list of matches, each of which is a list of capture groups.</p>
+            <p class="Field tooltip">Item Pattern:<span class="tooltiptext">The RegEx that the Generator uses to create Feed Items. If you are lost, <a href="/Help">try the tutorial</a></span></p>
+            <div class="padding"><textarea id="Item_Pattern" name="Item_Pattern" rows="10" cols="100" class="input_box" required spellcheck="false"></textarea></div>
+            <p class="Field tooltip">Scraping Start Position:<span class="tooltiptext">Where in the page source to start scraping for items</span></p>
+            <div class="padding"><textarea id="scrape_start_position" name="scrape_start_position" rows="5" cols="100" class="input_box" spellcheck="false"></textarea></div>
+            <p class="Field tooltip">Scraping Stop Position:<span class="tooltiptext">Where in the page source to stop scraping for items</span></p>
+            <div class="padding"><textarea id="scrape_stop_position" name="scrape_stop_position" rows="5" cols="100" class="input_box" spellcheck="false"></textarea></div>
+            <button onclick="test_pattern()" formnovalidate>Test Pattern</button>
+            <p class="Field">Items Found: <span id="Item_Total"></span></p>
+            <div class="padding"><textarea readonly id="Item_List" name="Item_List" rows="10" cols="100" class="input_box"></textarea></div>
+            <p>The above box displays a list of items that matched the Item Pattern.</p>
+            <p>The dynamic fields that you kept are also listed and numbered, so dynamic field 1 is listed as {%1} and so on.</p>
+            <br>
+            <hr>
+            <br>
+            <h2>Defining the Items</h2>
+            <p>This is where you define how the Items in the RSS feed will be formatted.</p>
+            <p>If you type "{%1}" anywhere in the rest of the form it will be replaced by the first dynamic field of that item.</p>
+            <p>{%2} will be replaced with the second dynamic field and so on.</p>
+            <p>Anything else you type will be the same for every item in the feed.</p>
+            <p class="Field tooltip"><span class="required">*</span>Item Title:<span class="tooltiptext">The item's headline</span></p>
+            <div class="padding">
+                <input id="Item_Title" name="Item_Title" class="input_box" type="text" required>
+            </div>
+            <p class="Field tooltip">Item Link:<span class="tooltiptext">The URL of a web page associated with the item.</span></p>
+            <div class="padding">
+                <input id="Item_Link" name="Item_Link" class="input_box" type="text">
+            </div>
+            <p class="Field tooltip"><span class="required">*</span>Item Description: <span class="tooltiptext">The item's full content or a summary of its contents. Normally formatted for HTML.</span></p>
+            <p>If you want, you can add HTML markup to the Item Description by using <a href="https://www.w3.org/TR/xml/#dt-cdsection">CDATA formatting</a>.</p>
+            <p>Simply add &lt;![CDATA[ at the start of your HTML and ]]&gt; to the end.</p>
+            <div class="padding">
+                <textarea id="Item_Description" name="Item_Description" class="input_box" rows="10" cols="100">&lt;![CDATA[&#10;&#10;]]&gt;</textarea>
+            </div>
+            <button class="collapsible Field" formnovalidate><i class="fas fa-angle-down" style="margin: 0px 10px;"></i>Advanced Options</button>
+            <div class="content">
+                <p class="Field tooltip" style="margin-top: 25px;">Item Author:<span class="tooltiptext">The e-mail address of the person who wrote the item.</span></p>
                 <div class="padding">
-                    <input id="Feed_Title" name="Feed_Title" class="input_box" type="text" required>
+                    <input id="Item_Author" name="Item_Author" class="input_box" type="text">
                 </div>
-                <p class="Field tooltip"><span class="required">*</span>Link:<span class="tooltiptext">The URL of the web site associated with the Feed. Where the Feed will get its content from.</span></p>
+                <p class="Field tooltip">Item Categories:<span class="tooltiptext">Identifies a category or tag to which the Item belongs. Separate values with a comma.</span></p>
                 <div class="padding">
-                    <input id="Feed_Link" name="Feed_Link" class="input_box" type="url" required>
+                    <input id="Item_Categories" name="Item_Categories" class="input_box" type="text">
                 </div>
-                <p class="Field tooltip">Description:<span class="tooltiptext">A few sentences describing the Feed & summarizing its contents.</span></p>
+                <p class="Field tooltip">Item Comments:<span class="tooltiptext">The URL of a web page that contains comments received in response to the item.</span></p>
                 <div class="padding">
-                    <textarea id="Feed_Description" name="Feed_Description" class="input_box" rows="5" cols="100"></textarea>
+                    <input id="Item_Comments" name="Item_Comments" class="input_box" type="text">
                 </div>
+                <p class="Field tooltip">Item Enclosure:<span class="tooltiptext">Associates a media object such as an audio or video file with the item</span></p>
                 <div class="padding">
-                    <button class="collapsible Field" formnovalidate><i class="fas fa-angle-down" style="margin: 0px 10px;"></i>Advanced Options</button>
-                    <div class="content">
-                        <p class="Field tooltip">Path:<span class="tooltiptext">Where the feed will be saved and hosted. Defaults to the "Feeds/" folder. Must end in a "/".</span></p>
-                        <div class="padding">
-                            <input id="Feed_Path" name="Feed_Path" pattern="([a-zA-Z0-9\s_@\-^!#$%&+={}\[\]]+(\\|\/))+" class="input_box" type="text" value="Feeds/" placeholder="Feeds/">
-                        </div>
-                        <p class="Field" style="margin-top: 25px;">Login Settings:</p>
-                        <div class="padding">
-                            <p style="margin:0px;">
-                                <input type="checkbox" id="Login_Checkbox" name="Login_Required" onclick="toggle_login_fields()"> The page I'm scraping can only be seen when logged in
-                            </p>
-                        </div>
-                        <p id="logged_url_heading" class="Field tooltip"><span class="required" style="display: none;">*</span>Logged in URL: <span class="tooltiptext">The URL of a page that can only be accessed when logged in. Used to verify that the generator is logged in.</span></p>
-                        <div class="padding">
-                            <input id="logged_URL" name="logged_URL" class="input_box" type="url" disabled>
-                        </div>
-                        <p id="logged_title_heading" class="Field tooltip"><span class="required" style="display: none;">*</span>Logged in Title: <span class="tooltiptext">The title of the above page. Used to verify that the generator is logged in.</span></p>
-                        <div class="padding">
-                            <input id="logged_title" name="logged_title" class="input_box" type="text" disabled>
-                        </div>
-                        <p class="Field tooltip">Scraping Delay:<span class="tooltiptext">The number of seconds the generator should wait to ensure the content has loaded before scraping. Only needed on pages with lazy loading.</span></p>
-                        <div class="padding" style="display: flex;">
-                            <div class="left_button" onclick="plus_minus_button_press('Scrape_delay', -1)"><i class="fas fa-minus"></i></div>
-                            <input id="Scrape_delay" name="Scrape_delay" class="input_box" type="number" min="0" value="0" step="1" />
-                            <div class="right_button" onclick="plus_minus_button_press('Scrape_delay', 1)"><i class="fas fa-plus"></i></div>
-                        </div>
-                        <p class="Field tooltip">Time To Life:<span class="tooltiptext">The number of minutes the Feed can be cached before refreshing. Effectively how often the feed updates. Rounds to the nearest 5.</span></p>
-                        <div class="padding" style="display: flex;">
-                            <div class="left_button" onclick="plus_minus_button_press('Feed_TTL', -1)"><i class="fas fa-minus"></i></div>
-                            <input id="Feed_TTL" name="Feed_TTL" class="input_box" type="number" min="5" value="60" step="5" />
-                            <div class="right_button" onclick="plus_minus_button_press('Feed_TTL', 1)"><i class="fas fa-plus"></i></div>
-                        </div>
-                        <p class="Field tooltip">Categories:<span class="tooltiptext">Identifies a category or tag to which the Feed belongs. Separate values with a comma.</span></p>
-                        <div class="padding">
-                            <input id="Feed_Categories" name="Feed_Categories" class="input_box" type="text">
-                        </div>
-                        <p class="Field tooltip">Copyright:<span class="tooltiptext">The copyright statement that applies to the feed.</span></p>
-                        <div class="padding">
-                            <input id="Feed_Copyright" name="Feed_Copyright" class="input_box" type="text">
-                        </div>
-                        <p class="Field tooltip">Image Settings<span class="tooltiptext">An image to graphically represent the Feed.</span></p>
-                        <div class="padding">
-                            <p style="margin:0px;">
-                                <input type="checkbox" id="Image_Checkbox" name="Feed_Image" onclick="toggle_image_fields()">Use a custom image
-                            </p>
-                        </div>
-                        <p class="Field tooltip" id="Image_Link_header"><span class="required" style="display: none;">*</span>Image Link:<span class="tooltiptext">Identifies the URL of the web site represented by the image. Usually the same as the Feed Link.</span></p>
-                        <div class="padding">
-                            <input id="Image_Link" name="Image_Link" class="input_box" type="url" disabled>
-                        </div>
-                        <p class="Field tooltip" id="Image_Title_header"><span class="required" style="display: none;">*</span>Image Title:<span class="tooltiptext">Description of the image. Usually the same as the Feed Title. Appears as Alt-text when rendered in HTML</span></p>
-                        <div class="padding">
-                            <input id="Image_Title" name="Image_Title" class="input_box" type="text" disabled>
-                        </div>
-                        <p class="Field tooltip" id="Image_URL_header"><span class="required" style="display: none;">*</span>Image URL:<span class="tooltiptext">Direct URL pointing to the image file. Must be a .gif .jpg or .png</span></p>
-                        <div class="padding">
-                            <input id="Image_URL" name="Image_URL" class="input_box" type="text" disabled>
-                            <p>You can also upload an image file to this server. It will be stored in the "Img/Uploads/" folder.</p>
-                            <input id="Image_file" accept="image/png, image/jpeg, image/gif" name="Image_file" type="file" style="margin-left: 20px;" disabled>
-                        </div>
-                        <p class="Field">Language:</p>
-                        <div class="padding">
-                            <select id="Feed_Language" name="Feed_Language" class="input_box">
-                                <option value="af">Afrikaans</option>
-                                <option value="sq">Albanian</option>
-                                <option value="eu">Basque</option>
-                                <option value="be">Belarusian</option>
-                                <option value="bg">Bulgarian</option>
-                                <option value="ca">Catalan</option>
-                                <option value="zh-cn">Chinese (Simplified)</option>
-                                <option value="zh-tw">Chinese (Traditional)</option>
-                                <option value="hr">Croatian</option>
-                                <option value="cs">Czech</option>
-                                <option value="da">Danish</option>
-                                <option value="nl">Dutch</option>
-                                <option value="en" selected>English</option>
-                                <option value="en-au">English (Australia)</option>
-                                <option value="en-ca">English (Canada)</option>
-                                <option value="en-uk">English (United Kingdom)</option>
-                                <option value="en-us">English (United States)</option>
-                                <option value="et">Estonian</option>
-                                <option value="fo">Faeroese</option>
-                                <option value="fi">Finnish</option>
-                                <option value="fr">French</option>
-                                <option value="fr-ca">French (Canada)</option>
-                                <option value="fr-fr">French (France)</option>
-                                <option value="fr-ch">French (Switzerland)</option>
-                                <option value="gl">Galician</option>
-                                <option value="gd">Gaelic</option>
-                                <option value="de">German</option>
-                                <option value="de-de">German (Germany)</option>
-                                <option value="de-cg">German (Switzerland)</option>
-                                <option value="el">Greek</option>
-                                <option value="haw">Hawaiian</option>
-                                <option value="hu">Hungarian</option>
-                                <option value="is">Icelandic</option>
-                                <option value="in">Indonesian</option>
-                                <option value="ga">Irish</option>
-                                <option value="it">Italian</option>
-                                <option value="ja">Japanese</option>
-                                <option value="ko">Korean</option>
-                                <option value="mk">Macedonian</option>
-                                <option value="no">Norwegian</option>
-                                <option value="pl">Polish</option>
-                                <option value="pt">Portuguese</option>
-                                <option value="pt-br">Portuguese (Brazil)</option>
-                                <option value="pt-pt">Portuguese (Portugal)</option>
-                                <option value="ro">Romanian</option>
-                                <option value="ru">Russian</option>
-                                <option value="sr">Serbian</option>
-                                <option value="sk">Slovak</option>
-                                <option value="sl">Slovenian</option>
-                                <option value="es">Spanish</option>
-                                <option value="es-mx">Spanish (Mexico)</option>
-                                <option value="es-pr">Spanish (Puerto Rico)</option>
-                                <option value="es-es">Spanish (Spain)</option>
-                                <option value="sv">Swedish</option>
-                                <option value="tr">Turkish</option>
-                                <option value="uk">Ukranian</option>
-                            </select>
-                        </div>
-                        <p class="Field tooltip">Managing Editor:<span class="tooltiptext">The e-mail address of the person to contact regarding the editorial content of the Feed.</span></p>
-                        <div class="padding">
-                            <input id="Feed_Editor" name="Feed_Editor" class="input_box" type="email">
-                        </div>
-                        <p class="Field tooltip">Web Master:<span class="tooltiptext">The e-mail address of the person to contact about technical issues regarding the Feed.</span></p>
-                        <div class="padding" style="margin-bottom: 15px;">
-                            <input id="Feed_Webmaster" name="Feed_Webmaster" class="input_box" type="email">
-                        </div>
-                    </div>
+                    <p style="margin:0px;">
+                        <input type="checkbox" id="Enclosure_checkbox" name="Enclosure_checkbox" onclick="toggle_enclosure_fields()">Attach a media file
+                    </p>
                 </div>
-                <br>
-                <hr>
-                <br>
-                <h2>Creating An Item Pattern</h2>
-                <p>Next up, we'll create an Item Pattern.</p>
-                <p>The Generator will load the page from the Feed Link, then scan it for the Item Pattern, turning anything that matches into an Item in the RSS Feed.</p>
-                <p>Items are pieces of content published to the Feed</p>
-                <p>Click the button below to get the data from the Feed Link.</p>
-                <button onclick="scrape_URL()" formnovalidate>Scrape URL</button>
-                <p class="Field">Scraped Page Source Data: </p>
-                <div class="padding"><textarea readonly id="Page_Source" name="Page_Source" rows="10" cols="100" class="input_box"></textarea></div>
-                <p>The Item Pattern is a Regular Expression that is used to extract information for the feed items.</p>
-                <p>If you've never used a Regular Expression before, I recommend <a href="/Help">following the tutorial</a> and using a <a href="https://regex101.com/">RegEx tester</a>.</p>
-                <p>The generator will find all matches on a page and return a list of matches, each of which is a list of capture groups.</p>
-                <p class="Field tooltip">Item Pattern:<span class="tooltiptext">The RegEx that the Generator uses to create Feed Items. If you are lost, <a href="/Help">try the tutorial</a></span></p>
-                <div class="padding"><textarea id="Item_Pattern" name="Item_Pattern" rows="10" cols="100" class="input_box" required spellcheck="false"></textarea></div>
-                <p class="Field tooltip">Scraping Start Position:<span class="tooltiptext">Where in the page source to start scraping for items</span></p>
-                <div class="padding"><textarea id="scrape_start_position" name="scrape_start_position" rows="5" cols="100" class="input_box" spellcheck="false"></textarea></div>
-                <p class="Field tooltip">Scraping Stop Position:<span class="tooltiptext">Where in the page source to stop scraping for items</span></p>
-                <div class="padding"><textarea id="scrape_stop_position" name="scrape_stop_position" rows="5" cols="100" class="input_box" spellcheck="false"></textarea></div>
-                <button onclick="test_pattern()" formnovalidate>Test Pattern</button>
-                <p class="Field">Items Found: <span id="Item_Total"></span></p>
-                <div class="padding"><textarea readonly id="Item_List" name="Item_List" rows="10" cols="100" class="input_box"></textarea></div>
-                <p>The above box displays a list of items that matched the Item Pattern.</p>
-                <p>The dynamic fields that you kept are also listed and numbered, so dynamic field 1 is listed as {%1} and so on.</p>
-                <br>
-                <hr>
-                <br>
-                <h2>Defining the Items</h2>
-                <p>This is where you define how the Items in the RSS feed will be formatted.</p>
-                <p>If you type "{%1}" anywhere in the rest of the form it will be replaced by the first dynamic field of that item.</p>
-                <p>{%2} will be replaced with the second dynamic field and so on.</p>
-                <p>Anything else you type will be the same for every item in the feed.</p>
-                <p class="Field tooltip"><span class="required">*</span>Item Title:<span class="tooltiptext">The item's headline</span></p>
+                <p class="Field tooltip" id="Enclosure_URL_header"><span class="required" style="display: none;">*</span>Enclosure URL:<span class="tooltiptext">The URL of the file</span></p>
                 <div class="padding">
-                    <input id="Item_Title" name="Item_Title" class="input_box" type="text" required>
+                    <input id="Enclosure_URL" name="Enclosure_URL" class="input_box" type="text" disabled>
                 </div>
-                <p class="Field tooltip">Item Link:<span class="tooltiptext">The URL of a web page associated with the item.</span></p>
+                <p class="Field tooltip" id="Enclosure_Length_header"><span class="required" style="display: none;">*</span>Enclosure Length:<span class="tooltiptext">The size of the file in bytes.</span></p>
                 <div class="padding">
-                    <input id="Item_Link" name="Item_Link" class="input_box" type="text">
+                    <input id="Enclosure_Length" name="Enclosure_Length" class="input_box" type="text" disabled>
                 </div>
-                <p class="Field tooltip"><span class="required">*</span>Item Description: <span class="tooltiptext">The item's full content or a summary of its contents. Normally formatted for HTML.</span></p>
-                <p>If you want, you can add HTML markup to the Item Description by using <a href="https://www.w3.org/TR/xml/#dt-cdsection">CDATA formatting</a>.</p>
-                <p>Simply add &lt;![CDATA[ at the start of your HTML and ]]&gt; to the end.</p>
+                <p class="Field tooltip" id="Enclosure_Type_header"><span class="required" style="display: none;">*</span>Enclosure Type:<span class="tooltiptext">The file's MIME format.</span></p>
                 <div class="padding">
-                    <textarea id="Item_Description" name="Item_Description" class="input_box" rows="10" cols="100">&lt;![CDATA[&#10;&#10;]]&gt;</textarea>
+                    <input id="Enclosure_Type" name="Enclosure_Type" class="input_box" type="text" disabled>
                 </div>
-                <button class="collapsible Field" formnovalidate><i class="fas fa-angle-down" style="margin: 0px 10px;"></i>Advanced Options</button>
-                <div class="content">
-                    <p class="Field tooltip" style="margin-top: 25px;">Item Author:<span class="tooltiptext">The e-mail address of the person who wrote the item.</span></p>
-                    <div class="padding">
-                        <input id="Item_Author" name="Item_Author" class="input_box" type="text">
-                    </div>
-                    <p class="Field tooltip">Item Categories:<span class="tooltiptext">Identifies a category or tag to which the Item belongs. Separate values with a comma.</span></p>
-                    <div class="padding">
-                        <input id="Item_Categories" name="Item_Categories" class="input_box" type="text">
-                    </div>
-                    <p class="Field tooltip">Item Comments:<span class="tooltiptext">The URL of a web page that contains comments received in response to the item.</span></p>
-                    <div class="padding">
-                        <input id="Item_Comments" name="Item_Comments" class="input_box" type="text">
-                    </div>
-                    <p class="Field tooltip">Item Enclosure:<span class="tooltiptext">Associates a media object such as an audio or video file with the item</span></p>
-                    <div class="padding">
-                        <p style="margin:0px;">
-                            <input type="checkbox" id="Enclosure_checkbox" name="Enclosure_checkbox" onclick="toggle_enclosure_fields()">Attach a media file
-                        </p>
-                    </div>
-                    <p class="Field tooltip" id="Enclosure_URL_header"><span class="required" style="display: none;">*</span>Enclosure URL:<span class="tooltiptext">The URL of the file</span></p>
-                    <div class="padding">
-                        <input id="Enclosure_URL" name="Enclosure_URL" class="input_box" type="text" disabled>
-                    </div>
-                    <p class="Field tooltip" id="Enclosure_Length_header"><span class="required" style="display: none;">*</span>Enclosure Length:<span class="tooltiptext">The size of the file in bytes.</span></p>
-                    <div class="padding">
-                        <input id="Enclosure_Length" name="Enclosure_Length" class="input_box" type="text" disabled>
-                    </div>
-                    <p class="Field tooltip" id="Enclosure_Type_header"><span class="required" style="display: none;">*</span>Enclosure Type:<span class="tooltiptext">The file's MIME format.</span></p>
-                    <div class="padding">
-                        <input id="Enclosure_Type" name="Enclosure_Type" class="input_box" type="text" disabled>
-                    </div>
-                    <p class="Field tooltip">Item GUID:<span class="tooltiptext">A string that uniquely identifies the Item. May be a Permalink.</span></p>
-                    <div class="padding">
-                        <input id="Item_GUID" name="Item_GUID" class="input_box" type="text">
-                    </div>
-                    <p class="Field tooltip">Item Source:<span class="tooltiptext">Indicates that the item has been republished from another RSS feed. The URL of the source feed.</span></p>
-                    <div class="padding">
-                        <input id="Item_Source" name="Item_Source" class="input_box" type="text">
-                    </div>
-                    <p class="Field tooltip">Item Published Date:<span class="tooltiptext">The publication date and time of the item.</span></p>
-                    <div class="padding" style="margin-bottom: 15px;">
-                        <input id="Item_PubDate" name="Item_PubDate" class="input_box" type="text">
-                    </div>
+                <p class="Field tooltip">Item GUID:<span class="tooltiptext">A string that uniquely identifies the Item. May be a Permalink.</span></p>
+                <div class="padding">
+                    <input id="Item_GUID" name="Item_GUID" class="input_box" type="text">
                 </div>
-                <br>
-                <button onclick="test_definition()" formnovalidate>Test Definition</button>
-                <table id="Item_Preview" style="display:none">
-                    <tr>
-                        <th id="title-header">Title</th>
-                        <th>Link</th>
-                        <th id="description-header">Description</th>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p id="row-1-title"></p>
-                        </td>
-                        <td><a id="row-1-link"></a></td>
-                        <td>
-                            <p id="row-1-desc"></p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p id="row-2-title"></p>
-                        </td>
-                        <td><a id="row-2-link"></a></td>
-                        <td>
-                            <p id="row-2-desc"></p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p id="row-3-title"></p>
-                        </td>
-                        <td><a id="row-3-link"></a></td>
-                        <td>
-                            <p id="row-3-desc"></p>
-                        </td>
-                    </tr>
-                </table>
-                <br>
-                <hr>
-                <br>
-                <h2>Submit New Feed</h2>
-                <p>When you've filled out the form, press the button below to add the new feed to your Feed_Definitions.txt file.</p>
-                <button onclick="submit_form()">Submit</button>
-            </form>
-        </div>
-        <style>
-            .collapsible {
-                cursor: pointer;
-                margin-left: 0px;
-                margin-right: 0px;
-                margin-bottom: 0px;
-                width: 100%;
-                font-size: 15px;
-            }
+                <p class="Field tooltip">Item Source:<span class="tooltiptext">Indicates that the item has been republished from another RSS feed. The URL of the source feed.</span></p>
+                <div class="padding">
+                    <input id="Item_Source" name="Item_Source" class="input_box" type="text">
+                </div>
+                <p class="Field tooltip">Item Published Date:<span class="tooltiptext">The publication date and time of the item.</span></p>
+                <div class="padding" style="margin-bottom: 15px;">
+                    <input id="Item_PubDate" name="Item_PubDate" class="input_box" type="text">
+                </div>
+            </div>
+            <br>
+            <button onclick="test_definition()" formnovalidate>Test Definition</button>
+            <table id="Item_Preview" style="display:none">
+                <tr>
+                    <th id="title-header">Title</th>
+                    <th>Link</th>
+                    <th id="description-header">Description</th>
+                </tr>
+                <tr>
+                    <td>
+                        <p id="row-1-title"></p>
+                    </td>
+                    <td><a id="row-1-link"></a></td>
+                    <td>
+                        <p id="row-1-desc"></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p id="row-2-title"></p>
+                    </td>
+                    <td><a id="row-2-link"></a></td>
+                    <td>
+                        <p id="row-2-desc"></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p id="row-3-title"></p>
+                    </td>
+                    <td><a id="row-3-link"></a></td>
+                    <td>
+                        <p id="row-3-desc"></p>
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <hr>
+            <br>
+            <h2>Submit New Feed</h2>
+            <p>When you've filled out the form, press the button below to add the new feed to your Feed_Definitions.txt file.</p>
+            <button onclick="submit_form()">Submit</button>
+        </form>
+    </div>
+    <style>
+        .collapsible {
+            cursor: pointer;
+            margin-left: 0px;
+            margin-right: 0px;
+            margin-bottom: 0px;
+            width: 100%;
+            font-size: 15px;
+        }
 
-            .content {
-                max-height: 0;
-                padding: 0px 15px;
-                overflow: hidden;
-                transition: max-height 0.5s ease-out;
-                background-color: #f7f7f7;
-            }
-        </style>
-        <script>
-            var coll = document.getElementsByClassName("collapsible");
-            var i;
+        .content {
+            max-height: 0;
+            padding: 0px 15px;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+            background-color: #f7f7f7;
+        }
+    </style>
+    <script>
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
 
-            for (i = 0; i < coll.length; i++) {
-                coll[i].addEventListener("click", function () {
-                    this.classList.toggle("active");
-                    this.children[0].classList.toggle("fa-angle-down")
-                    this.children[0].classList.toggle("fa-angle-up")
-                    var content = this.nextElementSibling;
-                    if (content.style.maxHeight) {
-                        content.style.maxHeight = null;
-                    } else {
-                        content.style.maxHeight = content.scrollHeight + "px";
-                    }
-                });
-            }
-
-            const items = { ...localStorage };
-
-            var keys = Object.keys(items);
-
-            keys.forEach(key => {
-                var element = document.querySelector('[name=' + key + ']');
-                if (element.type == "checkbox") {
-                    element.checked = (items[key] === 'true');
-                    if (key == "Login_Required" && items[key] === "true") {
-                        toggle_login_fields();
-                    } else if (element.name == "Feed_Image" && items[key] === "true") {
-                        toggle_image_fields();
-                    } else if (element.name == "Enclosure_checkbox" && items[key] === "true") {
-                        toggle_enclosure_fields();
-                    }
-                } else if (element.type == "select-one") {
-                    document.querySelector('[name=' + key + '] option[value=' + items[key] + ']').selected = true;
-                } else if (element.type == "file") {
-                    document.querySelector('[name="Image_URL"]').value = "";
-                    new Noty({ text: "<strong>Warning!</strong><br>Browsers don't cache user uploaded images, so you'll need to reupload", type: "error" }).show();
+        for (i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                this.children[0].classList.toggle("fa-angle-down")
+                this.children[0].classList.toggle("fa-angle-up")
+                var content = this.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
                 } else {
-                    element.value = items[key];
+                    content.style.maxHeight = content.scrollHeight + "px";
                 }
-            })
-
-            const inputs = document.querySelectorAll("input, select, textarea");
-
-            inputs.forEach(input => {
-                input.addEventListener(
-                    "invalid",
-                    event => {
-                        input.classList.add("error");
-                    },
-                    false
-                );
-
-                input.addEventListener("blur", function () {
-                    input.checkValidity();
-                    if (input.readOnly) {
-                        return;
-                    }
-                    if (input.type == "checkbox") {
-                        localStorage.setItem(input.name, input.checked);
-                    } else if (input.type == "select-one") {
-                        localStorage.setItem(input.name, input.options[input.selectedIndex].value);
-                    } else if (input.type == "file") {
-                        localStorage.setItem(input.name, "can't store images as strings");
-                    } else {
-                        localStorage.setItem(input.name, input.value);
-                    }
-                });
             });
+        }
 
-            const inputElement = document.getElementById("Image_file");
-            inputElement.addEventListener("change", handleFiles, false);
-            function handleFiles() {
-                document.getElementById("Image_URL").value = "Img/Uploads/" + this.files[0].name;
-            }
+        const items = { ...localStorage };
 
-            function validateForm() {
-                var validity = document.getElementById("Feed_Data").reportValidity();
-                if (validity == false) {
-                    new Noty({ text: "The form is not filled out properly", type: "error" }).show();
+        var keys = Object.keys(items);
+
+        keys.forEach(key => {
+            var element = document.querySelector('[name=' + key + ']');
+            if (element.type == "checkbox") {
+                element.checked = (items[key] === 'true');
+                if (key == "Login_Required" && items[key] === "true") {
+                    toggle_login_fields();
+                } else if (element.name == "Feed_Image" && items[key] === "true") {
+                    toggle_image_fields();
+                } else if (element.name == "Enclosure_checkbox" && items[key] === "true") {
+                    toggle_enclosure_fields();
                 }
-                return validity;
+            } else if (element.type == "select-one") {
+                document.querySelector('[name=' + key + '] option[value=' + items[key] + ']').selected = true;
+            } else if (element.type == "file") {
+                document.querySelector('[name="Image_URL"]').value = "";
+                new Noty({ text: "<strong>Warning!</strong><br>Browsers don't cache user uploaded images, so you'll need to reupload", type: "error" }).show();
+            } else {
+                element.value = items[key];
             }
+        })
 
-            function submit_form() {
-                if (validateForm()) {
-                    post_data();
+        const inputs = document.querySelectorAll("input, select, textarea");
+
+        inputs.forEach(input => {
+            input.addEventListener(
+                "invalid",
+                event => {
+                    input.classList.add("error");
+                },
+                false
+            );
+
+            input.addEventListener("blur", function () {
+                input.checkValidity();
+                if (input.readOnly) {
+                    return;
                 }
-            }
-
-            function scrape_URL() {
-                document.body.style.cursor = "wait";
-                var link = document.getElementById("Feed_Link");
-                var url = link.value;
-                if ((url != null) & (link.checkValidity())) {
-                    var xhr = new XMLHttpRequest();
-                    xhr.onload = function () {
-                        document.body.style.cursor = "default";
-                        document.getElementById("Page_Source").value = xhr.response;
-                        localStorage.setItem("Page_Source", xhr.response);
-                    };
-                    xhr.open('POST', '/Get_Source');
-                    xhr.send(
-                        JSON.stringify({
-                            url: url,
-                            login_required: document.getElementById("Login_Checkbox").checked,
-                            logged_title: document.getElementById("logged_title").value,
-                            logged_URL: document.getElementById("logged_URL").value,
-                            delay: Number(0 || document.getElementById("Scrape_delay").value),
-                        }));
+                if (input.type == "checkbox") {
+                    localStorage.setItem(input.name, input.checked);
+                } else if (input.type == "select-one") {
+                    localStorage.setItem(input.name, input.options[input.selectedIndex].value);
+                } else if (input.type == "file") {
+                    localStorage.setItem(input.name, "can't store images as strings");
                 } else {
-                    console.log("Check failed");
+                    localStorage.setItem(input.name, input.value);
                 }
+            });
+        });
+
+        const inputElement = document.getElementById("Image_file");
+        inputElement.addEventListener("change", handleFiles, false);
+        function handleFiles() {
+            document.getElementById("Image_URL").value = "Img/Uploads/" + this.files[0].name;
+        }
+
+        function validateForm() {
+            var validity = document.getElementById("Feed_Data").reportValidity();
+            if (validity == false) {
+                new Noty({ text: "The form is not filled out properly", type: "error" }).show();
             }
+            return validity;
+        }
 
-            function test_pattern() {
-                document.body.style.cursor = "wait";
-                var pattern = document.getElementById("Item_Pattern").value;
-                var scrape_start_position = document.getElementById("scrape_start_position").value;
-                var scrape_stop_position = document.getElementById("scrape_stop_position").value;
-                var body = document.getElementById("Page_Source").value;
-                if ((pattern != null) & (document.getElementById("Item_Pattern").checkValidity())) {
-                    var xhr = new XMLHttpRequest();
-                    xhr.onload = function () {
-                        if (xhr.status == 200) {
-                            document.body.style.cursor = "default";
-                            var array = JSON.parse(xhr.response);
-                            var output = "";
-                            var i = 1;
-                            array.forEach(function (item) {
-                                output += "-----------------\n";
-                                output += "Item: " + String(i) + "\n";
-                                f = 1;
-                                if (typeof (item) == "object") {
-                                    item.forEach(function (field) {
-                                        output += "{%" + String(f) + "}: " + field + "\n";
-                                        f += 1;
-                                    });
-                                } else {
-
-                                }
-                                i += 1;
-                            });
-                            document.getElementById("Item_List").value = output;
-                            document.getElementById("Item_Total").innerText = String(array.length);
-                            new Noty({ text: String(array.length) + " items found", type: "info" }).show();
-                            localStorage.setItem("Item_List", output);
-                        } else {
-                            new Noty({ text: "Error", type: "error" }).show();
-                        }
-                    };
-                    xhr.open('POST', '/Test_Pattern');
-                    xhr.setRequestHeader("Content-Type", "application/json");
-                    xhr.send(JSON.stringify({ pattern: pattern, body: body, scrape_start_position: scrape_start_position, scrape_stop_position: scrape_stop_position }));
-                }
+        function submit_form() {
+            if (validateForm()) {
+                post_data();
             }
+        }
 
-            function test_definition() {
-                document.body.style.cursor = "wait";
-                document.getElementById("row-1-desc").textContent = "";
-                document.getElementById("row-2-desc").textContent = "";
-                document.getElementById("row-3-desc").textContent = "";
-                var pattern = document.getElementById("Item_Pattern").value;
-                var body = document.getElementById("Page_Source").value;
-                var title = document.getElementById("Item_Title").value;
-                var link = document.getElementById("Item_Link").value;
-                var description = document.getElementById("Item_Description").value;
-                if ((pattern != null) & (document.getElementById("Item_Pattern").checkValidity())) {
-                    var xhr = new XMLHttpRequest();
-                    xhr.onload = function () {
+        function scrape_URL() {
+            document.body.style.cursor = "wait";
+            var link = document.getElementById("Feed_Link");
+            var url = link.value;
+            if ((url != null) & (link.checkValidity())) {
+                var xhr = new XMLHttpRequest();
+                xhr.onload = function () {
+                    document.body.style.cursor = "default";
+                    document.getElementById("Page_Source").value = xhr.response;
+                    localStorage.setItem("Page_Source", xhr.response);
+                };
+                xhr.open('POST', '/Get_Source');
+                xhr.send(
+                    JSON.stringify({
+                        url: url,
+                        login_required: document.getElementById("Login_Checkbox").checked,
+                        logged_title: document.getElementById("logged_title").value,
+                        logged_URL: document.getElementById("logged_URL").value,
+                        delay: Number(0 || document.getElementById("Scrape_delay").value),
+                    }));
+            } else {
+                console.log("Check failed");
+            }
+        }
+
+        function test_pattern() {
+            document.body.style.cursor = "wait";
+            var pattern = document.getElementById("Item_Pattern").value;
+            var scrape_start_position = document.getElementById("scrape_start_position").value;
+            var scrape_stop_position = document.getElementById("scrape_stop_position").value;
+            var body = document.getElementById("Page_Source").value;
+            if ((pattern != null) & (document.getElementById("Item_Pattern").checkValidity())) {
+                var xhr = new XMLHttpRequest();
+                xhr.onload = function () {
+                    if (xhr.status == 200) {
                         document.body.style.cursor = "default";
                         var array = JSON.parse(xhr.response);
+                        var output = "";
+                        var i = 1;
                         array.forEach(function (item) {
-                            item["description"] = item["description"].replace("&lt;", "<");
-                            item["description"] = item["description"].replace("&gt;", ">");
-                            item["description"] = item["description"].replace("<![CDATA[", "");
-                            item["description"] = item["description"].replace("]]>", "");
+                            output += "-----------------\n";
+                            output += "Item: " + String(i) + "\n";
+                            f = 1;
+                            if (typeof (item) == "object") {
+                                item.forEach(function (field) {
+                                    output += "{%" + String(f) + "}: " + field + "\n";
+                                    f += 1;
+                                });
+                            } else {
+
+                            }
+                            i += 1;
                         });
-                        document.getElementById("Item_Preview").style.display = "table";
-                        console.log(array);
-                        for (var index = 0; index < Math.min(3, array.length); index++) {
-                            document.getElementById("row-" + parseInt(index + 1) + "-title").innerText = array[index]["title"];
-                            document.getElementById("row-" + parseInt(index + 1) + "-link").innerText = array[index]["link"];
-                            document.getElementById("row-" + parseInt(index + 1) + "-link").href = array[index]["link"];
-                            document.getElementById("row-" + parseInt(index + 1) + "-desc").insertAdjacentHTML("beforeend", array[index]["description"]);
-                        }
-                    };
-                    xhr.open('POST', '/Test_Description');
-                    xhr.setRequestHeader("Content-Type", "application/json");
-                    xhr.send(JSON.stringify({ pattern: pattern, body: body, title: title, link: link, description: description }));
-                }
+                        document.getElementById("Item_List").value = output;
+                        document.getElementById("Item_Total").innerText = String(array.length);
+                        new Noty({ text: String(array.length) + " items found", type: "info" }).show();
+                        localStorage.setItem("Item_List", output);
+                    } else {
+                        new Noty({ text: xhr.response, type: "error" }).show();
+                    }
+                };
+                xhr.open('POST', '/Test_Pattern');
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(JSON.stringify({ pattern: pattern, body: body, scrape_start_position: scrape_start_position, scrape_stop_position: scrape_stop_position }));
+            }
+        }
+
+        function test_definition() {
+            document.body.style.cursor = "wait";
+            document.getElementById("row-1-desc").textContent = "";
+            document.getElementById("row-2-desc").textContent = "";
+            document.getElementById("row-3-desc").textContent = "";
+            var pattern = document.getElementById("Item_Pattern").value;
+            var body = document.getElementById("Page_Source").value;
+            var title = document.getElementById("Item_Title").value;
+            var link = document.getElementById("Item_Link").value;
+            var description = document.getElementById("Item_Description").value;
+            if ((pattern != null) & (document.getElementById("Item_Pattern").checkValidity())) {
+                var xhr = new XMLHttpRequest();
+                xhr.onload = function () {
+                    document.body.style.cursor = "default";
+                    var array = JSON.parse(xhr.response);
+                    array.forEach(function (item) {
+                        item["description"] = item["description"].replace("&lt;", "<");
+                        item["description"] = item["description"].replace("&gt;", ">");
+                        item["description"] = item["description"].replace("<![CDATA[", "");
+                        item["description"] = item["description"].replace("]]>", "");
+                    });
+                    document.getElementById("Item_Preview").style.display = "table";
+                    console.log(array);
+                    for (var index = 0; index < Math.min(3, array.length); index++) {
+                        document.getElementById("row-" + parseInt(index + 1) + "-title").innerText = array[index]["title"];
+                        document.getElementById("row-" + parseInt(index + 1) + "-link").innerText = array[index]["link"];
+                        document.getElementById("row-" + parseInt(index + 1) + "-link").href = array[index]["link"];
+                        document.getElementById("row-" + parseInt(index + 1) + "-desc").insertAdjacentHTML("beforeend", array[index]["description"]);
+                    }
+                };
+                xhr.open('POST', '/Test_Description');
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(JSON.stringify({ pattern: pattern, body: body, title: title, link: link, description: description }));
+            }
+        }
+
+        function toggle_login_fields() {
+            var checkBox = document.getElementById("Login_Checkbox");
+            if (checkBox.checked == true) {
+                document.getElementById("logged_URL").required = true;
+                document.getElementById("logged_title").required = true;
+                document.getElementById("logged_URL").disabled = false;
+                document.getElementById("logged_title").disabled = false;
+                document.getElementById("logged_url_heading").children[0].style.display = "unset";
+                document.getElementById("logged_title_heading").children[0].style.display = "unset";
+                document.getElementById("logged_URL").formnovalidate = false;
+                document.getElementById("logged_title").formnovalidate = false;
+            } else {
+                document.getElementById("logged_URL").required = false;
+                document.getElementById("logged_title").required = false;
+                document.getElementById("logged_URL").disabled = true;
+                document.getElementById("logged_title").disabled = true;
+                document.getElementById("logged_URL").classList.remove("error");
+                document.getElementById("logged_title").classList.remove("error");
+                document.getElementById("logged_url_heading").children[0].style.display = "none";
+                document.getElementById("logged_title_heading").children[0].style.display = "none";
+                document.getElementById("logged_URL").formnovalidate = true;
+                document.getElementById("logged_title").formnovalidate = true;
+            }
+        }
+
+        function toggle_enclosure_fields() {
+            var checkBox = document.getElementById("Enclosure_checkbox");
+            if (checkBox.checked == true) {
+                document.getElementById("Enclosure_URL").required = true;
+                document.getElementById("Enclosure_Type").required = true;
+                document.getElementById("Enclosure_Length").required = true;
+                document.getElementById("Enclosure_URL").disabled = false;
+                document.getElementById("Enclosure_Type").disabled = false;
+                document.getElementById("Enclosure_Length").disabled = false;
+                document.getElementById("Enclosure_URL_header").children[0].style.display = "unset";
+                document.getElementById("Enclosure_Length_header").children[0].style.display = "unset";
+                document.getElementById("Enclosure_Type_header").children[0].style.display = "unset";
+                document.getElementById("Enclosure_URL").formnovalidate = false;
+                document.getElementById("Enclosure_Type").formnovalidate = false;
+                document.getElementById("Enclosure_Length").formnovalidate = false;
+            } else {
+                document.getElementById("Enclosure_URL").required = false;
+                document.getElementById("Enclosure_Length").required = false;
+                document.getElementById("Enclosure_Type").required = false;
+                document.getElementById("Enclosure_URL").disabled = true;
+                document.getElementById("Enclosure_Type").disabled = true;
+                document.getElementById("Enclosure_Length").disabled = true;
+                document.getElementById("Enclosure_URL_header").children[0].style.display = "none";
+                document.getElementById("Enclosure_Length_header").children[0].style.display = "none";
+                document.getElementById("Enclosure_Type_header").children[0].style.display = "none";
+                document.getElementById("Enclosure_URL").classList.remove("error");
+                document.getElementById("Enclosure_Length").classList.remove("error");
+                document.getElementById("Enclosure_Type").classList.remove("error");
+                document.getElementById("Enclosure_URL").formnovalidate = true;
+                document.getElementById("Enclosure_Length").formnovalidate = true;
+                document.getElementById("Enclosure_Type").formnovalidate = true;
+            }
+        }
+
+        function toggle_image_fields() {
+            var checkBox = document.getElementById("Image_Checkbox");
+            if (checkBox.checked == true) {
+                document.getElementById("Image_Link").required = true;
+                document.getElementById("Image_Title").required = true;
+                document.getElementById("Image_URL").required = true;
+                document.getElementById("Image_Link").formnovalidate = false;
+                document.getElementById("Image_Title").formnovalidate = false;
+                document.getElementById("Image_URL").formnovalidate = false;
+                document.getElementById("Image_Link").disabled = false;
+                document.getElementById("Image_Title").disabled = false;
+                document.getElementById("Image_URL").disabled = false;
+                document.getElementById("Image_file").disabled = false;
+                document.getElementById("Image_Link_header").children[0].style.display = "unset";
+                document.getElementById("Image_Title_header").children[0].style.display = "unset";
+                document.getElementById("Image_URL_header").children[0].style.display = "unset";
+            } else {
+                document.getElementById("Image_Link").required = false;
+                document.getElementById("Image_Title").required = false;
+                document.getElementById("Image_URL").required = false;
+                document.getElementById("Image_Link").formnovalidate = true;
+                document.getElementById("Image_Title").formnovalidate = true;
+                document.getElementById("Image_URL").formnovalidate = true;
+                document.getElementById("Image_Link").disabled = true;
+                document.getElementById("Image_Title").disabled = true;
+                document.getElementById("Image_URL").disabled = true;
+                document.getElementById("Image_file").disabled = true;
+                document.getElementById("Image_Link").classList.remove("error");
+                document.getElementById("Image_Title").classList.remove("error");
+                document.getElementById("Image_URL").classList.remove("error");
+                document.getElementById("Image_Link_header").children[0].style.display = "none";
+                document.getElementById("Image_Title_header").children[0].style.display = "none";
+                document.getElementById("Image_URL_header").children[0].style.display = "none";
             }
 
-            function toggle_login_fields() {
-                var checkBox = document.getElementById("Login_Checkbox");
-                if (checkBox.checked == true) {
-                    document.getElementById("logged_URL").required = true;
-                    document.getElementById("logged_title").required = true;
-                    document.getElementById("logged_URL").disabled = false;
-                    document.getElementById("logged_title").disabled = false;
-                    document.getElementById("logged_url_heading").children[0].style.display = "unset";
-                    document.getElementById("logged_title_heading").children[0].style.display = "unset";
-                    document.getElementById("logged_URL").formnovalidate = false;
-                    document.getElementById("logged_title").formnovalidate = false;
-                } else {
-                    document.getElementById("logged_URL").required = false;
-                    document.getElementById("logged_title").required = false;
-                    document.getElementById("logged_URL").disabled = true;
-                    document.getElementById("logged_title").disabled = true;
-                    document.getElementById("logged_URL").classList.remove("error");
-                    document.getElementById("logged_title").classList.remove("error");
-                    document.getElementById("logged_url_heading").children[0].style.display = "none";
-                    document.getElementById("logged_title_heading").children[0].style.display = "none";
-                    document.getElementById("logged_URL").formnovalidate = true;
-                    document.getElementById("logged_title").formnovalidate = true;
-                }
+        }
+
+        function post_data() {
+
+            var form_data = JSON.stringify(get_form_data());
+            document.body.style.cursor = "wait";
+
+            var file = document.getElementById("Image_file").files[0];
+            if (file) {
+                const uri = "/Image_Upload";
+                const xhr = new XMLHttpRequest();
+                const fd = new FormData();
+
+                xhr.open("POST", uri, true);
+                xhr.setRequestHeader("FEED_IMAGE_FILENAME", file.name);
+                xhr.onload = function () {
+                    if (xhr.status == 200) {
+                        new Noty({ text: "Image uploaded", type: "success" }).show();
+                        var send = new XMLHttpRequest();
+                        send.onload = function () {
+                            document.body.style.cursor = "default";
+                            console.log(send);
+                            if (send.status == 200) {
+                                localStorage.clear();
+                                new Noty({ text: "Feed created successfully", type: "success" }).show();
+                                window.location.href = "/Success";
+                            } else {
+                                new Noty({ text: "Uh oh. Something went wrong. Check the server logs", type: "error" }).show();
+                            }
+                        };
+                        send.open('POST', "/Feed_Data");
+                        send.send(form_data);
+                    } else {
+                        new Noty({ text: "Error uploading file", type: "error" }).show();
+                    }
+                };
+                fd.append('myFile', file);
+                xhr.send(fd);
+            } else {
+                var xhr = new XMLHttpRequest();
+                xhr.onload = function () {
+                    document.body.style.cursor = "default";
+                    console.log(xhr);
+                    if (xhr.status == 200) {
+                        localStorage.clear();
+                        window.location.href = "/Success";
+                    } else {
+                        new Noty({
+                            text: "Uh oh. Something went wrong. Check the server logs", type: "error"
+                        }).show();
+                    }
+                };
+                xhr.open('POST', "/Feed_Data");
+                xhr.send(form_data);
             }
+        }
 
-            function toggle_enclosure_fields() {
-                var checkBox = document.getElementById("Enclosure_checkbox");
-                if (checkBox.checked == true) {
-                    document.getElementById("Enclosure_URL").required = true;
-                    document.getElementById("Enclosure_Type").required = true;
-                    document.getElementById("Enclosure_Length").required = true;
-                    document.getElementById("Enclosure_URL").disabled = false;
-                    document.getElementById("Enclosure_Type").disabled = false;
-                    document.getElementById("Enclosure_Length").disabled = false;
-                    document.getElementById("Enclosure_URL_header").children[0].style.display = "unset";
-                    document.getElementById("Enclosure_Length_header").children[0].style.display = "unset";
-                    document.getElementById("Enclosure_Type_header").children[0].style.display = "unset";
-                    document.getElementById("Enclosure_URL").formnovalidate = false;
-                    document.getElementById("Enclosure_Type").formnovalidate = false;
-                    document.getElementById("Enclosure_Length").formnovalidate = false;
-                } else {
-                    document.getElementById("Enclosure_URL").required = false;
-                    document.getElementById("Enclosure_Length").required = false;
-                    document.getElementById("Enclosure_Type").required = false;
-                    document.getElementById("Enclosure_URL").disabled = true;
-                    document.getElementById("Enclosure_Type").disabled = true;
-                    document.getElementById("Enclosure_Length").disabled = true;
-                    document.getElementById("Enclosure_URL_header").children[0].style.display = "none";
-                    document.getElementById("Enclosure_Length_header").children[0].style.display = "none";
-                    document.getElementById("Enclosure_Type_header").children[0].style.display = "none";
-                    document.getElementById("Enclosure_URL").classList.remove("error");
-                    document.getElementById("Enclosure_Length").classList.remove("error");
-                    document.getElementById("Enclosure_Type").classList.remove("error");
-                    document.getElementById("Enclosure_URL").formnovalidate = true;
-                    document.getElementById("Enclosure_Length").formnovalidate = true;
-                    document.getElementById("Enclosure_Type").formnovalidate = true;
-                }
+        function get_form_data() {
+            var lang_selector = document.getElementById("Feed_Language");
+            var lang = lang_selector.options[lang_selector.selectedIndex].value;
+            output = {
+                'category': document.getElementById("Feed_Categories").value,
+                'copyright': document.getElementById("Feed_Copyright").value,
+                'delay': Number(0 || document.getElementById("Scrape_delay").value),
+                'description': document.getElementById("Feed_Description").value.replace(/(\r\n|\n|\r)/gm, ""),
+                'enclosure_length': document.getElementById("Enclosure_Length").value,
+                'enclosure_type': document.getElementById("Enclosure_Type").value,
+                'enclosure_url': document.getElementById("Enclosure_URL").value,
+                'image_link': document.getElementById("Image_Link").value,
+                'image_title': document.getElementById("Image_Title").value,
+                'image_url': document.getElementById("Image_URL").value,
+                'item_author': document.getElementById("Item_Author").value,
+                'item_category': document.getElementById("Item_Categories").value,
+                'item_comments': document.getElementById("Item_Comments").value,
+                'item_description': document.getElementById("Item_Description").value.replace(/(\r\n|\n|\r)/gm, ""),
+                'item_guid': document.getElementById("Item_GUID").value,
+                'item_link': document.getElementById("Item_Link").value,
+                'item_pattern': document.getElementById("Item_Pattern").value,
+                'item_pubDate': document.getElementById("Item_PubDate").value,
+                'item_source': document.getElementById("Item_Source").value,
+                'item_title': document.getElementById("Item_Title").value,
+                'language': lang,
+                'link': document.getElementById("Feed_Link").value,
+                'logged_URL': document.getElementById("logged_URL").value,
+                'logged_title': document.getElementById("logged_title").value,
+                'login_required': document.getElementById("Login_Checkbox").checked,
+                'managingEditor': document.getElementById("Feed_Editor").value,
+                'path': document.getElementById("Feed_Path").value,
+                'scrape_start_position': document.getElementById("scrape_start_position").value,
+                'scrape_stop_position': document.getElementById("scrape_stop_position").value,
+                'title': document.getElementById("Feed_Title").value,
+                'ttl': Number(document.getElementById("Feed_TTL").value || 60),
+                'use_image': document.getElementById('Image_Checkbox').checked,
+                'use_media': document.getElementById('Enclosure_checkbox').checked,
+                'webMaster': document.getElementById("Feed_Webmaster").value,
             }
+            return output;
+        }
 
-            function toggle_image_fields() {
-                var checkBox = document.getElementById("Image_Checkbox");
-                if (checkBox.checked == true) {
-                    document.getElementById("Image_Link").required = true;
-                    document.getElementById("Image_Title").required = true;
-                    document.getElementById("Image_URL").required = true;
-                    document.getElementById("Image_Link").formnovalidate = false;
-                    document.getElementById("Image_Title").formnovalidate = false;
-                    document.getElementById("Image_URL").formnovalidate = false;
-                    document.getElementById("Image_Link").disabled = false;
-                    document.getElementById("Image_Title").disabled = false;
-                    document.getElementById("Image_URL").disabled = false;
-                    document.getElementById("Image_file").disabled = false;
-                    document.getElementById("Image_Link_header").children[0].style.display = "unset";
-                    document.getElementById("Image_Title_header").children[0].style.display = "unset";
-                    document.getElementById("Image_URL_header").children[0].style.display = "unset";
-                } else {
-                    document.getElementById("Image_Link").required = false;
-                    document.getElementById("Image_Title").required = false;
-                    document.getElementById("Image_URL").required = false;
-                    document.getElementById("Image_Link").formnovalidate = true;
-                    document.getElementById("Image_Title").formnovalidate = true;
-                    document.getElementById("Image_URL").formnovalidate = true;
-                    document.getElementById("Image_Link").disabled = true;
-                    document.getElementById("Image_Title").disabled = true;
-                    document.getElementById("Image_URL").disabled = true;
-                    document.getElementById("Image_file").disabled = true;
-                    document.getElementById("Image_Link").classList.remove("error");
-                    document.getElementById("Image_Title").classList.remove("error");
-                    document.getElementById("Image_URL").classList.remove("error");
-                    document.getElementById("Image_Link_header").children[0].style.display = "none";
-                    document.getElementById("Image_Title_header").children[0].style.display = "none";
-                    document.getElementById("Image_URL_header").children[0].style.display = "none";
-                }
-
+        function plus_minus_button_press(ID, direction) {
+            var box = document.getElementById(ID);
+            var temp = parseInt(box.value) + parseInt(box.step) * parseInt(direction);
+            temp = Math.ceil(temp / parseInt(box.step)) * parseInt(box.step);
+            if (temp > parseInt(box.max)) {
+                box.value = parseInt(box.max);
+            } else if (temp < parseInt(box.min)) {
+                box.value = parseInt(box.min);
+            } else {
+                box.value = temp;
             }
-
-            function post_data() {
-
-                var form_data = JSON.stringify(get_form_data());
-                document.body.style.cursor = "wait";
-
-                var file = document.getElementById("Image_file").files[0];
-                if (file) {
-                    const uri = "/Image_Upload";
-                    const xhr = new XMLHttpRequest();
-                    const fd = new FormData();
-
-                    xhr.open("POST", uri, true);
-                    xhr.setRequestHeader("FEED_IMAGE_FILENAME", file.name);
-                    xhr.onload = function () {
-                        if (xhr.status == 200) {
-                            new Noty({ text: "Image uploaded", type: "success" }).show();
-                            var send = new XMLHttpRequest();
-                            send.onload = function () {
-                                document.body.style.cursor = "default";
-                                console.log(send);
-                                if (send.status == 200) {
-                                    localStorage.clear();
-                                    new Noty({ text: "Feed created successfully", type: "success" }).show();
-                                    window.location.href = "/Success";
-                                } else {
-                                    new Noty({ text: "Uh oh. Something went wrong. Check the server logs", type: "error" }).show();
-                                }
-                            };
-                            send.open('POST', "/Feed_Data");
-                            send.send(form_data);
-                        } else {
-                            new Noty({ text: "Error uploading file", type: "error" }).show();
-                        }
-                    };
-                    fd.append('myFile', file);
-                    xhr.send(fd);
-                } else {
-                    var xhr = new XMLHttpRequest();
-                    xhr.onload = function () {
-                        document.body.style.cursor = "default";
-                        console.log(xhr);
-                        if (xhr.status == 200) {
-                            localStorage.clear();
-                            window.location.href = "/Success";
-                        } else {
-                            new Noty({
-                                text: "Uh oh. Something went wrong. Check the server logs", type: "error"
-                            }).show();
-                        }
-                    };
-                    xhr.open('POST', "/Feed_Data");
-                    xhr.send(form_data);
-                }
-            }
-
-            function get_form_data() {
-                var lang_selector = document.getElementById("Feed_Language");
-                var lang = lang_selector.options[lang_selector.selectedIndex].value;
-                output = {
-                    'category': document.getElementById("Feed_Categories").value,
-                    'copyright': document.getElementById("Feed_Copyright").value,
-                    'delay': Number(0 || document.getElementById("Scrape_delay").value),
-                    'description': document.getElementById("Feed_Description").value.replace(/(\r\n|\n|\r)/gm, ""),
-                    'enclosure_length': document.getElementById("Enclosure_Length").value,
-                    'enclosure_type': document.getElementById("Enclosure_Type").value,
-                    'enclosure_url': document.getElementById("Enclosure_URL").value,
-                    'image_link': document.getElementById("Image_Link").value,
-                    'image_title': document.getElementById("Image_Title").value,
-                    'image_url': document.getElementById("Image_URL").value,
-                    'item_author': document.getElementById("Item_Author").value,
-                    'item_category': document.getElementById("Item_Categories").value,
-                    'item_comments': document.getElementById("Item_Comments").value,
-                    'item_description': document.getElementById("Item_Description").value.replace(/(\r\n|\n|\r)/gm, ""),
-                    'item_guid': document.getElementById("Item_GUID").value,
-                    'item_link': document.getElementById("Item_Link").value,
-                    'item_pattern': document.getElementById("Item_Pattern").value,
-                    'item_pubDate': document.getElementById("Item_PubDate").value,
-                    'item_source': document.getElementById("Item_Source").value,
-                    'item_title': document.getElementById("Item_Title").value,
-                    'language': lang,
-                    'link': document.getElementById("Feed_Link").value,
-                    'logged_URL': document.getElementById("logged_URL").value,
-                    'logged_title': document.getElementById("logged_title").value,
-                    'login_required': document.getElementById("Login_Checkbox").checked,
-                    'managingEditor': document.getElementById("Feed_Editor").value,
-                    'path': document.getElementById("Feed_Path").value,
-                    'scrape_start_position': document.getElementById("scrape_start_position").value,
-                    'scrape_stop_position': document.getElementById("scrape_stop_position").value,
-                    'title': document.getElementById("Feed_Title").value,
-                    'ttl': Number(document.getElementById("Feed_TTL").value || 60),
-                    'use_image': document.getElementById('Image_Checkbox').checked,
-                    'use_media': document.getElementById('Enclosure_checkbox').checked,
-                    'webMaster': document.getElementById("Feed_Webmaster").value,
-                }
-                return output;
-            }
-
-            function plus_minus_button_press(ID, direction) {
-                var box = document.getElementById(ID);
-                var temp = parseInt(box.value) + parseInt(box.step) * parseInt(direction);
-                temp = Math.ceil(temp / parseInt(box.step)) * parseInt(box.step);
-                if (temp > parseInt(box.max)) {
-                    box.value = parseInt(box.max);
-                } else if (temp < parseInt(box.min)) {
-                    box.value = parseInt(box.min);
-                } else {
-                    box.value = temp;
-                }
-                localStorage.setItem(box.name, box.value);
-            }
-        </script>
-</body>
-
-</html>
+            localStorage.setItem(box.name, box.value);
+        }
+    </script>
+</div>

@@ -1,58 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="/Pages/css/styles.css">
-    <link rel="stylesheet" href="/Pages/css/all.css">
-    <link rel="stylesheet" href="/Pages/css/noty.css">
-    <script src="/Pages/js/dayjs.min.js"></script>
-    <script src="/Pages/js/noty.min.js"></script>
-    <script>
-        Noty.overrideDefaults({
-            layout: 'topLeft'
-        });
-    </script>
+<div id="container">
     <title>RSS-Generator: Feeds</title>
-</head>
-
-<body onload="load()">
-    <a href="/"><img src="/Img/Bocchi.png" id="bocchi" /></a>
-    <div id="container">
-        <div>
-            <a href="http://www.rssboard.org/rss-draft-1" target="_blank"><img id="icon" src="/Img/RSS.png"></a>
-            <p id="bread-crumbs"><a href="/">Home</a></p>
-            <h1>K-Barber's RSS-Generator: My Feeds</h1>
-            <p>A list of your feeds:</p>
-            <div id="file-list">
-                <table id="file-table">
-                    <colgroup>
-                        <col style="width: 60%;">
-                    </colgroup>
-                    <tr>
-                        <th>
-                            <div>
-                                Name
-                                <i class="fas fa-sort sort-arrow" onclick="sort_table(ALPHABETICAL)"></i>
-                            </div>
-                        </th>
-                        <th>
-                            <div>
-                                Size
-                                <i class="fas fa-sort sort-arrow" onclick="sort_table(SIZE)"></i>
-                            </div>
-                        </th>
-                        <th>
-                            <div>
-                                Modified
-                                <i class="fas fa-sort sort-arrow" onclick="sort_table(MODIFIED)"></i>
-                            </div>
-                        </th>
-                    </tr>
-                </table>
-            </div>
-            <button onclick="refresh()">Refresh</button>
+    <div>
+        <a href="https://www.rssboard.org/rss-specification" target=" _blank"><img id="icon" src="/Img/RSS.png"></a>
+        <p id="bread-crumbs"><a href="/">Home</a></p>
+        <h1>K-Barber's RSS-Generator: My Feeds</h1>
+        <p>A list of your feeds:</p>
+        <div id="file-list">
+            <table id="file-table">
+                <colgroup>
+                    <col style="width: 60%;">
+                </colgroup>
+                <tr>
+                    <th>
+                        <div>
+                            Name
+                            <i class="fas fa-sort sort-arrow" onclick="sort_table(ALPHABETICAL)"></i>
+                        </div>
+                    </th>
+                    <th>
+                        <div>
+                            Size
+                            <i class="fas fa-sort sort-arrow" onclick="sort_table(SIZE)"></i>
+                        </div>
+                    </th>
+                    <th>
+                        <div>
+                            Modified
+                            <i class="fas fa-sort sort-arrow" onclick="sort_table(MODIFIED)"></i>
+                        </div>
+                    </th>
+                </tr>
+            </table>
         </div>
+        <button onclick="refresh()">Refresh</button>
     </div>
     <script>
         if (location.href.endsWith("/")) {
@@ -188,8 +168,6 @@
             return result
         }
 
-
-
         function load() {
             var path = location.pathname.split("/");
             var filtered = path.filter(function (value, index, array) {
@@ -321,7 +299,6 @@
                 d = Math.floor(Math.log(a) / Math.log(1024));
             return parseFloat((a / Math.pow(1024, d)).toFixed(c)) + " " + ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][d]
         }
+        load()
     </script>
-</body>
-
-</html>
+</div>
