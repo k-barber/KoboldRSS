@@ -5,13 +5,12 @@ import requests
 from RSSChannel import RSSChannel
 from Utils import clean_input, folder_is_hidden
 import json
-from io import BytesIO
 import os
 from os import path as file_path, listdir
 from os.path import isfile, join
 from datetime import datetime, timedelta
 from urllib import parse
-import re
+import mimetypes
 
 shell = None
 browser = None
@@ -199,12 +198,20 @@ class MyHandler(BaseHTTPRequestHandler):
             path = parse.unquote(self.path)
             if path in urls.keys():
                 if urls[path][1].startswith("text"):
-                    ind = open(urls[path][0], "r", encoding="utf-8")
-                    st = ind.read()
+                    insert = open(urls[path][0], "r", encoding="utf-8")
+                    insert = insert.read()
+                    if urls[path][1] == "text/html" and path != "/res/preview.xsl":
+                        template = open("Pages/template.html", "r", encoding="utf-8")
+                        template = template.read()
+                        response = template.replace(
+                            '<div id="container"></div>', insert
+                        )
+                    else:
+                        response = insert
                     self.send_response(200)
                     self.send_header("Content-type", urls[path][1])
                     self.end_headers()
-                    self.wfile.write(bytes(st, "utf-8"))
+                    self.wfile.write(bytes(response, "utf-8"))
                 elif urls[path][1].startswith("image"):
                     f = open(urls[self.path][0], "rb")
                     st = f.read()
@@ -214,20 +221,7 @@ class MyHandler(BaseHTTPRequestHandler):
                     self.wfile.write(bytes(st))
             elif path.startswith("/Pages/"):
                 path = path[1:]
-                if path.endswith(".css"):
-                    file_type = "text/css"
-                elif path.endswith(".ttf"):
-                    file_type = "font/ttf"
-                elif path.endswith("eot"):
-                    file_type = "application/vnd.ms-fontobject"
-                elif path.endswith("svg"):
-                    file_type = "image/svg+xml"
-                elif path.endswith("woff"):
-                    file_type = "font/woff"
-                elif path.endswith("woff2"):
-                    file_type = "font/woff2"
-                elif path.endswith(".js"):
-                    file_type = "text/javascript"
+                file_type = mimetypes.guess_type(path)
                 ind = open(path, "rb")
                 st = ind.read()
                 self.send_response(200)
@@ -296,14 +290,17 @@ class MyHandler(BaseHTTPRequestHandler):
                                 }
                             )
                     f = open("Pages/Feeds.html", "r", encoding="utf-8")
-                    st = f.read()
-                    st = st.replace(
+                    insert = f.read()
+                    insert = insert.replace(
                         "var items = [];", "var items = " + json.dumps(items) + ";"
                     )
+                    template = open("Pages/template.html", "r", encoding="utf-8")
+                    template = template.read()
+                    response = template.replace('<div id="container"></div>', insert)
                     self.send_response(200)
                     self.send_header("Content-type", "text/html")
                     self.end_headers()
-                    self.wfile.write(bytes(st, "utf-8"))
+                    self.wfile.write(bytes(response, "utf-8"))
             elif path.startswith("/Img/"):
                 filetype = path.split(".")[1]
                 path = path[1:]
@@ -368,11 +365,14 @@ class MyHandler(BaseHTTPRequestHandler):
                 )
                 new_channel.item_pattern = params["pattern"]
                 data = new_channel.generate_items(text, True)
-                if data == "ERROR":
+                if len(data) == 2 and data[0] == "ERROR":
                     self.send_response(401)
                     self.send_header("Content-type", "text/html")
                     self.end_headers()
-                    self.wfile.write(bytes("Invalid RegEx provided", "utf-8"))
+                    if data[1] == "INVALID":
+                        self.wfile.write(bytes("Invalid RegEx provided.", "utf-8"))
+                    elif data[1] == "TIMEOUT":
+                        self.wfile.write(bytes("RegEx evaluation timed out.", "utf-8"))
                     return
                 response = json.dumps(data)
                 self.send_response(200)

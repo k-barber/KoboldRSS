@@ -7,7 +7,6 @@ if os.name == "nt":
     import win32api
     import win32con
 
-
 def create_folders_to_file(file_name):
     if not os.path.exists(os.path.dirname(file_name)):
         try:

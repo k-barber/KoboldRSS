@@ -19,7 +19,7 @@ top = """
     <a href="/"><img src="/Img/Bocchi.png" id="bocchi"/></a>
     <div id="container">
         <div>
-            <a href="http://www.rssboard.org/rss-draft-1" target="_blank"><img id="icon" src="/Img/RSS.png"></a>
+            <a href="https://www.rssboard.org/rss-specification" target="_blank"><img id="icon" src="/Img/RSS.png"></a>
             <p><a href="/">Home</a> &gt; My Feeds</p>
             <h1>K-Barber's RSS-Generator: My Feeds</h1>
             <p>A list of your feeds:</p>
@@ -153,8 +153,10 @@ class GeneratorInstance:
                     count += 1
         if text != "":
             result = channel.generate_items(text)
-            if result != -1:
+            if len(result) == 2 and result[0] == "ERROR":
+                self.log(result[1])
+                self.log("Scraping " + channel.title + " failed")
+                self.log("Please check 'error-log.txt'")
+            else:
                 channel.save_channel()
                 return
-        self.log("Scraping " + channel.title + " failed")
-        self.log("Please check 'error-log.txt'")

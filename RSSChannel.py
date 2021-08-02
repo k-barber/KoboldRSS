@@ -1,11 +1,20 @@
 from datetime import datetime
 from RSSItem import RSSItem
 from Utils import clean_input, create_folders_to_file, dirty_output
+import concurrent.futures
 import os
-import io
 import re
 
 Debug = False
+
+
+def do_regex(pattern, text, result):
+    try:
+        result[0] = re.findall(pattern, text, re.DOTALL)
+        print(result)
+    except Exception as err:
+        exception_type = type(err).__name__
+        print(exception_type)
 
 
 class RSSChannel:
@@ -15,7 +24,7 @@ class RSSChannel:
     copyright = None
     description = None
     path = "Feeds/"
-    docs = "http://www.rssboard.org/rss-draft-1"
+    docs = "https://www.rssboard.org/rss-specification"
 
     enclosure_length = None
     enclosure_type = None
@@ -307,7 +316,7 @@ class RSSChannel:
         """
 
         partial_text = clean_input(text)
-        
+
         if (
             (self.scrape_start_position is not None)
             and (self.scrape_start_position != "")
@@ -324,20 +333,19 @@ class RSSChannel:
             and (partial_text.find(self.scrape_stop_position) > -1)
         ):
             partial_text = partial_text[: partial_text.find(self.scrape_stop_position)]
-        
+
         try:
             re.compile(self.item_pattern)
         except re.error:
-            return "ERROR"
+            return ["ERROR", "INVALID"]
 
         try:
-            result = re.findall(self.item_pattern, partial_text, re.DOTALL)
-        except Exception as err:
-            exception_type = type(err).__name__
-            print(exception_type)
+            executor = concurrent.futures.ThreadPoolExecutor()
+            future = executor.submit(re.findall, self.item_pattern, partial_text)
+            result = future.result(timeout=1)
+        except concurrent.futures.TimeoutError:
+            return ["ERROR", "TIMEOUT"]
 
-
-        # Remove leading and trailing whitespace from matches
         stripped = []
         for match in result:
             if type(match) is tuple:
@@ -400,7 +408,7 @@ class RSSChannel:
         self.copyright = None
         self.description = None
         self.path = None
-        self.docs = "http://www.rssboard.org/rss-draft-1"
+        self.docs = "https://www.rssboard.org/rss-specification"
 
         self.enclosure_length = None
         self.enclosure_type = None
