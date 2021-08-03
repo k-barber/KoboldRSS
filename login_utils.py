@@ -85,14 +85,11 @@ class BrowserWindow:
                         domain, channel.logged_URL, channel.logged_title)
         logged_out = []
         if len(websites) > 0:
-            print(websites)
             if (self.is_aborted()):
                 return
             self.start()
             self.log("Login Check:")
             for domain in websites.keys():
-                print(domain)
-                print(websites[domain])
                 self.log(domain)
                 if (self.is_aborted()):
                     return

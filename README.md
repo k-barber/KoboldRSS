@@ -36,9 +36,8 @@ To begin, download the program in one of three ways:
   2. [Torrent Download](https://github.com/k-barber/Release/raw/master/RSS-Generator.zip.torrent)
   3. Clone this Git Repository
 
-<p align="center">
-  <img src="https://github.com/k-barber/RSS-Generator/blob/master/Img/Readme/download.jpg">
-</p>
+![](Img\Readme\download.jpg)
+
 
 If you opt to clone the git repo, I apologize for the mess.
 
@@ -265,3 +264,8 @@ Currently the only way to delete a feed is remove the feed from the Feed_Definit
 *****
 
 ## Support the Developer
+
+
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/P5P65JBCT)
+

@@ -11,15 +11,15 @@ top = """
 
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="/Pages/styles.css">
+    <link rel="stylesheet" href="/pages/styles.css">
     <title>RSS-Generator: Feeds</title>
 </head>
 
 <body>
-    <a href="/"><img src="/Img/Bocchi.png" id="bocchi"/></a>
+    <a href="/"><img src="/img/Bocchi.png" id="bocchi"/></a>
     <div id="container">
         <div>
-            <a href="https://www.rssboard.org/rss-specification" target="_blank"><img id="icon" src="/Img/RSS.png"></a>
+            <a href="https://www.rssboard.org/rss-specification" target="_blank"><img id="icon" src="/img/RSS.png"></a>
             <p><a href="/">Home</a> &gt; My Feeds</p>
             <h1>K-Barber's RSS-Generator: My Feeds</h1>
             <p>A list of your feeds:</p>

@@ -6,7 +6,7 @@
         }
     </style>
     <div>
-        <a href="https://www.rssboard.org/rss-specification" target=" _blank"><img id="icon" src="/Img/RSS.png"></a>
+        <a href="https://www.rssboard.org/rss-specification" target=" _blank"><img id="icon" src="/img/RSS.png"></a>
         <p><a href="/">Home</a> &gt; Read Me</p>
         <h1>K-Barber's RSS-Generator: Read Me</h1>
         <hr>
@@ -59,7 +59,7 @@
         <p>The first step is to start up the server.</p>
 
         <p align="center">
-            <img src="/Img/Readme/server.jpg">
+            <img src="/img/Readme/server.jpg">
         </p>
 
         <p>In addition to serving the .xml file to your feed reader, the server provides a user-friendly web interface for the generator. </p>
@@ -75,7 +75,7 @@
         <p>If that is the case, you have correctly set up the server. </p>
 
         <p align="center">
-            <img src="/Img/Readme/home.jpg">
+            <img src="/img/Readme/home.jpg">
         </p>
 
         <hr />
@@ -85,7 +85,7 @@
         <p>To start the generator, simply open generator.exe. It should look like this: </p>
 
         <p align="center">
-            <img src="/Img/Readme/generator.jpg">
+            <img src="/img/Readme/generator.jpg">
         </p>
 
         <hr />
@@ -102,7 +102,7 @@
         <p>To explain how to add a feed, I will provide a walkthrough using the YouTube trending page as an example. Ultimately the feed should mimic the trending page and provide us with an update when a new video hits the trending page. </p>
 
         <p align="center">
-            <img src="/Img/Readme/youtube.jpg">
+            <img src="/img/Readme/youtube.jpg">
         </p>
 
         <h4 id="defining-the-feed">Defining the Feed</h4>
@@ -112,7 +112,7 @@
         <p>The feed TTL is how long the feed reader should wait before checking for updates from the feed. It is essentially how often the feed updates. The default setting is 60 minutes. </p>
 
         <p align="center">
-            <img src="/Img/Readme/basic.jpg">
+            <img src="/img/Readme/basic.jpg">
         </p>
 
         <h4 id="creating-an-item-pattern">Creating an Item Pattern</h4>
@@ -152,7 +152,7 @@
         <p>To start, click the "Scrape URL" button, and watch as the "Scraped Page Source Data" box fills up. This box contains the raw HTML for the webpage we gave earlier in the "Feed Link" field.</p>
 
         <p align="center">
-            <img src="/Img/Readme/first.jpg">
+            <img src="/img/Readme/first.jpg">
         </p>
 
         <p>If we look at the YouTube trending page, we'll see that the first video is entitled "Sooubway 4: The Final Sandwich". We'll scroll through the source data, looking for HTML that mentions this item.</p>
@@ -160,7 +160,7 @@
         <p>Once we find it, we will copy and paste it into a text-comparison software like https://text-compare.com/. We only want to copy the text for one item, but we want to make sure we get all the data we need: title, length, description, etc.</p>
 
         <p align="center">
-            <img src="/Img/Readme/compare.jpg">
+            <img src="/img/Readme/compare.jpg">
         </p>
 
         <p>Then we find another item and compare the two texts. The highlighted areas are text that needs to be a placeholder in our pattern, either as {%} for data we want, or {*} for data we don't. The highlighted areas will likely be in quotation marks, and in that case the entire content in the quotes probably has to be replaced with a placeholder. </p>
@@ -168,13 +168,13 @@
         <p>In the end we come out with a pattern like so:</p>
 
         <p align="center">
-            <img src="/Img/Readme/pattern.jpg">
+            <img src="/img/Readme/pattern.jpg">
         </p>
 
         <p>Which produces the following result:</p>
 
         <p align="center">
-            <img src="/Img/Readme/result.jpg">
+            <img src="/img/Readme/result.jpg">
         </p>
 
         <p>As you can see, our {%} placeholders have been numbered and are storing the following data:
@@ -219,7 +219,7 @@
         <p>For the description, we'll include some simple HTML formatting. We'll have the video's title and duration on one line followed by the channel name, view count and upload time on the next, and the video description last.</p>
 
         <p align="center">
-            <img src="/Img/Readme/item.jpg">
+            <img src="/img/Readme/item.jpg">
         </p>
 
         <p>Any HTML in the description needs to be within the &lt;!CDATA[ tags. CSS can be inlined, but most readers will drop any &lt;style> or &lt;script> tags. </p>
@@ -231,13 +231,13 @@
         <p>When you are done, simply click the "Submit" button, and you should be taken to a page that looks like this:</p>
 
         <p align="center">
-            <img src="/Img/Readme/success.jpg">
+            <img src="/img/Readme/success.jpg">
         </p>
 
         <p align="center">
             <strong>Congratulations! You've made your first custom feed!</strong>
             </br>
-            <img src="/Img/Bocchi.png" width=500 height=500>
+            <img src="/img/Bocchi.png" width=500 height=500>
         </p>
 
         <hr />
@@ -251,7 +251,7 @@
         </ol>
 
         <p align="center">
-            <img src="/Img/Readme/preview.jpg">
+            <img src="/img/Readme/preview.jpg">
         </p>
 
         <ol start="4">
@@ -260,7 +260,7 @@
         </ol>
 
         <p align="center">
-            <img src="/Img/Readme/save.jpg">
+            <img src="/img/Readme/save.jpg">
         </p>
 
         <hr />

@@ -7,16 +7,6 @@ import re
 
 Debug = False
 
-
-def do_regex(pattern, text, result):
-    try:
-        result[0] = re.findall(pattern, text, re.DOTALL)
-        print(result)
-    except Exception as err:
-        exception_type = type(err).__name__
-        print(exception_type)
-
-
 class RSSChannel:
     browser_instance = None
 

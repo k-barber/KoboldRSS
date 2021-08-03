@@ -4,14 +4,14 @@
 <xsl:template match="/rss/channel">
   <html>
     <head>
-        <link rel="stylesheet" href="/Pages/css/styles.css"></link>
+        <link rel="stylesheet" href="/css/styles.css"></link>
         <title>RSS-Manager:<xsl:value-of select="title"/></title>
     </head>
     <body>
-        <a href="/"><img src="/Img/Bocchi.png" id="bocchi"/></a>
+        <a href="/"><img src="/img/Bocchi.png" id="bocchi"/></a>
         <div id="container">
             <div>
-                <a href="https://www.rssboard.org/rss-specification" target="_blank"><img id="icon" src="/Img/RSS.png"/></a>
+                <a href="https://www.rssboard.org/rss-specification" target="_blank"><img id="icon" src="/img/RSS.png"/></a>
                 <p id="bread-crumbs"><a href="/">Home</a> &gt; <a href="/Feeds/">My Feeds</a> &gt; <xsl:value-of select="title"/>.xml</p>
                 <h1>K-Barber's RSS-Manager: Feed Details &amp; Preview</h1>
                 <p>Congratulations! If you can see this page, you are ready to add your custom feed to your feed reader!</p>

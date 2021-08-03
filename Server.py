@@ -6,11 +6,12 @@ from RSSChannel import RSSChannel
 from Utils import clean_input, folder_is_hidden
 import json
 import os
-from os import path as file_path, listdir
-from os.path import isfile, join
+import magic
+import mimetypes
+
+mime = magic.Magic(mime=True)
 from datetime import datetime, timedelta
 from urllib import parse
-import mimetypes
 
 shell = None
 browser = None
@@ -66,12 +67,12 @@ def get_ip():
 def clear_cache():
     now = datetime.now()
     onlyfiles = [
-        join("Img/Cache/", f)
-        for f in listdir("Img/Cache/")
-        if isfile(join("Img/Cache/", f))
+        os.path.join("Public/img/Cache/", f)
+        for f in os.listdir("Public/img/Cache/")
+        if os.path.isfile(os.path.join("Public/img/Cache/", f))
     ]
     for file_name in onlyfiles:
-        modified = datetime.fromtimestamp(file_path.getmtime(file_name))
+        modified = datetime.fromtimestamp(os.path.getmtime(file_name))
 
         if now >= modified + timedelta(days=7):
             os.remove(file_name)
@@ -167,16 +168,12 @@ def update_defs():
 
 
 urls = {
-    "/": ["Pages/Main.html", "text/html"],
-    "/res/preview.xsl": ["Pages/preview.xsl", "text/html"],
-    "/Public/": ["Pages/Public.html", "text/html"],
-    "/favicon.ico": ["Img/favicon.ico", "image/x-icon"],
-    "/Pages/styles.css": ["Pages/styles.css", "text/css"],
-    "/Pages/dayjs.min.js": ["Pages/dayjs.min.js", "text/javascript"],
-    "/Pages/css/all.css": ["Pages/css/all.css", "text/css"],
-    "/New-Feed": ["Pages/New-Feed.html", "text/html"],
-    "/Success": ["Pages/Success.html", "text/html"],
-    "/Help": ["Pages/Help.html", "text/html"],
+    "/": "pages/Main.html",
+    "/res/preview.xsl": "pages/preview.xsl",
+    "/favicon.ico": "Img/favicon.ico",
+    "/New-Feed": "pages/New-Feed.html",
+    "/Success": "pages/Success.html",
+    "/Help": "pages/Help.html",
 }
 
 
@@ -197,54 +194,62 @@ class MyHandler(BaseHTTPRequestHandler):
             self.protocol_version = "HTTP/1.1"
             path = parse.unquote(self.path)
             if path in urls.keys():
-                if urls[path][1].startswith("text"):
-                    insert = open(urls[path][0], "r", encoding="utf-8")
-                    insert = insert.read()
-                    if urls[path][1] == "text/html" and path != "/res/preview.xsl":
-                        template = open("Pages/template.html", "r", encoding="utf-8")
+                path = urls[path]
+            path = path.strip("/")
+            full_path = os.path.join("Public/", path)
+            if os.path.exists(full_path):
+                guessed = mimetypes.guess_type(full_path)
+                file_type = guessed[0]
+                if guessed[0] == None:
+                    file_type = mime.from_file(full_path)
+                if file_type.startswith("text"):
+                    file = open(full_path, "r", encoding="utf-8")
+                    response = file.read()
+                    if file_type == "text/html":
+                        template = open(
+                            "Public/pages/template.html", "r", encoding="utf-8"
+                        )
                         template = template.read()
                         response = template.replace(
-                            '<div id="container"></div>', insert
+                            '<div id="container"></div>', response
                         )
-                    else:
-                        response = insert
                     self.send_response(200)
-                    self.send_header("Content-type", urls[path][1])
+                    self.send_header("Content-type", file_type)
                     self.end_headers()
                     self.wfile.write(bytes(response, "utf-8"))
-                elif urls[path][1].startswith("image"):
-                    f = open(urls[self.path][0], "rb")
-                    st = f.read()
+                else:
+                    file = open(full_path, "rb")
+                    response = file.read()
                     self.send_response(200)
-                    self.send_header("Content-type", urls[path][1])
+                    self.send_header("Content-type", file_type)
                     self.end_headers()
-                    self.wfile.write(bytes(st))
-            elif path.startswith("/Pages/"):
-                path = path[1:]
-                file_type = mimetypes.guess_type(path)
-                ind = open(path, "rb")
-                st = ind.read()
-                self.send_response(200)
-                self.send_header("Content-type", file_type)
-                self.end_headers()
-                self.wfile.write(bytes(st))
-            elif path.startswith("/Proxy/"):
-                url = path[7:]
+                    self.wfile.write(bytes(response))
+            elif path.startswith("Proxy/"):
+                print("path: " + path)
+                url = path[6:]
+                print("url: " + url)
                 try:
-                    filename = url[url.find("/") + 1 :].replace("/", "-")
-                    if file_path.exists("Img/Cache/" + filename):
-                        cached = open("Img/Cache/" + filename, "rb").read()
+                    file_name = os.path.basename(url)
+                    print("file_name: " + file_name)
+                    full_file = os.path.join("Public/img/Cache/", file_name)
+                    print("full_file: " + full_file)
+                    if os.path.exists(full_file):
+                        print("CACHED")
+                        cached = open(full_file, "rb").read()
                         self.send_response(200)
                         self.end_headers()
                         self.wfile.write(bytes(cached))
                     else:
+                        print("Get New")
                         domain = url[: url.find("/")]
+                        print("domain: " + domain)
                         if domain.count(".") > 1:
                             domain = domain[
                                 domain.rfind(".", 0, domain.rfind(".")) + 1 :
                             ]
                         referer = "https://" + domain
                         url = "https://" + url
+                        print("url: " + url)
                         response = requests.get(
                             url,
                             headers={
@@ -252,7 +257,7 @@ class MyHandler(BaseHTTPRequestHandler):
                                 "referer": referer,
                             },
                         )
-                        cached = open("Img/Cache/" + filename, "wb")
+                        cached = open(full_file, "wb")
                         cached.write(response.content)
                         cached.close()
                         self.send_response(response.status_code)
@@ -260,8 +265,7 @@ class MyHandler(BaseHTTPRequestHandler):
                         self.wfile.write(bytes(response.content))
                 except Exception as err:
                     shell.print_server_output(str(err))
-            elif path.startswith("/Feeds"):
-                path = path[1:]
+            elif path.startswith("Feeds"):
                 if path.endswith(".xml"):
                     ind = open(path, "r", encoding="utf-8")
                     st = ind.read()
@@ -289,31 +293,20 @@ class MyHandler(BaseHTTPRequestHandler):
                                     "is_dir": is_dir,
                                 }
                             )
-                    f = open("Pages/Feeds.html", "r", encoding="utf-8")
+                    f = open("Public/pages/Feeds.html", "r", encoding="utf-8")
                     insert = f.read()
                     insert = insert.replace(
                         "var items = [];", "var items = " + json.dumps(items) + ";"
                     )
-                    template = open("Pages/template.html", "r", encoding="utf-8")
+                    template = open("Public/pages/template.html", "r", encoding="utf-8")
                     template = template.read()
                     response = template.replace('<div id="container"></div>', insert)
                     self.send_response(200)
                     self.send_header("Content-type", "text/html")
                     self.end_headers()
                     self.wfile.write(bytes(response, "utf-8"))
-            elif path.startswith("/Img/"):
-                filetype = path.split(".")[1]
-                path = path[1:]
-                f = open(path, "rb")
-                st = f.read()
-                if filetype == "svg":
-                    filetype = "svg+xml"
-                self.send_response(200)
-                self.send_header("Content-type", "image/" + filetype)
-                self.end_headers()
-                self.wfile.write(bytes(st))
             else:
-                ind = open("Pages/404.html", "r", encoding="utf-8")
+                ind = open("Public/pages/404.html", "r", encoding="utf-8")
                 st = ind.read()
                 self.send_response(404)
                 self.send_header("Content-type", "text/html")
@@ -326,7 +319,7 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_response(500)
             self.send_header("Content-type", "text/html")
             self.end_headers()
-            ind = open("Pages/500.html", "r", encoding="utf-8")
+            ind = open("Public/pages/500.html", "r", encoding="utf-8")
             st = ind.read()
             self.wfile.write(bytes(st, "utf-8"))
             return
@@ -401,7 +394,7 @@ class MyHandler(BaseHTTPRequestHandler):
                     return
                 filename = self.headers["FEED_IMAGE_FILENAME"]
                 print(filename)
-                out_file = os.path.join("Img/Uploads", filename)
+                out_file = os.path.join("Public/img/Uploads", filename)
                 output = open(out_file, "wb")
                 output.write(
                     post_data[content_type_stop + 4 : str_payload.index("\r\n--------")]
@@ -494,7 +487,7 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_response(500)
             self.send_header("Content-type", "text/html")
             self.end_headers()
-            ind = open("Pages/500.html", "r", encoding="utf-8")
+            ind = open("Public/pages/500.html", "r", encoding="utf-8")
             st = ind.read()
             self.wfile.write(bytes(st, "utf-8"))
             return

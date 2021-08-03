@@ -1,7 +1,7 @@
 Feeds/
 AddToDist/
 *.xcf
-Img/Cache/*
+Public/img/Cache/*
 Img/Uploads/*
 FD_Backup/*
 cookies/*
