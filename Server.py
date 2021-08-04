@@ -4,6 +4,7 @@ import socket
 import requests
 from RSSChannel import RSSChannel
 from Utils import clean_input, folder_is_hidden
+from socketserver import ThreadingMixIn
 import json
 import os
 import magic
@@ -45,7 +46,7 @@ class ServerInstance:
             + str(PORT_NUMBER)
             + " for machines on this network"
         )
-        self.httpd = HTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)
+        self.httpd = ThreadedHTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)
         shell.print_server_output(IP + ":" + str(PORT_NUMBER) + " Server Start")
 
 
@@ -91,7 +92,6 @@ def validate_input(num):
 
 def channel_from_data(data):
     global new_channel
-    print(data)
     if data["category"] != "":
         cats = data["category"].strip().split(",")
         cats = [cat.strip() for cat in cats]
@@ -177,6 +177,10 @@ urls = {
 }
 
 
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle requests in a separate thread"""
+
+
 class MyHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         global shell
@@ -225,31 +229,23 @@ class MyHandler(BaseHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(bytes(response))
             elif path.startswith("Proxy/"):
-                print("path: " + path)
                 url = path[6:]
-                print("url: " + url)
                 try:
                     file_name = os.path.basename(url)
-                    print("file_name: " + file_name)
                     full_file = os.path.join("Public/img/Cache/", file_name)
-                    print("full_file: " + full_file)
                     if os.path.exists(full_file):
-                        print("CACHED")
                         cached = open(full_file, "rb").read()
                         self.send_response(200)
                         self.end_headers()
                         self.wfile.write(bytes(cached))
                     else:
-                        print("Get New")
                         domain = url[: url.find("/")]
-                        print("domain: " + domain)
                         if domain.count(".") > 1:
                             domain = domain[
                                 domain.rfind(".", 0, domain.rfind(".")) + 1 :
                             ]
                         referer = "https://" + domain
                         url = "https://" + url
-                        print("url: " + url)
                         response = requests.get(
                             url,
                             headers={
@@ -308,10 +304,13 @@ class MyHandler(BaseHTTPRequestHandler):
             else:
                 ind = open("Public/pages/404.html", "r", encoding="utf-8")
                 st = ind.read()
+                template = open("Public/pages/template.html", "r", encoding="utf-8")
+                template = template.read()
+                response = template.replace('<div id="container"></div>', st)
                 self.send_response(404)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
-                self.wfile.write(bytes(st, "utf-8"))
+                self.wfile.write(bytes(response, "utf-8"))
             return
         except Exception as err:
             print(err)
@@ -321,7 +320,10 @@ class MyHandler(BaseHTTPRequestHandler):
             self.end_headers()
             ind = open("Public/pages/500.html", "r", encoding="utf-8")
             st = ind.read()
-            self.wfile.write(bytes(st, "utf-8"))
+            template = open("Public/pages/template.html", "r", encoding="utf-8")
+            template = template.read()
+            response = template.replace('<div id="container"></div>', st)
+            self.wfile.write(bytes(response, "utf-8"))
             return
 
     def do_POST(self):
@@ -393,7 +395,6 @@ class MyHandler(BaseHTTPRequestHandler):
                     )
                     return
                 filename = self.headers["FEED_IMAGE_FILENAME"]
-                print(filename)
                 out_file = os.path.join("Public/img/Uploads", filename)
                 output = open(out_file, "wb")
                 output.write(
@@ -456,7 +457,6 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.wfile.write(bytes(json.dumps(items), "utf-8"))
             elif self.path == "/move_channel":
                 data = json.loads(str(post_data, encoding="utf-8"))
-                print(data)
                 directory = data["directory"]
                 directory = directory[1:]
                 file_name = data["file_name"]
@@ -465,9 +465,6 @@ class MyHandler(BaseHTTPRequestHandler):
                 )
                 new_file = os.path.normpath(os.path.join(destination, file_name))
                 full_file = os.path.normpath(os.path.join(directory, file_name))
-                print(destination)
-                print(full_file)
-                print(new_file)
                 os.replace(full_file, new_file)
                 for channel in shell.channels:
                     if (
