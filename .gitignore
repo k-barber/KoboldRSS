@@ -2,10 +2,9 @@ Feeds/
 AddToDist/
 *.xcf
 Public/img/Cache/*
-Img/Uploads/*
 FD_Backup/*
 cookies/*
-error-log.txt
+*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -33,7 +32,8 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
-Scripts/
+Scripts
+Include/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

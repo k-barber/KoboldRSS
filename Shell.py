@@ -1,9 +1,13 @@
+from genericpath import isfile
 from login_utils import BrowserWindow
 from Generator import GeneratorInstance
 from RSSChannel import RSSChannel
 from Server import ServerInstance
 from Gui import RSSWindow
+import sys
+import time
 import threading
+import json
 from datetime import datetime, timedelta
 from shutil import copyfile
 import itertools as it
@@ -13,16 +17,23 @@ import os
 
 class ShellInstance:
 
-    debug_mode = False
     running = True
+
+    settings = {
+        "debug_mode": False,
+        "show_hidden": False,
+        "block_requests": False,
+        "backup_definitions": True,
+        "backup_length": 7,
+        "port_number": 8000,
+    }
+
     channels = []
-    show_hidden = False
 
     gui = None
 
     server = None
     server_interrupt = None
-    current_port = None
 
     generator = None
     browser_instance = None
@@ -52,7 +63,7 @@ class ShellInstance:
         if self.running:
             if self.generator is None:
                 self.generator = GeneratorInstance(
-                    self, self.debug_mode, self.browser_instance
+                    self, self.settings["debug_mode"], self.browser_instance
                 )
                 generator_thread = threading.Thread(target=self.generator.run)
                 generator_thread.start()
@@ -110,7 +121,10 @@ class ShellInstance:
 
                 def create_server_instance(self, port_number):
                     self.server = ServerInstance(
-                        self, port_number, self.debug_mode, self.browser_instance
+                        self,
+                        port_number,
+                        self.settings["debug_mode"],
+                        self.browser_instance,
                     )
                     server_thread = threading.Thread(target=self.run_server)
                     server_thread.start()
@@ -132,6 +146,15 @@ class ShellInstance:
         self.running = False
         print("Shutting Down")
 
+        if not os.path.isfile(".settings.txt"):
+            f = open(".settings.txt", "x")
+            f.close()
+            f = os.popen("attrib +h .settings.txt")
+            f.close()
+        fd = os.open(".settings.txt", os.O_WRONLY|os.O_CREAT,)
+        os.write(fd, json.dumps(self.settings).encode())
+        os.close(fd)
+
         def shutboth():
             self.stop_generator()
             self.stop_server()
@@ -147,23 +170,36 @@ class ShellInstance:
         self.gui.close_window()
 
         print("Shutdown complete")
-        # exit()
 
     def toggle_debug(self):
         if self.running:
-            self.debug_mode = self.gui.debug_mode.get()
+            self.settings["debug_mode"] = self.gui.settings["debug_mode"].get()
             if self.server is not None:
-                self.server.debug_mode = self.debug_mode
+                self.server.debug_mode = self.settings["debug_mode"]
             if self.generator is not None:
-                self.generator.debug_mode = self.debug_mode
+                self.generator.debug_mode = self.settings["debug_mode"]
             if self.browser_instance is not None:
-                self.browser_instance.debug_mode = self.debug_mode
+                self.browser_instance.debug_mode = self.settings["debug_mode"]
 
     def toggle_hidden(self):
         if self.running:
-            self.show_hidden = self.gui.show_hidden.get()
+            self.settings["show_hidden"] = self.gui.settings["show_hidden"].get()
+
+    def toggle_backup(self):
+        if self.running:
+            self.backup = self.gui.settings["backup_definitions"].get()
+
+    def toggle_blocking(self):
+        if self.running:
+            self.settings["block_requests"] = self.gui.settings["block_requests"].get()
+            if self.settings["block_requests"] == True:
+                self.print_server_output("Blocking requests")
+            else:
+                self.print_server_output("Accepting requests")
 
     def back_up_definitions(self):
+        if self.settings["backup_definitions"] == False:
+            return
         now = datetime.now()
         now = now.replace(microsecond=0)
         date = now.isoformat("_")
@@ -184,7 +220,7 @@ class ShellInstance:
         for file_name in onlyfiles:
             modified = datetime.fromtimestamp(os.path.getmtime(file_name))
 
-            if now >= modified + timedelta(days=7):
+            if now >= modified + timedelta(days=self.settings["backup_length"]):
                 os.remove(file_name)
 
     def recompile_definitions(self):
@@ -200,31 +236,42 @@ class ShellInstance:
 
     def create_channels(self):
         self.channels = []
-        if self.debug_mode:
+        if self.settings["debug_mode"]:
             self.print_generator_output("Feed_Definitions.txt defines the following:")
         if not os.path.isfile("Feed_Definitions.txt"):
             self.print_generator_output("Feed_Definitions.txt missing, creating it now")
-            f = open("Feed_Definitions.txt", "x")
+            open("Feed_Definitions.txt", "x")
         with open("Feed_Definitions.txt") as fp:
             for key, group in it.groupby(fp, lambda line: line.startswith("~-~-~-~-")):
                 if not key:
                     group = list(group)
                     channel = RSSChannel(group)
-                    if self.debug_mode:
+                    if self.settings["debug_mode"]:
                         self.print_generator_output(channel.title)
                     self.channels.append(channel)
         return datetime.now()
 
     def __init__(self):
-        self.create_channels()
         self.generator_stop_signal = threading.Event()
         self.generator_stopped_signal = threading.Event()
         self.browser_stopped_signal = threading.Event()
-        self.browser_instance = BrowserWindow(self.debug_mode, self)
-        self.back_up_definitions()
+        self.browser_instance = BrowserWindow(self.settings["debug_mode"], self)
         try:
             self.gui = RSSWindow(self)
+            if os.path.exists(".settings.txt"):
+                try:
+                    f = open(".settings.txt", "r")
+                    self.settings = json.loads(f.read())
+                    f.close()
+                except Exception as err:
+                    self.print_generator_output("Error loading settings:")
+                    # self.print_generator_output(err)
+                    print("Error loading settings:")
+                    # print(err)
+            self.create_channels()
+            self.back_up_definitions()
             while True:  # self.running:
+                time.sleep(0.05)
                 self.gui.update()
         except Exception as err:
-            exit()
+            sys.exit()

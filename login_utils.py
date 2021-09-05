@@ -1,15 +1,10 @@
 from selenium import webdriver
-#from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
-from pathlib import Path
+from Utils import *
 from urllib import parse
 import pickle
-import traceback
 import time
 import os
 
@@ -31,43 +26,25 @@ class BrowserWindow:
         self.shell = shell
 
     def __initialize(self, force_debug=False):
-        """Initializes the headless browser instance
-        """
-        self.driver
-        self.wait
-        driver_options = Options()
-        driver_type = "Firefox"
-
-        if (driver_type == "Chrome"):
-            self.log("Utils Debug mode: " + str(self.debug_mode))
-            if (self.debug_mode):
-                self.log("Initializing Chrome")
-            if (self.debug_mode == False and force_debug == False):
-                driver_options.add_argument("--headless")
-            driver_options.add_argument("--disable-infobars")
-            driver_options.add_argument("--window-size=2000,2000")
-            driver_options.add_argument("--enable-file-cookies")
-            driver_options.add_argument("--log-level=3")
-            home = str(Path.home())
-            default_profile = "user-data-dir=" + home + \
-                "\\AppData\\Local\\Google\\Chrome\\User Data"
-            driver_options.add_argument(default_profile)
-            chrome_driver = os.path.join(os.getcwd(), "chromedriver")
-            if (self.is_aborted()):
-                return
-            self.driver = webdriver.Chrome(
-                chrome_options=driver_options, executable_path=chrome_driver,)
-        else:
-            if (self.debug_mode == False and force_debug == False):
+        """Initializes the headless browser instance"""
+        try:
+            self.driver
+            self.wait
+            driver_options = Options()
+            if self.debug_mode == False and force_debug == False:
                 driver_options.headless = True
             self.driver = webdriver.Firefox(
-                service_log_path=os.devnull, options=driver_options)
-        #driver = webdriver.Chrome(ChromeDriverManager().install())
-        self.wait = WebDriverWait(self.driver, 5)
+                service_log_path=os.devnull, options=driver_options
+            )
+            self.wait = WebDriverWait(self.driver, 5)
+        except Exception as err:
+            self.log("Error starting browser")
+            self.log((str(err) + "\n"))
+        
 
     def start(self):
         if self.driver is None:
-            if (self.is_aborted()):
+            if self.is_aborted():
                 return False
             self.__initialize()
         if self.driver is not None:
@@ -80,32 +57,35 @@ class BrowserWindow:
         for channel in channels:
             if channel.logged_URL is not None:
                 domain = parse.urlparse(channel.logged_URL).netloc
-                if (domain not in websites.keys() and domain not in self.logged_in):
+                if domain not in websites.keys() and domain not in self.logged_in:
                     websites[domain] = (
-                        domain, channel.logged_URL, channel.logged_title)
+                        domain,
+                        channel.logged_URL,
+                        channel.logged_title,
+                    )
         logged_out = []
         if len(websites) > 0:
-            if (self.is_aborted()):
+            if self.is_aborted():
                 return
             self.start()
             self.log("Login Check:")
             for domain in websites.keys():
                 self.log(domain)
-                if (self.is_aborted()):
+                if self.is_aborted():
                     return
-                if (not self.is_logged_in(websites[domain])):
+                if not self.is_logged_in(websites[domain]):
                     logged_out.append(websites[domain])
         if len(logged_out) > 0:
-            if (self.debug_mode == False):
+            if self.debug_mode == False:
                 self.driver.close()
                 self.driver = None
                 time.sleep(5)
                 self.__initialize(True)
             for website in logged_out:
-                if (self.is_aborted()):
+                if self.is_aborted():
                     return
                 self.manual_login(website)
-            if (self.debug_mode == False):
+            if self.debug_mode == False:
                 self.driver.close()
                 self.driver = None
             self.login_check(channels)
@@ -115,19 +95,21 @@ class BrowserWindow:
         url = website[1]
         title = website[2]
         self.driver.switch_to.window(self.driver.current_window_handle)
-        print('\a')  # prints ASCII bell sound
+        print("\a")  # prints ASCII bell sound
         self.wait = WebDriverWait(self.driver, 300)  # Set wait to 300 seconds
-        if (self.is_aborted()):
+        if self.is_aborted():
             return
         try:
             self.driver.get(url)
-            self.wait.until(EC.title_is(url))
-            pickle.dump(self.driver.get_cookies(), open(
-                "cookies/" + str(domain) + ".pkl", "wb"))
+            self.wait.until(EC.title_is(title))
+            create_folders_to_file("cookies/" + str(domain))
+            pickle.dump(
+                self.driver.get_cookies(), open("cookies/" + str(domain) + ".pkl", "wb")
+            )
             self.wait = WebDriverWait(self.driver, 5)
             self.wait = WebDriverWait(self.driver, 5)
         except Exception as err:
-            print('\a')  # prints ASCII bell sound
+            print("\a")  # prints ASCII bell sound
             self.log("Failed to log in to " + domain)
             self.log("Shutting down generator")
             self.shell.stop_generator()
@@ -138,22 +120,26 @@ class BrowserWindow:
         title = website[2]
         if domain not in self.logged_in:
             try:
-                if (self.is_aborted()):
+                if self.is_aborted():
                     return
                 self.driver.get(url)
-                if (self.is_aborted()):
+                if self.is_aborted():
                     return
-                if (os.path.isfile("cookies/" + str(domain) + ".pkl")):
-                    for cookie in pickle.load(open("cookies/" + str(domain) + ".pkl", "rb")):
+                if os.path.isfile("cookies/" + str(domain) + ".pkl"):
+                    for cookie in pickle.load(
+                        open("cookies/" + str(domain) + ".pkl", "rb")
+                    ):
                         self.driver.add_cookie(cookie)
-                if (self.is_aborted()):
+                if self.is_aborted():
                     return
                 self.driver.get(url)
-                if (self.is_aborted()):
+                if self.is_aborted():
                     return
                 self.wait.until(EC.title_is(title))
-                pickle.dump(self.driver.get_cookies(), open(
-                    "cookies/" + str(domain) + ".pkl", "wb"))
+                pickle.dump(
+                    self.driver.get_cookies(),
+                    open("cookies/" + str(domain) + ".pkl", "wb"),
+                )
                 self.logged_in.append(domain)
                 return True
             except Exception as err:
@@ -163,8 +149,7 @@ class BrowserWindow:
             return True
 
     def close(self):
-        """Closes the headless browser instance
-        """
+        """Closes the headless browser instance"""
         if self.driver is not None:
             self.driver.close()
         self.logged_in = []
@@ -180,43 +165,43 @@ class BrowserWindow:
 
         delay (int): How many seconds selenium should wait before scraping
         """
-        if (self.debug_mode):
+        if self.debug_mode:
             self.log("Starting scrape")
-        if (self.is_aborted()):
+        if self.is_aborted():
             return
-        if (self.driver == None):
+        if self.driver == None:
             self.__initialize()
-        if (self.is_aborted()):
+        if self.is_aborted():
             return
         self.driver.get(url)
         time.sleep(1)
-        height = self.driver.execute_script(
-            "return document.body.scrollHeight")
+        height = self.driver.execute_script("return document.body.scrollHeight")
         x = 0
         while x < height:
             time.sleep(0.05)
             self.driver.execute_script("window.scrollTo(0, " + str(x) + ");")
             x = x + 100
         time.sleep(0.05)
-        if (self.is_aborted()):
+        if self.is_aborted():
             return ""
         while x > 0:
             time.sleep(0.05)
             self.driver.execute_script("window.scrollTo(0, " + str(x) + ");")
             x = x - 100
         time.sleep(1)
-        if (self.is_aborted()):
+        if self.is_aborted():
             return ""
         if delay is not None:
             time.sleep(delay)
-        if (self.is_aborted()):
+        if self.is_aborted():
             return ""
         scraped = self.driver.execute_script(
-            "return document.documentElement.outerHTML")
+            "return document.documentElement.outerHTML"
+        )
         return scraped
 
     def is_aborted(self):
-        if (self.shell.generator_stop_signal.is_set()):
+        if self.shell.generator_stop_signal.is_set():
             self.close()
             return 1
         else:

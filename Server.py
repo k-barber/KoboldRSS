@@ -9,6 +9,9 @@ import json
 import os
 import magic
 import mimetypes
+from termcolor import colored
+
+os.system("color")
 
 mime = magic.Magic(mime=True)
 from datetime import datetime, timedelta
@@ -30,24 +33,19 @@ class ServerInstance:
         shell = shell_param
         browser = browser_instance
         clear_cache()
-        # Change this to your IP Address if you are hosting from a different computer on the network
         HOST_NAME = "0.0.0.0"
         IP = get_ip()
         if IP is not None:
-            shell.print_server_output("Detected IP address as: " + IP)
-            # HOST_NAME = IP
+            shell.print_server_output("IP address: " + IP)
         PORT_NUMBER = int(port_number)
-        shell.print_server_output(
-            "Server will accessible as localhost:"
-            + str(PORT_NUMBER)
-            + " on this machine or "
-            + IP
-            + ":"
-            + str(PORT_NUMBER)
-            + " for machines on this network"
-        )
+        shell.print_server_output("Server will be accessible at:")
+        shell.print_server_output("localhost:" + str(PORT_NUMBER) + " on this machine")
+        if shell.settings["block_requests"] == False:
+            shell.print_server_output(
+                IP + ":" + str(PORT_NUMBER) + " on the local network"
+            )
         self.httpd = ThreadedHTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)
-        shell.print_server_output(IP + ":" + str(PORT_NUMBER) + " Server Start")
+        shell.print_server_output("Server Start")
 
 
 new_channel = RSSChannel()
@@ -55,9 +53,11 @@ new_channel = RSSChannel()
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # print(socket.gethostbyname(socket.gethostname())[-1])
     try:
-        s.connect(("10.255.255.255", 1))
+        s.connect(("192.0.0.0", 1))
         IP = s.getsockname()[0]
+        print(s.getsockname())
     except:
         IP = "127.0.0.1"
     finally:
@@ -184,18 +184,53 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 class MyHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         global shell
-        output = self.client_address[0] + " " + args[0] + " - " + args[1]
+        request = args[0].split(" ")
+        if args[1] == "200":
+            output = (
+                self.client_address[0]
+                + " "
+                + colored(args[1], "green")
+                + " "
+                + request[0]
+                + " "
+                + request[1]
+            )
+        else:
+            output = (
+                self.client_address[0]
+                + " "
+                + colored(args[1], "red")
+                + " "
+                + request[0]
+                + " "
+                + request[1]
+            )
         shell.print_server_output(output)
 
     def log_error(self, format, *args):
         global shell
-        output = self.client_address[0] + " " + args[0] + " - " + args[1]
+        request = args[0].split(" ")
+        output = (
+            self.client_address[0]
+            + " "
+            + colored(args[1], "red")
+            + " "
+            + request[0]
+            + " "
+            + request[1]
+        )
         shell.print_server_output(output)
 
     def do_GET(self):
         global shell
+        print(self.address_string())
+        if (
+            shell.settings["block_requests"] == True
+            and self.address_string() != "127.0.0.1"
+        ):
+            # Don't return 404, because that would be suspicious. Just let the request die.
+            return
         try:
-            self.protocol_version = "HTTP/1.1"
             path = parse.unquote(self.path)
             if path in urls.keys():
                 path = urls[path]
@@ -214,9 +249,7 @@ class MyHandler(BaseHTTPRequestHandler):
                             "Public/pages/template.html", "r", encoding="utf-8"
                         )
                         template = template.read()
-                        response = template.replace(
-                            '<div id="container"></div>', response
-                        )
+                        response = template.replace("<content></content>", response)
                     self.send_response(200)
                     self.send_header("Content-type", file_type)
                     self.end_headers()
@@ -249,7 +282,7 @@ class MyHandler(BaseHTTPRequestHandler):
                         response = requests.get(
                             url,
                             headers={
-                                "User-agent": "RSS Generator Bot",
+                                "User-agent": "KoboldRSS Bot",
                                 "referer": referer,
                             },
                         )
@@ -276,10 +309,20 @@ class MyHandler(BaseHTTPRequestHandler):
                         full_file = os.path.join(path, file_item)
                         stats = os.stat(full_file)
                         is_dir = os.path.isdir(full_file)
-                        if not shell.show_hidden and folder_is_hidden(full_file):
+                        if not shell.settings["show_hidden"] and folder_is_hidden(
+                            full_file
+                        ):
                             continue
                         if is_dir == True or full_file.endswith(".xml"):
                             size = stats.st_size
+                            if is_dir == True:
+                                print(os.listdir(full_file))
+                                size = sum(
+                                    d.stat().st_size
+                                    for d in os.scandir(full_file)
+                                    if d.is_file()
+                                )
+                                print(size)
                             modified = stats.st_mtime
                             items.append(
                                 {
@@ -296,7 +339,7 @@ class MyHandler(BaseHTTPRequestHandler):
                     )
                     template = open("Public/pages/template.html", "r", encoding="utf-8")
                     template = template.read()
-                    response = template.replace('<div id="container"></div>', insert)
+                    response = template.replace("<content></content>", insert)
                     self.send_response(200)
                     self.send_header("Content-type", "text/html")
                     self.end_headers()
@@ -306,7 +349,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 st = ind.read()
                 template = open("Public/pages/template.html", "r", encoding="utf-8")
                 template = template.read()
-                response = template.replace('<div id="container"></div>', st)
+                response = template.replace("<content></content>", st)
                 self.send_response(404)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
@@ -322,14 +365,13 @@ class MyHandler(BaseHTTPRequestHandler):
             st = ind.read()
             template = open("Public/pages/template.html", "r", encoding="utf-8")
             template = template.read()
-            response = template.replace('<div id="container"></div>', st)
+            response = template.replace("<content></content>", st)
             self.wfile.write(bytes(response, "utf-8"))
             return
 
     def do_POST(self):
         global new_channel, shell, browser
         try:
-            self.protocol_version = "HTTP/1.1"
             content_length = int(self.headers["Content-Length"])
             post_data = self.rfile.read(content_length)
             if self.path == "/Get_Source":
@@ -341,7 +383,7 @@ class MyHandler(BaseHTTPRequestHandler):
                     text = browser.generic_scrape(url, delay)
                 else:
                     response = requests.get(
-                        url, headers={"User-agent": "RSS Generator Bot"}
+                        url, headers={"User-agent": "KoboldRSS Bot"}
                     )
                     text = response.text
                 new_channel.link = url
@@ -353,10 +395,10 @@ class MyHandler(BaseHTTPRequestHandler):
                 params = json.loads(str(post_data, encoding="utf-8"))
                 text = params["body"]
                 new_channel.scrape_start_position = clean_input(
-                    params["scrape_stop_position"]
+                    params["scrape_start_position"]
                 )
                 new_channel.scrape_stop_position = clean_input(
-                    params["scrape_start_position"]
+                    params["scrape_stop_position"]
                 )
                 new_channel.item_pattern = params["pattern"]
                 data = new_channel.generate_items(text, True)
@@ -438,10 +480,20 @@ class MyHandler(BaseHTTPRequestHandler):
                     full_file = os.path.join(directory, file_item)
                     stats = os.stat(full_file)
                     is_dir = os.path.isdir(full_file)
-                    if not shell.show_hidden and folder_is_hidden(full_file):
+                    if not shell.settings["show_hidden"] and folder_is_hidden(
+                        full_file
+                    ):
                         continue
                     if is_dir == True or full_file.endswith(".xml"):
                         size = stats.st_size
+                        if is_dir == True:
+                            print(os.listdir(full_file))
+                            size = sum(
+                                d.stat().st_size
+                                for d in os.scandir(full_file)
+                                if d.is_file()
+                            )
+                            print(size)
                         modified = stats.st_mtime
                         items.append(
                             {

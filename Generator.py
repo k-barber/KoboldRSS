@@ -5,41 +5,6 @@ import os
 import time
 import io
 
-top = """
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="/pages/styles.css">
-    <title>RSS-Generator: Feeds</title>
-</head>
-
-<body>
-    <a href="/"><img src="/img/Bocchi.png" id="bocchi"/></a>
-    <div id="container">
-        <div>
-            <a href="https://www.rssboard.org/rss-specification" target="_blank"><img id="icon" src="/img/RSS.png"></a>
-            <p><a href="/">Home</a> &gt; My Feeds</p>
-            <h1>K-Barber's RSS-Generator: My Feeds</h1>
-            <p>A list of your feeds:</p>
-            <ul>
-"""
-
-bottom = """
-            </ul>
-            <button onclick="refresh()">Refresh</button>
-        </div>
-    </div>
-    <script>
-        function refresh() {
-            location.reload(true);
-        }
-    </script>
-</body>
-</html>
-"""
-
 
 class GeneratorInstance:
 
@@ -80,7 +45,11 @@ class GeneratorInstance:
 
     def update_channels(self):
         self.log("Checking browser")
-        self.browser_instance.login_check(self.shell.channels)
+        try:
+            self.browser_instance.login_check(self.shell.channels)
+        except Exception as err:
+            self.log("Error starting browser")
+            self.log((str(err) + "\n"))
         if self.is_aborted():
             return
         if self.browser_instance.start() == True:
@@ -132,7 +101,7 @@ class GeneratorInstance:
                 else:
                     response = None
                     response = requests.get(
-                        channel.link, headers={"User-agent": "RSS Generator Bot"}
+                        channel.link, headers={"User-agent": "KoboldRSS Bot"}
                     )
                     text = response.text
             except Exception as err:

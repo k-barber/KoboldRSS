@@ -2,10 +2,8 @@ from datetime import datetime
 import re
 import os
 import errno
+import stat
 
-if os.name == "nt":
-    import win32api
-    import win32con
 
 def create_folders_to_file(file_name):
     if not os.path.exists(os.path.dirname(file_name)):
@@ -18,10 +16,8 @@ def create_folders_to_file(file_name):
 
 def folder_is_hidden(p):
     if os.name == "nt":
-        attribute = win32api.GetFileAttributes(p)
-        return attribute & (
-            win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM
-        )
+        attributes = os.stat(p).st_file_attributes
+        return attributes & stat.FILE_ATTRIBUTE_HIDDEN
     else:
         return p.startswith(".")
 
@@ -32,7 +28,7 @@ def log(text):
     Parameters:
     text (str):  The text to print
     """
-    return datetime.now().strftime("[%Y/%m/%d %H:%M:%S] - ") + text
+    return datetime.now().strftime("[%y/%m/%d %H:%M] ") + text
 
 
 def clean_input(text: str):
@@ -44,21 +40,25 @@ def clean_input(text: str):
     Returns:
     str: Text with formatting removed
     """
-    text = text.strip()
-    text = re.sub(r"[\n\t]+", "", text)
-    text = text.replace("&amp;", "&")
-    text = text.replace("&gt;", ">")
-    text = text.replace("&lt;", "<")
-    text = text.replace("&nbsp;", " ")
-    text = text.replace("&quot;", '"')
-    text = text.replace("&apos;", "'")
-    text = text.replace("&#62;", ">")
-    text = text.replace("&#60;", "<")
-    text = text.replace("&#160;", " ")
-    text = text.replace("&#34;", '"')
-    text = text.replace("&#39;", "'")
-    text = text.replace("&#32;", " ")
-    return text
+    try:
+        text = text.strip()
+        text = re.sub(r"[\n\t]+", "", text)
+        text = text.replace("&amp;", "&")
+        text = text.replace("&gt;", ">")
+        text = text.replace("&lt;", "<")
+        text = text.replace("&nbsp;", " ")
+        text = text.replace("&quot;", '"')
+        text = text.replace("&apos;", "'")
+        text = text.replace("&#62;", ">")
+        text = text.replace("&#60;", "<")
+        text = text.replace("&#160;", " ")
+        text = text.replace("&#34;", '"')
+        text = text.replace("&#39;", "'")
+        text = text.replace("&#32;", " ")
+        return text
+    except Exception as err:
+        print(err)
+        return ""
 
 
 def dirty_output(text):

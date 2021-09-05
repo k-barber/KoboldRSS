@@ -25,14 +25,44 @@ body {
     box-sizing: border-box;
     border-radius: 20%;
     text-decoration: none;
-    color: black;
+
     flex-direction: column;
     -webkit-box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.12);
     box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.12);
 }
 
-#main-menu a:hover {
-    background-color: #f3f3f3;
+#main-menu a i {
+    font-size: 80px;
+    color: black;
+}
+
+input:disabled {
+    cursor: not-allowed;
+}
+
+.collapsible {
+    cursor: pointer;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    width: 100%;
+    font-size: 15px;
+}
+
+.content {
+    max-height: 0;
+    padding: 0px 15px;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out;
+    background-color: whitesmoke;
+}
+
+#main-menu a:hover,
+button:hover,
+.left_button:hover,
+.right_button:hover {
+    background-color: whitesmoke;
+    cursor: pointer;
 }
 
 #main-menu img {
@@ -67,7 +97,7 @@ td {
 }
 
 body {
-    background-color: ghostwhite;
+    background-color: aliceblue;
 }
 
 .col-3 {
@@ -191,7 +221,6 @@ textarea:focus-visible {
 .list_name {
     display: flex;
     flex-direction: row;
-    text-decoration: none;
 }
 
 .list_icon {
@@ -300,10 +329,6 @@ button {
     box-shadow: 1px 1px 16px 0 rgba(0, 0, 0, 0.12);
 }
 
-button:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-}
-
 .Field {
     font-weight: bold;
 }
@@ -316,6 +341,7 @@ hr {
     border-width: 1px;
     border-style: solid;
     border-color: #0006;
+    background-color: white;
     padding: 6px;
     border-top-right-radius: 7px;
     border-bottom-right-radius: 7px;
@@ -331,6 +357,7 @@ hr {
     border-width: 1px;
     border-style: solid;
     border-color: #0006;
+    background-color: white;
     padding: 6px;
     border-top-left-radius: 7px;
     border-bottom-left-radius: 7px;
@@ -342,16 +369,6 @@ hr {
     align-items: center;
 }
 
-.left_button:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    cursor: pointer;
-}
-
-.right_button:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    cursor: pointer;
-}
-
 #Feed_TTL,
 #Scrape_delay {
     width: calc(100% - 66px);
@@ -361,12 +378,16 @@ hr {
 
 a,
 a:link,
-a:visited {
-    color: blue;
+a:visited,
+.sort-arrow {
+    color: dodgerblue;
+    text-decoration: none;
 }
 
-a:hover {
-    color: red;
+a:hover,
+.sort-arrow:hover,
+.sort-selected:hover {
+    color: crimson;
 }
 
 @keyframes spin {
@@ -386,6 +407,7 @@ h4 {
     margin-top: 0px;
     font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
         "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+    margin-bottom: 0px;
 }
 
 h3,
@@ -398,11 +420,20 @@ h4 {
     font-style: oblique;
 }
 
-#bocchi {
+#floating_logo {
     position: fixed;
     right: 10px;
     bottom: 10px;
     width: 10%;
-    max-width: 200px;
+    max-width: 150px;
     z-index: 10;
+}
+
+#kofiframe {
+    margin-top: 20px;
+    border: none;
+    width: 50%;
+    padding: 20px;
+    background: #f9f9f9;
+    min-width: 290px;
 }

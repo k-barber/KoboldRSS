@@ -1,304 +1,274 @@
-<div id="container">
-    <title>RSS-Generator: Feeds</title>
-    <div>
-        <a href="https://www.rssboard.org/rss-specification" target=" _blank"><img id="icon" src="/img/RSS.png"></a>
-        <p id="bread-crumbs"><a href="/">Home</a></p>
-        <h1>K-Barber's RSS-Generator: My Feeds</h1>
-        <p>A list of your feeds:</p>
-        <div id="file-list">
-            <table id="file-table">
-                <colgroup>
-                    <col style="width: 60%;">
-                </colgroup>
-                <tr>
-                    <th>
-                        <div>
-                            Name
-                            <i class="fas fa-sort sort-arrow" onclick="sort_table(ALPHABETICAL)"></i>
-                        </div>
-                    </th>
-                    <th>
-                        <div>
-                            Size
-                            <i class="fas fa-sort sort-arrow" onclick="sort_table(SIZE)"></i>
-                        </div>
-                    </th>
-                    <th>
-                        <div>
-                            Modified
-                            <i class="fas fa-sort sort-arrow" onclick="sort_table(MODIFIED)"></i>
-                        </div>
-                    </th>
-                </tr>
-            </table>
-        </div>
-        <button onclick="refresh()">Refresh</button>
-    </div>
-    <script>
-        if (location.href.endsWith("/")) {
-            location.replace(location.href.substring(0, location.href.lastIndexOf("/")))
-        }
-        var items = [];
-
-        const ALPHABETICAL = 1;
-        const SIZE = 2;
-        const MODIFIED = 3;
-
-        var current_mode = null;
-        var current_descending = null;
-
-        function refresh() {
-            var xhr = new XMLHttpRequest();
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    items = JSON.parse(xhr.response);
-                    for (index in items) {
-                        items[index].path = items[index].name;
-                        if (items[index].is_dir == false) {
-
-                            items[index].name = items[index].name.slice(0, items[index].name.indexOf("."));
-                        } else {
-                            items[index].name = items[index].name;
-                        }
-
-                        items[index].modified = dayjs(items[index].modified * 1000);
-                    }
-                    current_mode = null;
-
-                    sort_table(ALPHABETICAL);
-                }
-            };
-            xhr.open('POST', '/refresh_path');
-            xhr.send(
-                JSON.stringify({
-                    path: location.pathname,
-                }));
-        }
-
-        function sort_table(mode) {
-            var descending
-            if (current_mode == mode) {
-                descending = !current_descending
-            } else {
-                descending = false;
-            }
-
-            current_mode = mode;
-
-            current_descending = descending;
-
-            sort_items(mode, descending);
-
-            clear_table();
-
-            fill_table();
-
-            var arrows = document.getElementsByClassName("sort-arrow")
-
-            var clicked_index = mode - 1
-
-            for (index = 0; index < arrows.length; index++) {
-                arrows[index].style.color = "black";
-                arrows[index].className = "fas fa-sort sort-arrow"
-                if (index == clicked_index) {
-                    arrows[index].style.color = "blue";
-                    if (mode == ALPHABETICAL) {
-                        if (descending) {
-                            arrows[index].className = "fas sort-arrow fa-sort-alpha-down-alt"
-                        } else {
-                            arrows[index].className = "fas sort-arrow fa-sort-alpha-up"
-                        }
-                    } else if (mode == SIZE) {
-                        if (descending) {
-                            arrows[index].className = "fas sort-arrow fa-sort-amount-down-alt"
-                        } else {
-                            arrows[index].className = "fas sort-arrow fa-sort-amount-up"
-                        }
-                    } else if (mode == MODIFIED) {
-                        if (descending) {
-                            arrows[index].className = "fas sort-arrow fa-sort-numeric-down"
-                        } else {
-                            arrows[index].className = "fas sort-arrow fa-sort-numeric-up-alt"
-                        }
-                    }
-                }
-            }
-        }
-
-        function clear_table() {
-            item = document.getElementById("file-table").children[2];
-            while (item) {
-                item.remove();
-                item = document.getElementById("file-table").children[2];
-            }
-        }
-
-        function sort_items(mode, descending = false) {
-            items.sort(function (a, b) {
-                return folder_first_compare(a, b, mode, descending);
-            });
-        }
-
-        function folder_first_compare(a, b, mode = ALPHABETICAL, descending = false) {
-            if (a.is_dir && !b.is_dir) {
-                return -1
-            } else if (!a.is_dir && b.is_dir) {
-                return 1
-            }
-
-            var result = 1;
-            if (mode == ALPHABETICAL) {
-                if (a.name < b.name) {
-                    result = -1;
-                }
-            } else if (mode == SIZE) {
-                if (a.size > b.size) {
-                    result = -1
-                }
-            } else if (mode == MODIFIED) {
-                if (a.modified > b.modified) {
-                    result = -1;
-                }
-            }
-
-            if (descending) {
-                result = result * -1;
-            }
-
-            return result
-        }
-
-        function load() {
-            var path = location.pathname.split("/");
-            var filtered = path.filter(function (value, index, array) {
-                return value !== ""
-            });
-
-            var crumbs = ""
-            var i;
-            for (i = 0; i < filtered.length; i++) {
-                if (i == (filtered.length - 1)) {
-                    crumbs += " &gt; " + decodeURIComponent(filtered[i]);
-                } else {
-                    url = decodeURIComponent(filtered.slice(0, i + 1).join("/"))
-                    crumbs += " &gt; <a href='/" + url + "'> " + decodeURIComponent(filtered[i]) + "</a>"
-                }
-            }
-            document.getElementById("bread-crumbs").innerHTML += crumbs;
-
-
-            for (index in items) {
-                items[index].path = items[index].name;
-                if (items[index].is_dir == false) {
-
-                    items[index].name = items[index].name.slice(0, items[index].name.indexOf("."));
-                } else {
-                    items[index].name = items[index].name;
-                }
-
-                items[index].modified = dayjs(items[index].modified * 1000)
-            }
-
-            sort_table(ALPHABETICAL);
-        }
-
-
-        document.addEventListener("dragstart", function (event) {
-            // store a ref. on the dragged elem
-            dragged = event.target;
-            // make it half transparent
-            event.target.style.opacity = .5;
-        }, false);
-
-        document.addEventListener("drag", function (event) {
-
-        }, false);
-
-        function allowDrop(ev) {
-            ev.preventDefault();
-            ev.currentTarget.style.background = "aliceblue";
-            ev.currentTarget.style.border = "dashed 2px #b1bdc8";
-        }
-
-        document.addEventListener("dragend", function (event) {
-            // reset the transparency
-            event.target.style.opacity = "";
-            event.preventDefault();
-        }, false);
-
-        function drop(ev, destination) {
-            ev.preventDefault();
-            if (event.currentTarget.className == "dropzone") {
-                event.stopPropagation()
-                console.log("MADE IT TO DROPZONE")
-                var data = ev.dataTransfer.getData("text");
-                console.log("Dropped data: " + JSON.stringify(data));
-                move_feed(data, destination);
-                ev.currentTarget.style.background = "";
-                ev.currentTarget.style.border = "";
-            }
-        }
-
-        function dragLeave(ev) {
-            console.log("LEAVE")
-            if (ev.currentTarget.className == "dropzone") {
-                event.stopPropagation()
-                ev.currentTarget.style.background = "";
-                ev.currentTarget.style.border = "";
-            }
-        }
-
-        function move_feed(file, destination) {
-            var xhr = new XMLHttpRequest();
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    refresh();
-                }
-            };
-            xhr.open('POST', '/move_channel');
-            xhr.send(
-                JSON.stringify({
-                    directory: location.pathname,
-                    file_name: file,
-                    destination: destination
-                }));
-        }
-
-        function fill_table() {
-            var previous = location.pathname.substring(0, location.pathname.lastIndexOf("/"))
-            var prev_folder = "<tr class='dropzone' ondrop='drop(event, \"..\")' ondragover='allowDrop(event)' ondragleave='dragLeave(event)'><td><a class='list_name' href='" + previous + "'><i class='list_icon far fa-folder-open'></i><i class='list_icon fas fa-level-up-alt'></i></a></td><td></td><td></td>";
-            document.getElementById("file-table").innerHTML += prev_folder;
-            for (index in items) {
-                var html_item = "<tr "
-                if (items[index].is_dir) {
-                    html_item += 'class="dropzone" ondrop="drop(event, \'' + items[index].path + '\')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"';
-                } else {
-                    html_item += "draggable='true' ondragstart='event.dataTransfer.setData(\"text/plain\", \"" + encodeURIComponent(items[index].path) + "\")'";
-                }
-                html_item += "><td><a class='list_name' href='" + location + "/" + encodeURIComponent(items[index].path) + "'>";
-                if (items[index].is_dir) {
-                    html_item += "<i class='list_icon far fa-folder'></i>";
-                } else {
-                    html_item += "<i class='list_icon far fa-file-alt'></i>";
-                }
-                html_item += items[index].name + "</a></td>";
-                if (items[index].is_dir) {
-                    html_item += "<td></td>";
-                } else {
-                    html_item += "<td>" + formatBytes(items[index].size) + "</td>";
-                }
-                html_item += "<td><span style='float:left'>" + dayjs(items[index].modified).format("YYYY/MM/DD") +
-                    "</span><span style='float:right;'>" + dayjs(items[index].modified).format("hh:mm a") + "</td></tr>";
-                document.getElementById("file-table").innerHTML += html_item;
-            }
-        }
-
-        function formatBytes(a, b = 2) {
-            if (0 === a) return "0 Bytes";
-            const c = 0 > b ? 0 : b,
-                d = Math.floor(Math.log(a) / Math.log(1024));
-            return parseFloat((a / Math.pow(1024, d)).toFixed(c)) + " " + ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][d]
-        }
-        load()
-    </script>
+<title>KoboldRSS: Feeds</title>
+<p>A list of your feeds:</p>
+<div id="file-list">
+    <table id="file-table">
+        <colgroup>
+            <col style="width: 60%;">
+        </colgroup>
+        <tr>
+            <th>
+                <div>
+                    Name
+                    <i class="fas fa-sort sort-arrow" onclick="sort_table(ALPHABETICAL)"></i>
+                </div>
+            </th>
+            <th>
+                <div>
+                    Size
+                    <i class="fas fa-sort sort-arrow" onclick="sort_table(SIZE)"></i>
+                </div>
+            </th>
+            <th>
+                <div>
+                    Modified
+                    <i class="fas fa-sort sort-arrow" onclick="sort_table(MODIFIED)"></i>
+                </div>
+            </th>
+        </tr>
+    </table>
 </div>
+<button onclick="refresh()">Refresh</button>
+<script>
+    if (location.href.endsWith("/")) {
+        location.replace(location.href.substring(0, location.href.lastIndexOf("/")))
+    }
+    var items = [];
+
+    const ALPHABETICAL = 1;
+    const SIZE = 2;
+    const MODIFIED = 3;
+
+    var current_mode = null;
+    var current_descending = null;
+
+    function refresh() {
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                items = JSON.parse(xhr.response);
+                for (index in items) {
+                    items[index].path = items[index].name;
+                    if (items[index].is_dir == false) {
+
+                        items[index].name = items[index].name.slice(0, items[index].name.indexOf("."));
+                    } else {
+                        items[index].name = items[index].name;
+                    }
+
+                    items[index].modified = dayjs(items[index].modified * 1000);
+                }
+                current_mode = null;
+
+                sort_table(ALPHABETICAL);
+            }
+        };
+        xhr.open('POST', '/refresh_path');
+        xhr.send(
+            JSON.stringify({
+                path: location.pathname,
+            }));
+    }
+
+    function sort_table(mode) {
+        var descending
+        if (current_mode == mode) {
+            descending = !current_descending
+        } else {
+            descending = false;
+        }
+
+        current_mode = mode;
+
+        current_descending = descending;
+
+        sort_items(mode, descending);
+
+        clear_table();
+
+        fill_table();
+
+        var arrows = document.getElementsByClassName("sort-arrow")
+
+        var clicked_index = mode - 1
+
+        for (index = 0; index < arrows.length; index++) {
+            arrows[index].className = "fas fa-sort sort-arrow"
+            if (index == clicked_index) {
+                if (mode == ALPHABETICAL) {
+                    if (descending) {
+                        arrows[index].className = "fas sort-arrow fa-sort-alpha-down-alt"
+                    } else {
+                        arrows[index].className = "fas sort-arrow fa-sort-alpha-up"
+                    }
+                } else if (mode == SIZE) {
+                    if (descending) {
+                        arrows[index].className = "fas sort-arrow fa-sort-amount-down-alt"
+                    } else {
+                        arrows[index].className = "fas sort-arrow fa-sort-amount-up"
+                    }
+                } else if (mode == MODIFIED) {
+                    if (descending) {
+                        arrows[index].className = "fas sort-arrow fa-sort-numeric-down"
+                    } else {
+                        arrows[index].className = "fas sort-arrow fa-sort-numeric-up-alt"
+                    }
+                }
+                arrows[index].classList.toggle("sort-selected")
+            }
+        }
+    }
+
+    function clear_table() {
+        item = document.getElementById("file-table").children[2];
+        while (item) {
+            item.remove();
+            item = document.getElementById("file-table").children[2];
+        }
+    }
+
+    function sort_items(mode, descending = false) {
+        items.sort(function (a, b) {
+            return folder_first_compare(a, b, mode, descending);
+        });
+    }
+
+    function folder_first_compare(a, b, mode = ALPHABETICAL, descending = false) {
+        if (a.is_dir && !b.is_dir) {
+            return -1
+        } else if (!a.is_dir && b.is_dir) {
+            return 1
+        }
+
+        var result = 1;
+        if (mode == ALPHABETICAL) {
+            if (a.name < b.name) {
+                result = -1;
+            }
+        } else if (mode == SIZE) {
+            if (a.size > b.size) {
+                result = -1
+            }
+        } else if (mode == MODIFIED) {
+            if (a.modified > b.modified) {
+                result = -1;
+            }
+        }
+
+        if (descending) {
+            result = result * -1;
+        }
+
+        return result
+    }
+
+    function load() {
+        for (index in items) {
+            items[index].path = items[index].name;
+            if (items[index].is_dir == false) {
+
+                items[index].name = items[index].name.slice(0, items[index].name.indexOf("."));
+            } else {
+                items[index].name = items[index].name;
+            }
+
+            items[index].modified = dayjs(items[index].modified * 1000)
+        }
+
+        sort_table(ALPHABETICAL);
+    }
+
+
+    document.addEventListener("dragstart", function (event) {
+        // store a ref. on the dragged elem
+        dragged = event.target;
+        // make it half transparent
+        event.target.style.opacity = .5;
+    }, false);
+
+    document.addEventListener("drag", function (event) {
+
+    }, false);
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+        ev.currentTarget.style.background = "aliceblue";
+        ev.currentTarget.style.border = "dashed 2px #b1bdc8";
+    }
+
+    document.addEventListener("dragend", function (event) {
+        // reset the transparency
+        event.target.style.opacity = "";
+        event.preventDefault();
+    }, false);
+
+    function drop(ev, destination) {
+        ev.preventDefault();
+        if (event.currentTarget.className == "dropzone") {
+            event.stopPropagation()
+            console.log("MADE IT TO DROPZONE")
+            var data = ev.dataTransfer.getData("text");
+            console.log("Dropped data: " + JSON.stringify(data));
+            move_feed(data, destination);
+            ev.currentTarget.style.background = "";
+            ev.currentTarget.style.border = "";
+        }
+    }
+
+    function dragLeave(ev) {
+        console.log("LEAVE")
+        if (ev.currentTarget.className == "dropzone") {
+            event.stopPropagation()
+            ev.currentTarget.style.background = "";
+            ev.currentTarget.style.border = "";
+        }
+    }
+
+    function move_feed(file, destination) {
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                refresh();
+            }
+        };
+        xhr.open('POST', '/move_channel');
+        xhr.send(
+            JSON.stringify({
+                directory: location.pathname,
+                file_name: file,
+                destination: destination
+            }));
+    }
+
+    function fill_table() {
+        var previous = location.pathname.substring(0, location.pathname.lastIndexOf("/"))
+        var prev_folder = "<tr class='dropzone' ondrop='drop(event, \"..\")' ondragover='allowDrop(event)' ondragleave='dragLeave(event)'><td><a class='list_name' href='" + previous + "'><i class='list_icon far fa-folder-open'></i><i class='fas fa-level-up-alt'></i></a></td><td></td><td></td>";
+        document.getElementById("file-table").innerHTML += prev_folder;
+        for (index in items) {
+            var html_item = "<tr "
+            if (items[index].is_dir) {
+                html_item += 'class="dropzone" ondrop="drop(event, \'' + items[index].path + '\')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"';
+            } else {
+                html_item += "draggable='true' ondragstart='event.dataTransfer.setData(\"text/plain\", \"" + encodeURIComponent(items[index].path) + "\")'";
+            }
+            html_item += "><td><a class='list_name' href='" + location + "/" + encodeURIComponent(items[index].path) + "'>";
+            if (items[index].is_dir) {
+                html_item += "<i class='list_icon far fa-folder'></i>";
+            } else {
+                html_item += "<i class='list_icon far fa-file-alt'></i>";
+            }
+            html_item += items[index].name + "</a></td>";
+            html_item += "<td>" + formatBytes(items[index].size) + "</td>";
+            html_item += "<td><span style='float:left'>" + dayjs(items[index].modified).format("YYYY/MM/DD") +
+                "</span><span style='float:right;'>" + dayjs(items[index].modified).format("hh:mm a") + "</td></tr>";
+            document.getElementById("file-table").innerHTML += html_item;
+        }
+    }
+
+    function formatBytes(a, b = 2) {
+        if (0 === a) return "0 Bytes";
+        const c = 0 > b ? 0 : b,
+            d = Math.floor(Math.log(a) / Math.log(1024));
+        return parseFloat((a / Math.pow(1024, d)).toFixed(c)) + " " + ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][d]
+    }
+    load()
+</script>

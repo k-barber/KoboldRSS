@@ -7,6 +7,7 @@ import re
 
 Debug = False
 
+
 class RSSChannel:
     browser_instance = None
 
@@ -332,7 +333,7 @@ class RSSChannel:
         try:
             executor = concurrent.futures.ThreadPoolExecutor()
             future = executor.submit(re.findall, self.item_pattern, partial_text)
-            result = future.result(timeout=1)
+            result = future.result(timeout=5)
         except concurrent.futures.TimeoutError:
             return ["ERROR", "TIMEOUT"]
 

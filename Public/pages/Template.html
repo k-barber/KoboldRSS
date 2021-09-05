@@ -17,12 +17,25 @@
                 conditions: ["docVisible"]
             },
         });
+        var path = location.pathname.split("/");
+        var filtered = path.filter(function (value, index, array) {
+            return value !== ""
+        });
     </script>
 </head>
 
 <body>
-    <a href="/"><img src="/img/Bocchi.png" id="bocchi" /></a>
-    <div id="container"></div>
+    <a href="/"><img src="/img/Logo_V.0.4.png" id="floating_logo" /></a>
+    <div id="container">
+        <div>
+            <a href="https://www.rssboard.org/rss-specification" target=" _blank"><img id="icon" src="/img/RSS.png"></a>
+            <p id="bread-crumbs"><a href="/">Home</a></p>
+            <h1 style="display: flex; align-items: center;">
+                <a href="/" style="margin-right: 15px;"><img height="55px" src="/img/Logo_Large_shadow.png"></a>
+            </h1>
+            <content></content>
+        </div>
+    </div>
 </body>
 <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
 <script>
@@ -32,6 +45,17 @@
         'floating-chat.donateButton.background-color': '#ff5f5f',
         'floating-chat.donateButton.text-color': '#fff'
     });
+    var crumbs = ""
+    var i;
+    for (i = 0; i < filtered.length; i++) {
+        if (i == (filtered.length - 1)) {
+            crumbs += " &gt; " + decodeURIComponent(filtered[i]);
+        } else {
+            url = decodeURIComponent(filtered.slice(0, i + 1).join("/"))
+            crumbs += " &gt; <a href='/" + url + "'> " + decodeURIComponent(filtered[i]) + "</a>"
+        }
+    }
+    document.getElementById("bread-crumbs").innerHTML += crumbs;
 </script>
 
 </html>

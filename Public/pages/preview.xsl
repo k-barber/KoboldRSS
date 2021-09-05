@@ -5,34 +5,30 @@
   <html>
     <head>
         <link rel="stylesheet" href="/css/styles.css"></link>
-        <title>RSS-Manager:<xsl:value-of select="title"/></title>
+        <title>KoboldRSS: <xsl:value-of select="title"/></title>
     </head>
     <body>
-        <a href="/"><img src="/img/Bocchi.png" id="bocchi"/></a>
+        <a href="/"><img src="/img/Logo_V.0.4.png" id="floating_logo" /></a>
         <div id="container">
             <div>
                 <a href="https://www.rssboard.org/rss-specification" target="_blank"><img id="icon" src="/img/RSS.png"/></a>
                 <p id="bread-crumbs"><a href="/">Home</a> &gt; <a href="/Feeds/">My Feeds</a> &gt; <xsl:value-of select="title"/>.xml</p>
-                <h1>K-Barber's RSS-Manager: Feed Details &amp; Preview</h1>
+                <h1 style="display: flex; align-items: center;">
+                    <a href="/" style="margin-right: 15px;"><img height="55px" src="/img/Logo_Large_shadow.png"></img></a>Feed Details &amp; Preview
+                </h1>
                 <p>Congratulations! If you can see this page, you are ready to add your custom feed to your feed reader!</p>
-                <p>Simply add this page's url into your feed reader and you're all done.</p>
+                <p>Simply copy and paste this page's url into your feed reader and you're all done.</p>
                 <hr/>
-                <h3>Feed Name: <xsl:value-of select="title"/></h3>
+                <p>Feed Name: <xsl:value-of select="title"/></p>
                 <xsl:variable name="feedlink"><xsl:value-of select="link" /></xsl:variable>
                 <xsl:variable name="doclink"><xsl:value-of select="docs" /></xsl:variable>
                 <xsl:variable name="generatorlink"><xsl:value-of select="generator" /></xsl:variable>
-                <h3>Feed Link: <a href="{$feedlink}"><xsl:value-of select="link"/></a></h3>
-                <h3>Feed Description: <xsl:value-of select="description"/></h3>
-                <h3>Feed Category: <xsl:value-of select="category"/></h3>
-                <h3>Feed Copyright: <xsl:value-of select="copyright"/></h3>
-                <h3>Feed Docs: <a href="{$doclink}"><xsl:value-of select="docs"/></a></h3>
-                <h3>Feed Generator: <a href="{$generatorlink}"><xsl:value-of select="generator"/></a></h3>
-                <h3>Feed Language: <xsl:value-of select="language"/></h3>
-                <h3>Feed Last Build Date: <xsl:value-of select="lastBuildDate"/></h3>
-                <h3>Feed Managing Editor: <xsl:value-of select="managingEditor"/></h3>
-                <h3>Feed TTL: <xsl:value-of select="ttl"/></h3>
-                <h3>Feed Web Master: <xsl:value-of select="webMaster"/></h3>
-                <h3>Feed Content: </h3>
+                <p>Feed Link: <a href="{$feedlink}"><xsl:value-of select="link"/></a></p>
+                <p>Feed Description: <xsl:value-of select="description"/></p>
+                <p>Feed Language: <xsl:value-of select="language"/></p>
+                <p>Feed Last Build Date: <xsl:value-of select="lastBuildDate"/></p>
+                <p>Feed TTL: <xsl:value-of select="ttl"/></p>
+                <p>Feed Content: </p>
                 <br/>
                 <table>
                     <tr>
