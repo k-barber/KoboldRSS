@@ -1,4 +1,4 @@
-from Utils import dirty_output
+from Utils import dirty_output, unicoding, ampersanding
 import re
 
 
@@ -154,12 +154,14 @@ class RSSItem:
         if self.description is not None:
             if self.description.startswith("<![CDATA["):
                 output += (
-                    "            <description>" + self.description + "</description>\n"
+                    "            <description>"
+                    + ampersanding(unicoding(self.description))
+                    + "</description>\n"
                 )
             else:
                 output += (
                     "            <description>"
-                    + dirty_output(self.description)
+                    + ampersanding(unicoding(self.description))
                     + "</description>\n"
                 )
 

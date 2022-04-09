@@ -390,7 +390,8 @@ class RSSChannel:
         create_folders_to_file(file_name)
 
         f = open(file_name, "wb")
-        f.write(str.encode(output))
+
+        f.write(output.encode("utf-8", "surrogatepass"))
         f.close()
 
     def clear(self):

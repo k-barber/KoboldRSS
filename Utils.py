@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 import re
 import os
 import errno
@@ -29,6 +30,11 @@ def log(text):
     text (str):  The text to print
     """
     return datetime.now().strftime("[%y/%m/%d %H:%M] ") + text
+
+
+def unicode_char_replace(match_obj):
+    if match_obj.group() is not None:
+        return json.loads('"' + match_obj.group() + '"')
 
 
 def clean_input(text: str):
@@ -70,7 +76,18 @@ def dirty_output(text):
     Returns:
     str: Text with formatting
     """
+    text = re.sub(r"(\\u....)+", unicode_char_replace, text)
     text = text.replace("&", "&amp;")
     text = text.replace(">", "&#62;")
     text = text.replace("<", "&#60;")
+    return text
+
+
+def ampersanding(text):
+    return text.replace("&", "&amp;")
+
+
+def unicoding(text):
+    text = text.replace("\\u0026", "&amp;")
+    text = re.sub(r"(\\u....)+", unicode_char_replace, text)
     return text
